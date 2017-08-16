@@ -1,38 +1,40 @@
 defmodule LolBuddy.RiotApi.Regions do
-  @type region :: :br | :eune | :euw | :kr | :lan | :las | :na | :oce | :pbe | :ru | :tru
+  @type region :: :br | :eune | :euw | :jp | :kr | :lan | :las | :na | :oce | :tr | :ru | :pbe
 
   def endpoint(:br) do
-    "https://br.api.pvp.net"
+    "https://br1.api.riotgames.com"
   end
   def endpoint(:eune) do
-    "https://eune.api.pvp.net"
+    "https://eun1.api.riotgames.com"
   end
   def endpoint(:euw) do
-    "https://euw.api.pvp.net"
+    "https://euw1.api.riotgames.com"
+  end
+  def endpoint(:jp) do
+    "https://jp1.api.riotgames.com"
   end
   def endpoint(:kr) do
-    "https://kr.api.pvp.net"
+    "https://kr.api.riotgames.com"
   end
   def endpoint(:lan) do
-    "https://lan.api.pvp.net"
+    "https://la1.api.riotgames.com"
   end
   def endpoint(:las) do
-    "https://las.api.pvp.net"
+    "https://la2.api.riotgames.com"
   end
   def endpoint(:na) do
-    "https://na.api.pvp.net"
+    "https://na1.api.riotgames.com"
   end
   def endpoint(:oce) do
-    "https://oce.api.pvp.net"
-  end
-  def endpoint(:pbe) do
-    "https://pbe.api.pvp.net"
-  end
-  def endpoint(:ru) do
-    "https://RU.api.pvp.net"
+    "https://oc1.api.riotgames.com"
   end
   def endpoint(:tr) do
-    "https://tr.api.pvp.net"
+    "https://tr1.api.riotgames.com"
   end
-
+  def endpoint(:ru) do
+    "https://ru.api.riotgames.com"
+  end
+  def endpoint(:pbe) do
+    "https://pbe1.api.riotgames.com"
+  end
 end

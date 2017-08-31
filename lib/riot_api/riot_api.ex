@@ -40,7 +40,7 @@ defmodule LolBuddy.RiotApi.Api do
       |> leagues_extract
   end 
 
-  # TODO: Here we could choose the endpoint based on closest to our host
+  # TODO: Here we could choose the endpoint based on closest to our hostserver
   def name_from_id(id, region) do
     Region.endpoint(region) <> "/lol/static-data/v3/champions/#{id}?api_key=#{@key}"
     |> IO.inspect

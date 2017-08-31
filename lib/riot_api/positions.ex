@@ -143,11 +143,21 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Zyra" => [{:support, @always}]
               }
 
+  defp deduce_positions(weights) do
+    case List.first(weights) do
+      {pos, weight} when weight > 7 -> [pos]
+      _ -> Enum.take(Keyword.keys(weights), 2)
+    end
+  end
+
   # Expects a list of champion names, and returns a list of positions as atoms
   def positions(champions) do
-    champions
-    |> Enum.map(fn x -> @positions[x] end)
-
+    List.foldl(champions, [], fn(x, acc) -> 
+      Keyword.merge(acc, @positions[x], fn _k, v1 ,v2 -> v1 + v2 end)
+    end)
+    |> List.keysort(1)
+    |> Enum.reverse
+    |> deduce_positions
   end
 
 end

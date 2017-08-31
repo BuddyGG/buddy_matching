@@ -18,4 +18,3 @@ defmodule LolBuddyRiotApi.RegionsTest do
   end
 
 end
-

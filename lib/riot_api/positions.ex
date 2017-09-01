@@ -143,9 +143,28 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Zyra" => [{:support, @always}]
               }
 
+  # Here, we expect a list of positions with their total weight.
+  # We sort this on the weights, and set the threshold of
+  # @always * 2 + @rarely as being weight needed for us to assume
+  # that the player mains only this role.
+  # 
+  # If no such weight is present, we take the first 2 positions
+  # from the sorted list, and return this, without applying
+  # any clever tricks in case of equal weights.
+  #
+  # Returns eg: `[:marksman, :mid]` 
+  #
+  # Examples
+  #
+  #   iex> deduce_positions([{:marksman, 8}, {:mid, 1}])
+  #   [:marksman]
+  #
   defp deduce_positions(weights) do
+    threshold = @always * 2 + @rarely
+    List.keysort(weights, 1)
+    |> Enum.reverse
     case List.first(weights) do
-      {pos, weight} when weight > 7 -> [pos]
+      {pos, weight} when weight > threshold -> [pos]
       _ -> Enum.take(Keyword.keys(weights), 2)
     end
   end
@@ -155,8 +174,6 @@ defmodule LolBuddy.RiotApi.Positions do
     List.foldl(champions, [], fn(x, acc) -> 
       Keyword.merge(acc, @positions[x], fn _k, v1 ,v2 -> v1 + v2 end)
     end)
-    |> List.keysort(1)
-    |> Enum.reverse
     |> deduce_positions
   end
 

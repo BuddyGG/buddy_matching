@@ -5,24 +5,19 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
   setup do
     {:ok, _, socket} =
-      socket("user_id", %{some: :assign})
-      |> subscribe_and_join(PlayersChannel, "players:lobby")
-
-    {:ok, socket: socket}
+      socket("player_socket", %{})
+      |> subscribe_and_join(PlayersChannel, "players:lobby", %{"cookie_id" => 12})
   end
 
-  test "ping replies with status ok", %{socket: socket} do
-    ref = push socket, "ping", %{"hello" => "there"}
-    assert_reply ref, :ok, %{"hello" => "there"}
+  test "new players are pushed to the client", %{socket: socket} do
+    broadcast_from! socket, "new_player", %{"some" => "data"}
+    assert_push "new_player", %{"some" => "data"}
   end
+   
+  test "unauthenticated users cannot join" do
+    error = socket()
+      |> join(AuthorizedChannel, "authorized:lobby")
 
-  test "shout broadcasts to players:lobby", %{socket: socket} do
-    push socket, "shout", %{"hello" => "all"}
-    assert_broadcast "shout", %{"hello" => "all"}
-  end
-
-  test "broadcasts are pushed to the client", %{socket: socket} do
-    broadcast_from! socket, "broadcast", %{"some" => "data"}
-    assert_push "broadcast", %{"some" => "data"}
-  end
+   assert {:error, %{reason: "unauthorized"}} = error
+end
 end

@@ -1,6 +1,7 @@
 defmodule LolBuddy.RiotApi.Api do
   alias LolBuddy.RiotApi.Regions, as: Region
-  @key "RGAPI-65ceef4e-1417-447d-8938-c2b50e2d31c5"
+  alias LolBuddy.RiotApi.Positions, as: Position
+  @key "RGAPI-bcc1aeb5-37a6-47f6-aeea-51c8ce218412"
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
     Poison.Parser.parse!(body)
@@ -43,7 +44,6 @@ defmodule LolBuddy.RiotApi.Api do
   # TODO: Here we could choose the endpoint based on closest to our hostserver
   def name_from_id(id, region) do
     Region.endpoint(region) <> "/lol/static-data/v3/champions/#{id}?api_key=#{@key}"
-    |> IO.inspect
     |> HTTPoison.get
     |> handle_json
     |> Map.get("name")
@@ -65,4 +65,16 @@ defmodule LolBuddy.RiotApi.Api do
     |> Enum.map(fn id -> {id, name_from_id(id, region)} end)
   end 
 
+  # Returns a map containing name, region, champions and positions
+  # for the given summoner in the given region
+  def get_summoner_info(name, region) do 
+    champions = champions(name, region)
+    leagues = leagues(name, region)
+    positions = Position.positions(Keyword.values(champions))
+    %{"name" => name,
+      "region" => region,
+      "champions" => champions,
+      "leagues" => leagues,
+      "positions" => positions}
+  end
 end

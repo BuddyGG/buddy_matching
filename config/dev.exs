@@ -31,6 +31,7 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
+config :riot_api, api_key: "RGAPI-bcc1aeb5-37a6-47f6-aeea-51c8ce218412"
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

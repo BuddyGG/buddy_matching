@@ -1,4 +1,4 @@
-defmodule LolBuddyWeb.UserSocket do
+defmodule LolBuddyWeb.PlayerSocket do
   use Phoenix.Socket
 
   ## Channels

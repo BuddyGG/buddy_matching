@@ -1,5 +1,5 @@
 defmodule LolBuddy.Player do
 
-    defstruct name: ""
+    defstruct id: 0
 
 end

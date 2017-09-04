@@ -34,7 +34,7 @@ defmodule LolBuddy.RiotApi.Api do
   # Returns a list of tuples with various queue ranking
   # Example for just one queue> [{"RANKED_SOLO_5x5", "GOLD", "I"}]
   defp leagues_extract(values) do
-    extract = fn(x) -> {x["queueType"], x["tier"], x["rank"]} end
+    extract = fn(x) -> %{type: x["queueType"], tier: x["tier"], rank: x["rank"]} end
     Enum.map(values, extract)
   end
 

@@ -7,10 +7,9 @@ defmodule LolBuddyWeb.SummonerView do
   end
 
   def render("summoner.json", %{summoner: summoner}) do
-    IO.inspect summoner.champions
     %{"name" => summoner.name,
       "region" => summoner.region,
-      "champions" => render_many(summoner.champions, SummonerView, "champion.json" ),
+      "champions" => summoner.champions,
       "leagues" => summoner.leagues,
       "positions" => summoner.positions
     }

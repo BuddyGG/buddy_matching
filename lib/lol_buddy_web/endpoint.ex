@@ -1,7 +1,7 @@
 defmodule LolBuddyWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :lol_buddy
 
-  socket "/socket", LolBuddyWeb.UserSocket
+  socket "/socket", LolBuddyWeb.PlayerSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -11,7 +11,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   defp summoner_url(name, region) do
-    key = Application.fetch_env!(:riot_api, :api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}"
   end
 
@@ -38,7 +38,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   defp leagues_url(id, region) do
-    key = Application.fetch_env!(:riot_api, :api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
   end
 
@@ -54,7 +54,7 @@ defmodule LolBuddy.RiotApi.Api do
 
   # TODO: Here we could choose the endpoint based on closest to our hostserver
   def name_from_id(id, region) do
-    key = Application.fetch_env!(:riot_api, :api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/static-data/v3/champions/#{id}?api_key=#{key}"
     |> parse_json
     |> case do
@@ -64,7 +64,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   defp champions_url(id, region) do
-    key = Application.fetch_env!(:riot_api, :api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}"
   end
 

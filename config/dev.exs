@@ -29,6 +29,7 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
 # different ports.
 
 # Do not include metadata nor timestamps in development logs
+config :riot_api, clear: true
 config :logger, :console, format: "[$level] $message\n"
 
 # Set a higher stacktrace during development. Avoid configuring such

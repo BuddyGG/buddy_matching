@@ -11,7 +11,8 @@ defmodule LolBuddyRiotApi.PositionsTest do
   test "combination of mid and marksmen" do
     champs = ["Viktor", "Ezreal", "Caitlyn"]
     positions = LolBuddy.RiotApi.Positions.positions(champs)
-    assert positions == [:marksman, :mid]
+    assert Enum.member?(positions, :marksman)
+    assert Enum.member?(positions, :mid)
   end
 
   test "test that 3 equal weights still return just 2" do

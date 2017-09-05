@@ -3,7 +3,6 @@ defmodule LolBuddy.RiotApi.Api do
   alias LolBuddy.RiotApi.Regions, as: Region
   alias LolBuddy.RiotApi.Positions, as: Position
   alias LolBuddy.RiotApi.Champions
-  import OK, only: ["~>>": 2]
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
     {:ok ,Poison.Parser.parse!(body)}

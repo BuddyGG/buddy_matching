@@ -1,7 +1,9 @@
 defmodule LolBuddy.RiotApi.Api do
+  require OK
   alias LolBuddy.RiotApi.Regions, as: Region
   alias LolBuddy.RiotApi.Positions, as: Position
   alias LolBuddy.RiotApi.Champions
+  import OK, only: ["~>>": 2]
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
     {:ok ,Poison.Parser.parse!(body)}
@@ -23,11 +25,10 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   def summoner_id(name, region) do
-    summoner_url(name, region) 
-    |> parse_json
-    |> case do
-        {:ok, summoner} -> {:ok, summoner |> Map.get("id")}
-        {:error, error} -> {:error, error}
+    OK.with do
+      info <- summoner_url(name, region) |> parse_json
+      Map.get(info, "id")
+      |> OK.success
     end
   end 
 
@@ -44,17 +45,16 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   def leagues(name, region) do
-    with {:ok, id} <- summoner_id(name, region),
-         {:ok, league} <- leagues_url(id, region) |> parse_json()
-    do
-      league = league |> leagues_extract
-      {:ok, league}
-    else 
-      {:error, error} -> {:error, error}
+    OK.with do
+      id <- summoner_id(name, region)
+      league <- leagues_url(id, region) |> parse_json
+
+      league 
+      |> leagues_extract
+      |> OK.success
     end
   end 
 
-  # TODO: Here we could choose the endpoint based on closest to our hostserver
   def name_from_id(id) do
     Champions.find_by_id(id).name
   end
@@ -67,36 +67,32 @@ defmodule LolBuddy.RiotApi.Api do
   # Returns a list of 3 most played champions as tuples eg.
   # [{67, Vayne"}, {51, "Caitlyn"}, {81, "Ezreal"}]
   def champions(name, region) do
-    with {:ok, id} <- summoner_id(name, region),
-         {:ok, champions} <- champions_url(id, region) |> parse_json()
-    do
-      champions = champions
+    OK.with do
+      id <- summoner_id(name, region)
+      champions <- champions_url(id, region) |> parse_json
+
+      champions
       |> Enum.take(3)
       |> Enum.map(fn map -> Map.get(map,"championId") end)
       |> Enum.map(fn id -> %{id: id, name: name_from_id(id)} end)
-
-      {:ok, champions}
-    else
-      {:error, error} -> {:error, error}
+      |> OK.success
     end
   end
 
   # Returns a map containing name, region, champions and positions
   # for the given summoner in the given region
   def get_summoner_info(name, region) do 
-    with {:ok, champions} <- champions(name, region),
-         {:ok, leagues} <- leagues(name, region)
-    do 
+    OK.with do
+      champions <- champions(name, region)
+      leagues <- leagues(name, region)
+
       positions = champions |> Enum.map(fn (x) -> x.name end) |> Position.positions()
       data = %{name: name,
-      region: region,
-      champions: champions,
-      leagues: leagues,
-      positions: positions}
-
-      {:ok, data}
-    else 
-      {:error, error} -> {:error, error}
+        region: region,
+        champions: champions,
+        leagues: leagues,
+        positions: positions}
+      OK.success data
     end
   end
 end

@@ -38,7 +38,8 @@ defmodule LolBuddy.Mixfile do
       {:cowboy, "~> 1.0"},
       {:httpoison, "~> 0.13"},
       {:poison, "~> 3.1"},
-      {:cors_plug, "~> 1.3"},
+      {:ok, "~> 1.9"},
+      {:cors_plug, "~> 1.3"}
     ]
   end
 end

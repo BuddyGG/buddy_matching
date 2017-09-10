@@ -19,7 +19,7 @@ defmodule LolBuddy.RiotApi.Api do
     |> handle_json
   end
 
-  defp get_summoner(name, region) do
+  defp fetch_summoner(name, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}"
     |> parse_json
@@ -36,15 +36,13 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def summoner_ids(name, region) do
     OK.for do
-      info <- get_summoner(name, region) 
-      id = Map.get(info, "id")
-      icon_id = Map.get(info, "profileIconId")
+      %{"id" => id, "profileIconId" => icon_id} <- fetch_summoner(name, region) 
     after
       {id, icon_id}
     end
   end 
 
-  defp get_leagues(id, region) do
+  defp fetch_leagues(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
@@ -59,22 +57,19 @@ defmodule LolBuddy.RiotApi.Api do
   ## Examples (one queue)
       iex> LolBuddy.RiotApi.Api.leagues(22267137, :euw)
       {:ok, [{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: "I"}]}
-
   """
   def leagues(id, region) do
-    OK.for do
-      extract = fn(x) -> %{type: x["queueType"], tier: x["tier"], rank: x["rank"]} end
-      values = get_leagues(id, region) ~>> Enum.map(extract)
-    after
-      values
-    end
+    extract = fn(x) -> %{type: x["queueType"], tier: x["tier"], rank: x["rank"]} end
+    fetch_leagues(id, region) 
+    ~>> Enum.map(extract)
+    |>  OK.success
   end
 
   defp name_from_id(id) do
     Champions.find_by_id(id).name
   end
 
-  defp get_champions(id, region) do
+  defp fetch_champions(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
     Region.endpoint(region) <> "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
@@ -90,34 +85,39 @@ defmodule LolBuddy.RiotApi.Api do
       {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
   """
   def champions(id, region) do
-    OK.for do
-      champions = 
-        get_champions(id, region)
-        ~>> Enum.take(3)
-        |>  Enum.map(fn map -> Map.get(map,"championId") end)
-        |>  Enum.map(fn id -> name_from_id(id) end)
-    after 
-      champions
-    end
+    fetch_champions(id, region)
+    ~>> Enum.take(3)
+    |>  Enum.map(fn map -> Map.get(map,"championId") end)
+    |>  Enum.map(fn id -> name_from_id(id) end)
+    |>  OK.success
   end
 
-  # Returns a map containing name, region, champions and positions
-  # for the given summoner in the given region
-  def get_summoner_info(name, region) do 
+  @doc """
+  Return a map containing the given summoner's
+  name, region, icon_id, champions, leagues and positions.
+
+  If summoner does not exist for region returns {:error, error}
+
+  ## Examples
+    iex> LolBuddy.RiotApi.Api.fetch_summoner_info("Lethly", :euw)
+    {:ok,
+      %{champions: ["Vayne", "Caitlyn", "Ezreal"], icon_id: 512,
+      leagues: [%{rank: "I", tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+      name: "Lethly", positions: [:marksman], region: :euw}}
+  """
+  def fetch_summoner_info(name, region) do 
     OK.for do
       {id, icon_id} <- summoner_ids(name, region)
       champions <- champions(id, region)
       leagues <- leagues(id, region)
-
+    after
       positions = Position.positions(champions)
-      data = %{name: name,
+      %{name: name,
         region: region,
         icon_id: icon_id,
         champions: champions,
         leagues: leagues,
         positions: positions}
-    after
-      data
     end
   end
 end

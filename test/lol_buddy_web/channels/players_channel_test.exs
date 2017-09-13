@@ -6,7 +6,6 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, _, socket} =
       socket("", %{})
       |> subscribe_and_join(PlayersChannel, "players:lobby", %{"cookie_id" => 0})
-    
     {:ok, socket: socket}
   end
 
@@ -19,7 +18,13 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     broadcast_from! socket, "new_player", %Player{id: 0}
     refute_push "new_player", _
   end
-   
+
+  test "returns other macthing players when joining channel and broadcast self as new player" do
+    socket()
+    |> join(PlayersChannel, "players:lobby", %{"cookie_id" => 0})
+    assert_push "new_players", %{players: []}
+    assert_broadcast "new_player", %Player{id: 0}
+  end
    
   test "unauthenticated users cannot join" do
     error = socket()

@@ -7,10 +7,17 @@ defmodule LolBuddyWeb.PlayersChannel do
     if authorized?(payload) do
       %{"cookie_id" => id} = payload
       socket = assign(socket, :user, %Player{id: id})
+      send(self, {:on_join, {}})
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  def handle_info({:on_join, _msg}, socket) do
+    broadcast! socket, "new_player", socket.assigns[:user]
+    push socket, "new_players", %{players: Players.find_matches(socket.assigns[:user], [])}
+    {:noreply, socket}
   end
 
   ## On new player event check if the the new players is relevant for the current player

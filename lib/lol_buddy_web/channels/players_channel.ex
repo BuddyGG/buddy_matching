@@ -7,7 +7,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     if authorized?(payload) do
       %{"cookie_id" => id} = payload
       socket = assign(socket, :user, %Player{id: id})
-      send(self, {:on_join, {}})
+      send(self(), {:on_join, {}})
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}

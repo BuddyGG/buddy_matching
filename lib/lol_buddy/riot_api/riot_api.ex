@@ -20,7 +20,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   defp fetch_summoner(name, region) do
-    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Region.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}"
     |> parse_json
   end
@@ -36,31 +36,42 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def summoner_ids(name, region) do
     OK.for do
-      %{"id" => id, "profileIconId" => icon_id} <- fetch_summoner(name, region) 
+      %{"id" => id, "profileIconId" => icon_id} <- fetch_summoner(name, region)
     after
       {id, icon_id}
     end
-  end 
+  end
 
   defp fetch_leagues(id, region) do
-    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Region.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
+  end
+
+  defp deromanize(rank) do
+    case rank do
+      "I"   -> 1
+      "II"  -> 2
+      "III" -> 3
+      "IV"  -> 4
+      "V"   -> 5
+    end
   end
 
   @doc """
   Returns a list of maps, with each map containing info for each league.
   If a summoner is placed in multiple queues, the list will hold multiple maps.
 
-  Returns {:ok, [%{type: "queuetype", tier: "tier", rank: "rank""}]}
+  Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
 
   ## Examples (one queue)
       iex> LolBuddy.RiotApi.Api.leagues(22267137, :euw)
-      {:ok, [{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: "I"}]}
+      {:ok, [{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}]}
   """
   def leagues(id, region) do
-    extract = fn(x) -> %{type: x["queueType"], tier: x["tier"], rank: x["rank"]} end
-    fetch_leagues(id, region) 
+    extract = fn(x) -> %{type: x["queueType"], tier: x["tier"],
+       rank: deromanize(x["rank"])} end
+    fetch_leagues(id, region)
     ~>> Enum.map(extract)
     |>  OK.success
   end
@@ -70,7 +81,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   defp fetch_champions(id, region) do
-    key = Application.fetch_env!(:lol_buddy, :riot_api_key) 
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Region.endpoint(region) <> "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
   end
@@ -102,10 +113,10 @@ defmodule LolBuddy.RiotApi.Api do
     iex> LolBuddy.RiotApi.Api.fetch_summoner_info("Lethly", :euw)
     {:ok,
       %{champions: ["Vayne", "Caitlyn", "Ezreal"], icon_id: 512,
-      leagues: [%{rank: "I", tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+      leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
       name: "Lethly", positions: [:marksman], region: :euw}}
   """
-  def fetch_summoner_info(name, region) do 
+  def fetch_summoner_info(name, region) do
     OK.for do
       {id, icon_id} <- summoner_ids(name, region)
       champions <- champions(id, region)

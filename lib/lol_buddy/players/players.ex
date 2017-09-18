@@ -1,9 +1,8 @@
 defmodule LolBuddy.Players do
-    alias LolBuddy.Player
     alias LolBuddy.Players.Matching
 
     ##TODO implement real logic
-    def match?(%Player{} = player, %Player{} = candidate) do
+    def match?(player, candidate) do
       Matching.match?(player, candidate)
     end
 

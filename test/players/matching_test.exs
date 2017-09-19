@@ -76,14 +76,12 @@ defmodule LolBuddy.MatchingTest do
     assert Matching.tier_compatible?(platinum3, diamond5)
   end
 
-  @tag :pending
   test "diamond4 and plat3 are incompatible" do
     platinum3 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 3}
     diamond4 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 4}
     refute Matching.tier_compatible?(platinum3, diamond4)
   end
 
-  @tag :pending
   test "diamond1 and diamond5 are incompatible" do
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
     diamond5 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 5}
@@ -91,21 +89,19 @@ defmodule LolBuddy.MatchingTest do
   end
 
   test "master and diamond3 are compatible" do
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER"}
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
     diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
     assert Matching.tier_compatible?(master, diamond3)
   end
 
-  @tag :pending
   test "master and diamond4 are incompatible" do
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER"}
-    diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
-    refute Matching.tier_compatible?(master, diamond3)
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
+    diamond4 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 4}
+    refute Matching.tier_compatible?(master, diamond4)
   end
 
-  @tag :pending
   test "challenger is always incompatible" do
-    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER"}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
     refute Matching.tier_compatible?(challenger, challenger)
   end
 end

@@ -34,10 +34,25 @@ defmodule LolBuddy.Players.Matching do
   end
 
 
-  # TODO -> define according to below
+  # Defined according to below
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
-  def rank_compatible?(high, low) do
-    true
+  # Helper for handling special restrictions for cases
+  # when the players queuing have a tier discrepancy of 1
+  defp rank_compatible?(%{tier: ht, rank: hr}, %{tier: lt, rank: lr}) do
+    loose_tiers = ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
+    cond do
+      ht in loose_tiers -> true
+      ht == "CHALLENGER" -> false # always reject
+      ht == "MASTER" -> lr in 1..3
+
+      # now we may can assume ht is diamond
+      # we also know if hr is diamond, lt has to be platinum
+      hr == 1 -> ht == lt && lr in 1..4
+      hr == 2 -> false      # d2 can't queue with plat (should never be called tho)
+      hr == 3 -> lr == 1    # d3 can queue with plat 1
+      hr == 4 -> lr in 1..2 # d4 can queue with plat 1/2
+      hr == 5 -> lr in 1..3 # d5 can queue with plat 1..3
+    end
   end
 
   @doc """
@@ -55,13 +70,18 @@ defmodule LolBuddy.Players.Matching do
       false
   """
   def tier_compatible?(league1, league2) do
-    {high, low} = sort_league(league1, league2)
-    high_tier = tier_to_int(high.tier)
-    low_tier = tier_to_int(low.tier)
-    case high_tier - low_tier do
-      0 -> true
-      x when x > 1 -> false
-      1 -> rank_compatible?(high, low)
+    {h, l} = sort_league(league1, league2)
+    ht = tier_to_int(h.tier)
+    lt = tier_to_int(l.tier)
+
+    # challenger's may only walk alone
+    cond do
+      h.tier == "CHALLENGER" -> false
+      # special handling for d1 as it cannot queue with its entire league
+      h.tier == "DIAMOND" && h.rank == 1 -> rank_compatible?(h, l)
+      ht - lt == 0 -> true
+      ht - lt == 1 -> rank_compatible?(h, l)
+      true -> false
     end
   end
 

@@ -1,6 +1,6 @@
 defmodule LolBuddy.MatchingTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Player
+  alias LolBuddy.Players.Player
   alias LolBuddy.Players.Matching
   alias LolBuddy.Players.Criteria
 
@@ -24,6 +24,34 @@ defmodule LolBuddy.MatchingTest do
     assert Matching.match?(context[:player1], player2)
   end
 
+  ### --- Criteria compatibility tests --- ###
+  test "test that 1:1 criteria/player fit is compatible", context do
+    perfect_criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+    assert Matching.criteria_compatible?(perfect_criteria, context[:player1])
+  end
+
+   test "test that voice criteria, for no voice player is incompatible", context do
+    voice_criteria = %Criteria{positions: [:marksman], voice: true, age_groups: [1]}
+    refute Matching.criteria_compatible?(voice_criteria, context[:player1])
+  end
+
+  test "test that age_group criteria doesn't match with bad age groups for player", context do
+    age_criteria = %Criteria{positions: [:marksman], voice: true, age_groups: [2,3]}
+    refute Matching.criteria_compatible?(age_criteria, context[:player1])
+  end
+
+  test "test that positions criteria doesn't match with other positions", context do
+    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top], 
+      voice: true, age_groups: [1]}
+    refute Matching.criteria_compatible?(positions_criteria, context[:player1])
+  end
+
+  test "test that entirely wrong criteria/player combination is incompatible", context do
+    bad_criteria = %Criteria{positions: [:support], voice: true, age_groups: [3]}
+    refute Matching.criteria_compatible?(bad_criteria, context[:player1])
+  end
+
+  ### --- Sort leagues tests --- ###
   test "diamond is higher than platinum", context do
     platinum = Map.put(context[:diamond1], :tier, "PLATINUM")
     {high, low} = Matching.sort_leagues(platinum, context[:diamond1])
@@ -45,6 +73,7 @@ defmodule LolBuddy.MatchingTest do
     assert high == master
   end
 
+  ### --- Tier compatibility tests --- ###
   test "silver and bronze are tier compatible" do
     silver = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}
     bronze = %{type: "RANKED_SOLO_5x5", tier: "BRONZE", rank: 5}

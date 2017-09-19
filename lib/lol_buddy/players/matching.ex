@@ -1,5 +1,6 @@
 defmodule LolBuddy.Players.Matching do
-  alias LolBuddy.Player
+  alias LolBuddy.Players.Player
+  alias LolBuddy.Players.Criteria
   # resource for who can play with who
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
 
@@ -9,7 +10,8 @@ defmodule LolBuddy.Players.Matching do
       player.id == candidate.id -> false
       !can_queue?(player, candidate) -> false
       !lists_intersect?(player.languages, candidate.languages) -> false
-      true -> criteria_compatible?(player, candidate)
+      true -> criteria_compatible?(player.criteria, candidate) &&
+              criteria_compatible?(candidate.criteria, player)
     end
   end
 
@@ -30,9 +32,25 @@ defmodule LolBuddy.Players.Matching do
     end
   end
 
-  # TODO logic
-  defp criteria_compatible?(%Player{} = player, %Player{} = candidate) do
-      player.id != candidate.id
+  @doc """
+  Returns a boolean representing whether the Player 'player'
+  conforms to the Criteria 'criteria'
+
+  ## Examples
+      iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
+      iex> criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
+        languages: ["danish"], age_group: 1, positions: [:marksman],
+        leagues: [diamond1], criteria: criteria}
+      iex> LolBuddy.Players.Matching.criteria_compatible?(criteria, player)
+      true
+  """
+  def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
+    cond do
+      criteria.voice && !player.voice -> false
+      !lists_intersect?(criteria.positions, player.positions) -> false
+      true -> Enum.member?(criteria.age_groups, player.age_group)
+    end
   end
 
   # Defined according to below

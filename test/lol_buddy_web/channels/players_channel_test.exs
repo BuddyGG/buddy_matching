@@ -1,7 +1,7 @@
 defmodule LolBuddyWeb.PlayersChannelTest do
   use LolBuddyWeb.ChannelCase
   alias LolBuddyWeb.PlayersChannel
-  alias LolBuddy.Player
+  alias LolBuddy.Players.Player
   setup do
     {:ok, _, socket} =
       socket("", %{})

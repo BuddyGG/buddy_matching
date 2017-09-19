@@ -1,7 +1,7 @@
 defmodule LolBuddy.PlayerMatchTest do
   use ExUnit.Case, async: true
   alias LolBuddy.Players
-  alias LolBuddy.Player
+  alias LolBuddy.Players.Player
 
   @tag :pending
   test "two players match" do

@@ -1,6 +1,6 @@
 defmodule LolBuddyWeb.PlayersChannel do
   use LolBuddyWeb, :channel
-  alias LolBuddy.Player
+  alias LolBuddy.Players.Player
   alias LolBuddy.Players
 
   def join("players:lobby", payload, socket) do

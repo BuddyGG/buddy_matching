@@ -9,7 +9,6 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, socket: socket}
   end
 
-  @tag :pending
   test "new players are pushed to the client when matched", %{socket: socket} do
     broadcast_from! socket, "new_player", %Player{id: 1}
     assert_push "new_player", %Player{id: 1}

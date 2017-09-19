@@ -4,7 +4,25 @@ defmodule LolBuddy.Players.Matching do
   # resource for who can play with who
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
 
-  # TODO logic
+  @doc """
+  Returns a boolean representing whether Player 'player' and Player 'candidate'
+  are able to play together and fit eachother's criteria.
+
+  ## Examples
+      iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
+      iex> criteria1 = %Criteria{positions: [:top, :support], voice: false, age_groups: [1]}
+      iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: false, age_groups: [1]}
+      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
+        languages: ["danish"], age_group: 1, positions: [:marksman],
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        criteria: criteria1}
+      iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: false,
+        languages: ["danish", "english"], age_group: 1, positions: [:top],
+        leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"], 
+        criteria: criteria2}
+      iex> LolBuddy.Players.Matching.match?(player, candidate)
+      true
+  """
   def match?(%Player{} = player, %Player{} = candidate) do
     cond do
       player.id == candidate.id -> false
@@ -41,7 +59,8 @@ defmodule LolBuddy.Players.Matching do
       iex> criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], criteria: criteria}
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        criteria: criteria}
       iex> LolBuddy.Players.Matching.criteria_compatible?(criteria, player)
       true
   """

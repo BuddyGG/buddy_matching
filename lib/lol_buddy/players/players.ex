@@ -1,12 +1,15 @@
 defmodule LolBuddy.Players do
-    alias LolBuddy.Players.Matching
+  #alias LolBuddy.Players.Matching
 
-    ##TODO implement real logic
-    def match?(player, candidate) do
-      Matching.match?(player, candidate)
-    end
+  # TODO implement logic
+  # And perhaps, this method should not even be here?
+  # -- find_matches seem the only relevant interface to Players module
+  def match?(player, candidate) do
+    player.id != candidate.id
+  end
 
-    def find_matches(player, other_players) do
-        other_players
-    end
+  # TODO implement logic
+  def find_matches(player, other_players) do
+      other_players
+  end
 end

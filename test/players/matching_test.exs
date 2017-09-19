@@ -10,18 +10,42 @@ defmodule LolBuddy.MatchingTest do
     broad_criteria = %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
       voice: false, age_groups: [1,2,3]}
 
+    narrow_criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
     base_player1 = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
       languages: ["danish"], age_group: 1, positions: [:marksman],
-      leagues: [diamond1], criteria: broad_criteria}
+      leagues: [diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
+      criteria: broad_criteria}
 
-    [player1: base_player1, broad_criteria: broad_criteria, diamond1: diamond1]
+    base_player2 = %Player{id: 2, name: "hansp", region: :euw, voice: false,
+      languages: ["danish", "english"], age_group: 1, positions: [:top],
+      leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
+      criteria: narrow_criteria}
+
+    [player1: base_player1, broad_criteria: broad_criteria, diamond1: diamond1,
+     player2: base_player2, narrow_criteria: narrow_criteria]
   end
 
-  test "same league different positions and matching criteria", context do
-    player2 = %{context[:player1] | id: 2, name: "hansp", positions: [:top]}
-    assert Matching.match?(context[:player1], player2)
+  ### --- Player matching tests --- ###
+  test "players with matching criteria and valid leagues/regions are matching", context do
+    assert Matching.match?(context[:player1], context[:player2])
+  end
+
+  test "player does not match himself", context do
+    refute Matching.match?(context[:player1], context[:player1])
+  end
+
+  test "player with compatible criteria but bad regions are not matching", context do
+    player2 = Map.put(context[:player2], :region, :br)
+    refute Matching.match?(context[:player1], player2)
+  end
+
+  test "player with compatible criteria but unable to queue are not matching", context do
+    diamond5 = Map.put(context[:diamond1], :rank, 5)
+    player2 = Map.put(context[:player2], :leagues, [diamond5])
+    refute Matching.match?(context[:player1], player2)
   end
 
   ### --- Criteria compatibility tests --- ###
@@ -41,7 +65,7 @@ defmodule LolBuddy.MatchingTest do
   end
 
   test "test that positions criteria doesn't match with other positions", context do
-    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top], 
+    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top],
       voice: true, age_groups: [1]}
     refute Matching.criteria_compatible?(positions_criteria, context[:player1])
   end

@@ -1,7 +1,7 @@
 defmodule LolBuddy.RiotApi.Api do
   require OK
-  alias LolBuddy.RiotApi.Regions, as: Region
-  alias LolBuddy.RiotApi.Positions, as: Position
+  alias LolBuddy.RiotApi.Regions
+  alias LolBuddy.RiotApi.Positions
   alias LolBuddy.RiotApi.Champions
   import OK, only: ["~>>": 2]
 
@@ -21,7 +21,7 @@ defmodule LolBuddy.RiotApi.Api do
 
   defp fetch_summoner(name, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
-    Region.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}"
+    Regions.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}"
     |> parse_json
   end
 
@@ -44,7 +44,7 @@ defmodule LolBuddy.RiotApi.Api do
 
   defp fetch_leagues(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
-    Region.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
+    Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
   end
 
@@ -82,7 +82,7 @@ defmodule LolBuddy.RiotApi.Api do
 
   defp fetch_champions(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
-    Region.endpoint(region) <> "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}"
+    Regions.endpoint(region) <> "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}"
     |> parse_json
   end
 
@@ -122,7 +122,7 @@ defmodule LolBuddy.RiotApi.Api do
       champions <- champions(id, region)
       leagues <- leagues(id, region)
     after
-      positions = Position.positions(champions)
+      positions = Positions.positions(champions)
       %{name: name,
         region: region,
         icon_id: icon_id,

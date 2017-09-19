@@ -14,12 +14,11 @@ defmodule LolBuddy.MatchingTest do
 
     base_player1 = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
       languages: ["danish"], age_group: 1, positions: [:marksman],
-      league: [diamond1], criteria: broad_criteria}
+      leagues: [diamond1], criteria: broad_criteria}
 
     [player1: base_player1, broad_criteria: broad_criteria, diamond1: diamond1]
   end
 
-  @tag :pending
   test "same league different positions and matching criteria", context do
     player2 = %{context[:player1] | id: 2, name: "hansp", positions: [:top]}
     assert Matching.match?(context[:player1], player2)
@@ -27,21 +26,21 @@ defmodule LolBuddy.MatchingTest do
 
   test "diamond is higher than platinum", context do
     platinum = Map.put(context[:diamond1], :tier, "PLATINUM")
-    {high, low} = Matching.sort_league(platinum, context[:diamond1])
+    {high, low} = Matching.sort_leagues(platinum, context[:diamond1])
     assert low == platinum
     assert high == context[:diamond1]
   end
 
   test "diamond1 is higher than diamond2", context do
     diamond2 = Map.put(context[:diamond1], :rank, 2)
-    {high, low} = Matching.sort_league(diamond2, context[:diamond1])
+    {high, low} = Matching.sort_leagues(diamond2, context[:diamond1])
     assert low == diamond2
     assert high == context[:diamond1]
   end
 
   test "master is higher than diamond1", context do
     master = Map.put(context[:diamond1], :tier, "MASTER")
-    {high, low} = Matching.sort_league(master, context[:diamond1])
+    {high, low} = Matching.sort_leagues(master, context[:diamond1])
     assert low == context[:diamond1]
     assert high == master
   end

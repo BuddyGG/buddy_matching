@@ -5,26 +5,28 @@ defmodule LolBuddy.Players.Matching do
 
   # TODO logic
   def match?(%Player{} = player, %Player{} = candidate) do
-      player.id != candidate.id
     cond do
       player.id == candidate.id -> false
       !can_queue?(player, candidate) -> false
-      list_intersection(player.languages, candidate.languages) == [] -> false
+      !lists_intersect?(player.languages, candidate.languages) -> false
       true -> criteria_compatible?(player, candidate)
     end
   end
 
-  # convert to lists to MapSets and intersect them
-  defp list_intersection(a, b) do
-    MapSet.intersection(MapSet.new(a), MapSet.new(b))
+  # convert two lists to MapSets and see if they intersect?
+  defp lists_intersect?(a, b) do
+    MapSet.intersection(MapSet.new(a), MapSet.new(b)) != []
   end
 
-  # TODO logic
+  # helper for extracting solo queue and determining if it is possible for
+  # two players to queue together
   defp can_queue?(%Player{} = player, %Player{} = candidate) do
-    true
     cond do
       player.region != candidate.region -> false
-      true -> !tier_compatible?(player.leagues, candidate.leagues)
+      true -> is_solo? = &(&1.type == "RANKED_SOLO_5x5")
+              player_solo = Enum.find(player.leagues, is_solo?)
+              candidate_solo = Enum.find(candidate.leagues, is_solo?)
+              tier_compatible?(player_solo, candidate_solo)
     end
   end
 
@@ -32,7 +34,6 @@ defmodule LolBuddy.Players.Matching do
   defp criteria_compatible?(%Player{} = player, %Player{} = candidate) do
       player.id != candidate.id
   end
-
 
   # Defined according to below
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
@@ -70,7 +71,7 @@ defmodule LolBuddy.Players.Matching do
       false
   """
   def tier_compatible?(league1, league2) do
-    {h, l} = sort_league(league1, league2)
+    {h, l} = sort_leagues(league1, league2)
     ht = tier_to_int(h.tier)
     lt = tier_to_int(l.tier)
 
@@ -92,10 +93,10 @@ defmodule LolBuddy.Players.Matching do
   ## Examples
       iex> league1 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}
       iex> league2 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 2}
-      iex> LolBuddy.Players.Matching.sort_league(league1, league2)
+      iex> LolBuddy.Players.Matching.sort_leagues(league1, league2)
       {league1, league2}
   """
-  def sort_league(league1, league2) do
+  def sort_leagues(league1, league2) do
     tier1 = tier_to_int(league1.tier)
     tier2 = tier_to_int(league2.tier)
     cond do

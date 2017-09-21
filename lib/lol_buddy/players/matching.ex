@@ -24,13 +24,11 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def match?(%Player{} = player, %Player{} = candidate) do
-    cond do
-      player.id == candidate.id -> false
-      !can_queue?(player, candidate) -> false
-      !lists_intersect?(player.languages, candidate.languages) -> false
-      true -> criteria_compatible?(player.criteria, candidate) &&
-              criteria_compatible?(candidate.criteria, player)
-    end
+    player.id != candidate.id
+    && can_queue?(player, candidate)
+    && lists_intersect?(player.languages, candidate.languages)
+    && criteria_compatible?(player.criteria, candidate) 
+    && criteria_compatible?(candidate.criteria, player)
   end
 
   # convert two lists to MapSets and see if they intersect?
@@ -41,12 +39,12 @@ defmodule LolBuddy.Players.Matching do
   # helper for extracting solo queue and determining if it is possible for
   # two players to queue together
   defp can_queue?(%Player{} = player, %Player{} = candidate) do
-    cond do
-      player.region != candidate.region -> false
-      true -> is_solo? = &(&1.type == "RANKED_SOLO_5x5")
-              player_solo = Enum.find(player.leagues, is_solo?)
-              candidate_solo = Enum.find(candidate.leagues, is_solo?)
-              tier_compatible?(player_solo, candidate_solo)
+    case player.region == candidate.region do
+      false -> false
+      _     -> is_solo? = &(&1.type == "RANKED_SOLO_5x5")
+               player_solo = Enum.find(player.leagues, is_solo?)
+               candidate_solo = Enum.find(candidate.leagues, is_solo?)
+               tier_compatible?(player_solo, candidate_solo)
     end
   end
 
@@ -65,11 +63,9 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
-    cond do
-      criteria.voice && !player.voice -> false
-      !lists_intersect?(criteria.positions, player.positions) -> false
-      true -> Enum.member?(criteria.age_groups, player.age_group)
-    end
+      criteria.voice == player.voice
+      && lists_intersect?(criteria.positions, player.positions) 
+      && Enum.member?(criteria.age_groups, player.age_group)
   end
 
   # Defined according to below

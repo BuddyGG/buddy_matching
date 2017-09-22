@@ -2,7 +2,7 @@ defmodule LolBuddyWeb.PlayerSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", LolBuddyWeb.RoomChannel
+  channel "players:lobby", LolBuddyWeb.PlayersChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000

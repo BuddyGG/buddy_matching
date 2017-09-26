@@ -1,5 +1,4 @@
 defmodule LolBuddy.PlayerServer do
-  alias LolBuddy.Players.Player
   use GenServer
 
   @doc """
@@ -36,7 +35,7 @@ defmodule LolBuddy.PlayerServer do
   def handle_call({:read}, _from, list) do
     {:reply, list, list}
   end
-  
+
   # Handle cast calls
   # Merely append the player to the list
   # Returns {:noreply, <state>
@@ -51,5 +50,4 @@ defmodule LolBuddy.PlayerServer do
   def add(pid, player) do
     GenServer.cast(pid, {:add, player})
   end
-
 end

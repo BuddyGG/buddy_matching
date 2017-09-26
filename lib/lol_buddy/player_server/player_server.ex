@@ -2,8 +2,27 @@ defmodule LolBuddy.PlayerServer do
   alias LolBuddy.Players.Player
   use GenServer
 
+  @doc """
+  Starts the PlayerServer.
+  ## Examples
+    iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
+    {:ok, #PID<0.246.0>}
+  """
   def start_link do
     GenServer.start_link(__MODULE__, :ok, [])
+  end
+
+  @doc """
+  This specific initializer is used by ExUnit.
+
+  Starts the PlayerServer with potential options.
+  These are described here:
+  https://hexdocs.pm/elixir/GenServer.html#start_link/3
+  ## Examples
+    iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
+  """
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, :ok, opts)
   end
 
   # Called automatically by start_link
@@ -22,7 +41,7 @@ defmodule LolBuddy.PlayerServer do
   # Merely append the player to the list
   # Returns {:noreply, <state>
   def handle_cast({:add, player}, list) do
-    {:noreply, list ++ [player]}
+    {:noreply, [player | list]}
   end
 
   def read(pid) do

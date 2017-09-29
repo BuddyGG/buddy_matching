@@ -1,5 +1,6 @@
 defmodule LolBuddy.PlayerServer do
   use GenServer
+  alias LolBuddy.Players.Player
 
   @doc """
   Starts the PlayerServer.
@@ -47,7 +48,7 @@ defmodule LolBuddy.PlayerServer do
     GenServer.call(pid, {:read})
   end
 
-  def add(pid, player) do
+  def add(pid, %Player{} = player) do
     GenServer.cast(pid, {:add, player})
   end
 end

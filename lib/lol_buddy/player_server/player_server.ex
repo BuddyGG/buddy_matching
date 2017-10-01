@@ -51,14 +51,43 @@ defmodule LolBuddy.PlayerServer do
     {:noreply, [player | list]}
   end
 
+  @doc """
+  Returns the full list of players for the specified server
+  Since this method uses GenServer.call it will be handled synchronously.
+  #
+  ## Examples
+      iex> LolBuddy.PlayerServer.read(:euw)
+        [%{%Player{id: 1, name: "Lethly", region: :euw, voice: false,
+        languages: ["danish"], age_group: 1, positions: [:marksman],
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        criteria: criteria, comment: "Fantastic player"}]
+  """
   def read(pid) do
     GenServer.call(pid, {:read})
   end
 
+  @doc """
+  Adds the given player to the specified server
+  Always returns :ok if server exists.
+  Method will run asynchronously.
+
+  ## Examples
+      iex> LolBuddy.PlayerServer.add(%Player{})
+        :ok
+  """
   def add(pid, %Player{} = player) do
     GenServer.cast(pid, {:add, player})
   end
 
+  @doc """
+  Deletes the given player from the specified server
+  Always returns :ok if server exists.
+  Method will run asynchronously.
+
+  ## Examples
+      iex> LolBuddy.PlayerServer.remove(%Player{})
+        :ok
+  """
   def remove(pid, %Player{} = player) do
     GenServer.cast(pid, {:remove, player})
   end

@@ -15,11 +15,11 @@ defmodule LolBuddy.Players.Matching do
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
-        criteria: criteria1}
+        criteria: criteria1, comment: "Great player, promise"}
       iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: false,
         languages: ["danish", "english"], age_group: 1, positions: [:top],
         leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"], 
-        criteria: criteria2}
+        criteria: criteria2, comment: "Ok player, promise"}
       iex> LolBuddy.Players.Matching.match?(player, candidate)
       true
   """
@@ -58,7 +58,7 @@ defmodule LolBuddy.Players.Matching do
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
-        criteria: criteria}
+        criteria: criteria, comment: "Fantastic player"}
       iex> LolBuddy.Players.Matching.criteria_compatible?(criteria, player)
       true
   """

@@ -6,6 +6,10 @@ defmodule LolBuddy.RegionMapper do
     PlayerServer.read(region)
   end
 
+  def add_player(%Player{region: nil}) do
+    {:error, "Bad region"}
+  end
+
   def add_player(%Player{} = player) do
     PlayerServer.add(player.region, player)
   end

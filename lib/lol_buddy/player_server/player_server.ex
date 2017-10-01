@@ -31,15 +31,22 @@ defmodule LolBuddy.PlayerServer do
     {:ok, []}
   end
 
-  # Handle read calls
+  # Handle calls with read - synchronous
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:read}, _from, list) do
     {:reply, list, list}
   end
 
-  # Handle cast calls
+  # Handle casts with remove - asynchronous
+  # Remove a player from the state
+  # Returns {:noreply, <state>}
+  def handle_cast({:remove, player}, list) do
+    {:noreply, List.delete(list, player)}
+  end
+
+  # Handle casts with add - asynchronous
   # Merely append the player to the list
-  # Returns {:noreply, <state>
+  # Returns {:noreply, <state>}
   def handle_cast({:add, player}, list) do
     {:noreply, [player | list]}
   end
@@ -50,5 +57,9 @@ defmodule LolBuddy.PlayerServer do
 
   def add(pid, %Player{} = player) do
     GenServer.cast(pid, {:add, player})
+  end
+
+  def remove(pid, %Player{} = player) do
+    GenServer.cast(pid, {:remove, player})
   end
 end

@@ -40,4 +40,17 @@ defmodule LolBuddy.PlayerServerTest do
     assert [player1] = PlayerServer.read(server)
   end
 
+  test "player is removed", %{server: server} do
+    assert PlayerServer.read(server) == []
+
+    player = %Player{}
+    #
+    # player is added
+    PlayerServer.add(server, player)
+    assert [player] = PlayerServer.read(server)
+
+    # player is removed
+    PlayerServer.remove(server, player)
+    assert [] = PlayerServer.read(server)
+  end
 end

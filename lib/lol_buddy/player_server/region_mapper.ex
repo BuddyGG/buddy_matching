@@ -1,4 +1,4 @@
-defmodule LolBuddy.RegionMapper do
+defmodule LolBuddy.PlayerServer.RegionMapper do
   alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer
 
@@ -16,19 +16,6 @@ defmodule LolBuddy.RegionMapper do
   end
 
   @doc """
-  If a player with a realm of a PlayerServer we don't know is
-  attempted to be added, we simply return and error.
-
-  ## Examples
-      iex> player = %{id: 1, name: "Lethly", region: :non_existent_regoin}
-      iex> LolBuddy.RegionMapper.add_player(player)
-        {:error, "Bad region"}
-  """
-  def add_player(%Player{region: nil}) do
-    {:error, "Bad region"}
-  end
-
-  @doc """
   Adds the given player to a PlayerServer based
   on his region.
 
@@ -39,5 +26,19 @@ defmodule LolBuddy.RegionMapper do
   """
   def add_player(%Player{} = player) do
     PlayerServer.add(player.region, player)
+  end
+
+  @doc """
+  Removes the given player from its region's PlayerServer
+
+  ## Examples
+      iex> player = %{id: 1, name: "Lethly", region: :non_existent_regoin}
+      iex> LolBuddy.RegionMapper.add_player(player)
+        :ok
+      iex> LolBuddy.RegionMapper.remove_player(player)
+        :ok
+  """
+  def remove_player(%Player{} = player) do
+    PlayerServer.remove(player.region, player)
   end
 end

@@ -3,8 +3,7 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
   alias LolBuddy.PlayerServer
 
   @doc """
-  Returns the input sorted as a tuple {high, low}
-  If they are equal, league1 is returned as highest
+  Returns all players currently stored for the given region
 
   ## Examples
       iex> LolBuddy.RegionMapper.get_players(:euw)

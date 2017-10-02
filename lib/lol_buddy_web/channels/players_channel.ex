@@ -1,7 +1,8 @@
 defmodule LolBuddyWeb.PlayersChannel do
   use LolBuddyWeb, :channel
-  alias LolBuddy.Players.Player
   alias LolBuddy.Players
+  alias LolBuddy.Players.Player
+  alias LolBuddy.PlayerServer.RegionMapper
 
 
   @doc """
@@ -20,18 +21,17 @@ defmodule LolBuddyWeb.PlayersChannel do
   and notifies each of the mathing players about the newly joined players aswell
   """
   def handle_info({:on_join, _msg}, socket) do
-    #TODO ask the genserver for joined players
-    matching_players = Players.get_matches(socket.assigns[:user], [])
-    #TODO store the the newly joined player in the genserver
+    region_players = RegionMapper.get_players(socket.assigns[:user])
+    matching_players = Players.get_matches(socket.assigns[:user], region_players)
+    RegionMapper.add_player(socket.assigns[:user])
 
-    #Send all macthin players
+    #Send all matching players
     push socket, "new_players", %{players: matching_players}
     
     #Send the newly joined user to all matching players
     Enum.each(matching_players, fn player ->
       LolBuddyWeb.Endpoint.broadcast! "player:"<> player.id, "new_player", socket.assigns[:user,]
     end)
-
     
     {:noreply, socket}
   end

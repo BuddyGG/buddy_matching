@@ -21,7 +21,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   and notifies each of the mathing players about the newly joined players aswell
   """
   def handle_info({:on_join, _msg}, socket) do
-    region_players = RegionMapper.get_players(socket.assigns[:user])
+    region_players = RegionMapper.get_players(socket.assigns[:user].region)
     matching_players = Players.get_matches(socket.assigns[:user], region_players)
     RegionMapper.add_player(socket.assigns[:user])
 
@@ -35,5 +35,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     
     {:noreply, socket}
   end
+
+  #TODO on socket close call RegionMapper.remove_player/1
 
 end

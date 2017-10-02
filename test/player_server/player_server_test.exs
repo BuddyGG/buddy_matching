@@ -13,7 +13,7 @@ defmodule LolBuddy.PlayerServerTest do
 
     player = %Player{}
     PlayerServer.add(server, player)
-    assert [player] = PlayerServer.read(server)
+    assert [^player] = PlayerServer.read(server)
   end
 
   test "players are added", %{server: server} do
@@ -22,7 +22,7 @@ defmodule LolBuddy.PlayerServerTest do
     player1 = %Player{id: 1}
     player2 = %Player{id: 2}
     PlayerServer.add(server, player1)
-    assert [player1] = PlayerServer.read(server)
+    assert [^player1] = PlayerServer.read(server)
 
     PlayerServer.add(server, player2)
     assert length(PlayerServer.read(server)) == 2
@@ -34,10 +34,10 @@ defmodule LolBuddy.PlayerServerTest do
     player1 = %Player{id: 1}
 
     PlayerServer.add(server, player1)
-    assert [player1] = PlayerServer.read(server)
+    assert [^player1] = PlayerServer.read(server)
 
     PlayerServer.add(server, player1)
-    assert [player1] = PlayerServer.read(server)
+    assert [^player1] = PlayerServer.read(server)
   end
 
   test "player is removed", %{server: server} do
@@ -47,7 +47,7 @@ defmodule LolBuddy.PlayerServerTest do
     #
     # player is added
     PlayerServer.add(server, player)
-    assert [player] = PlayerServer.read(server)
+    assert [^player] = PlayerServer.read(server)
 
     # player is removed
     PlayerServer.remove(server, player)
@@ -62,11 +62,11 @@ defmodule LolBuddy.PlayerServerTest do
     #
     # player is added
     PlayerServer.add(server, player)
-    assert [player] = PlayerServer.read(server)
+    assert [^player] = PlayerServer.read(server)
 
     # player is removed
     PlayerServer.remove(server, absent_player)
-    assert [player] = PlayerServer.read(server)
+    assert [^player] = PlayerServer.read(server)
   end
 
 end

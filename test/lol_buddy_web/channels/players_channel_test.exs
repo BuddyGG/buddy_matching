@@ -9,6 +9,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, socket: socket}
   end
 
+  @tag :pending
   test "returns other macthing players when joining channel and broadcast self as new player" do
     socket()
     |> join(PlayersChannel, "players:1", %{})

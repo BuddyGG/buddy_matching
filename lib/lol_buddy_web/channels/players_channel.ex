@@ -21,7 +21,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def handle_info({:on_join, _msg}, socket) do
     #TODO ask the genserver for joined players
-    matching_players = Players.find_matches(socket.assigns[:user], [])
+    matching_players = Players.get_matches(socket.assigns[:user], [])
     #TODO store the the newly joined player in the genserver
 
     #Send all macthin players

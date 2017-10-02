@@ -17,12 +17,12 @@ defmodule LolBuddy.MatchingTest do
     base_player1 = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
       languages: ["danish"], age_group: 1, positions: [:marksman],
       leagues: [diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
-      criteria: broad_criteria}
+      criteria: broad_criteria, comment: "Never dies on Vayne"}
 
     base_player2 = %Player{id: 2, name: "hansp", region: :euw, voice: false,
       languages: ["danish", "english"], age_group: 1, positions: [:top],
       leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
-      criteria: narrow_criteria}
+      criteria: narrow_criteria, comment: "Apparently I play Riven"}
 
     [player1: base_player1, broad_criteria: broad_criteria, diamond1: diamond1,
      player2: base_player2, narrow_criteria: narrow_criteria]

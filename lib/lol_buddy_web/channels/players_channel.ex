@@ -1,6 +1,7 @@
 defmodule LolBuddyWeb.PlayersChannel do
   use LolBuddyWeb, :channel
   alias LolBuddy.Players
+  alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer.RegionMapper
 
 
@@ -9,7 +10,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   #TODO auth users
   def join("players:" <> cookie_id, player, socket) do
-      socket = assign(socket, :user, player)
+      socket = assign(socket, :user, parse_player_payload(player))
       send(self(), {:on_join, {}})
       {:ok, socket}
   end
@@ -37,5 +38,17 @@ defmodule LolBuddyWeb.PlayersChannel do
   end
 
   #TODO on socket close call RegionMapper.remove_player/1
+  
+  @doc """
+  Parse player from the payload, if we get a player stuckt, we just return it, 
+  else we parse the payload as json
+  """
+  def parse_player_payload(%Player{} = player) do
+    player
+  end
+
+  def parse_player_payload(payload) do
+    Player.from_json(payload)
+  end
 
 end

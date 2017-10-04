@@ -1,7 +1,6 @@
 defmodule LolBuddyWeb.PlayersChannel do
   use LolBuddyWeb, :channel
   alias LolBuddy.Players
-  alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer.RegionMapper
 
 
@@ -9,8 +8,8 @@ defmodule LolBuddyWeb.PlayersChannel do
   Each clients joins their own player channel players:cookie_id 
   """
   #TODO auth users
-  def join("players:" <> cookie_id, _, socket) do
-      socket = assign(socket, :user, %Player{id: cookie_id})
+  def join("players:" <> cookie_id, player, socket) do
+      socket = assign(socket, :user, player)
       send(self(), {:on_join, {}})
       {:ok, socket}
   end
@@ -29,8 +28,9 @@ defmodule LolBuddyWeb.PlayersChannel do
     push socket, "new_players", %{players: matching_players}
     
     #Send the newly joined user to all matching players
-    Enum.each(matching_players, fn player ->
-      LolBuddyWeb.Endpoint.broadcast! "player:"<> player.id, "new_player", socket.assigns[:user,]
+    matching_players
+    |> Enum.each(fn player ->
+      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", socket.assigns[:user]
     end)
     
     {:noreply, socket}

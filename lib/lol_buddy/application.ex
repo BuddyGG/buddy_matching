@@ -10,6 +10,7 @@ defmodule LolBuddy.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(LolBuddyWeb.Endpoint, []),
+      supervisor(LolBuddy.PlayerServer.Supervisor, [])
       # Start your own worker by calling: LolBuddy.Worker.start_link(arg1, arg2, arg3)
       # worker(LolBuddy.Worker, [arg1, arg2, arg3]),
     ]
@@ -18,7 +19,6 @@ defmodule LolBuddy.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: LolBuddy.Supervisor]
     Supervisor.start_link(children, opts)
-    LolBuddy.PlayerServer.Supervisor.start_link
   end
 
   # Tell Phoenix to update the endpoint configuration

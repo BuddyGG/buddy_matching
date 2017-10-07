@@ -53,6 +53,54 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       payload: @base_player2}
 
   end
+
+  test "can join channel with valid json payload" do
+    player =  ~s({
+    "champions":[
+       "Vayne",
+       "Caitlyn",
+       "Ezreal"
+    ],
+    "icon_id":512,
+    "leagues":[
+       {
+          "type":"RANKED_SOLO_5x5",
+          "tier":"GOLD",
+          "rank":"I"
+       }
+    ],
+    "positions":[
+       "marksman"
+    ],
+    "name":"Lethly",
+    "region":"euw",
+    "userInfo":{
+    "id" : 1,
+       "selectedRoles":{
+          "top":true,
+          "jun":true,
+          "mid":false,
+          "adc":false,
+          "sup":false
+       },
+       "languages":[
+          "DA"
+       ],
+       "voicechat":true,
+       "agegroup":"20-29",
+       "comment":"test"
+    }
+ })
+
+    data = Poison.Parser.parse!(player)
+    socket("user:1", %{})
+      |> subscribe_and_join(PlayersChannel, "players:1", %{"payload" => data})
+    
+      assert_receive %Phoenix.Socket.Message{
+      topic: "players:1",
+      event: "new_players",
+      payload: %{players: []}}
+  end
   
  
    

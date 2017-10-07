@@ -47,7 +47,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     player
   end
 
-  def parse_player_payload(payload) do
+  def parse_player_payload(%{"payload" => payload}) do
     Player.from_json(payload)
   end
 

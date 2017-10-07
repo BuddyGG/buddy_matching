@@ -4,13 +4,13 @@ defmodule LolBuddy.Players.Player do
     criteria: nil, comment: ""
 
   def from_json(json) do
-    data = Poison.Parser.parse!(json)
+    data = json
 
-    %LolBuddy.Players.Player{id: data["id"], name: data["name"],
-    region: String.to_atom(data["region"]), voice: data["voice"],
-    languages: data["languages"], age_group: data["age_group"], positions: positions_from_json(data["positions"]),
+    %LolBuddy.Players.Player{id: data["userInfo"]["id"], name: data["name"],
+    region: String.to_atom(data["region"]), voice: data["userInfo"]["voicechat"],
+    languages: data["userInfo"]["languages"], age_group: data["userInfo"]["agegroup"], positions: positions_from_json(data["userInfo"]["selectedRoles"]),
     leagues: leagues_from_json(data["leagues"]), 
-    champions: data["champions"],criteria: nil, comment: data["comment"]}
+    champions: data["champions"],criteria: nil, comment: data["userInfo"]["comment"]}
   end
   
   defp leagues_from_json(legues) do

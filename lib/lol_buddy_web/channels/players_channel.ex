@@ -37,6 +37,25 @@ defmodule LolBuddyWeb.PlayersChannel do
     {:noreply, socket}
   end
 
+  def handle_in("request_match", %{"player" => other_player}, socket) do
+    push socket, "match_requested", other_player
+    LolBuddyWeb.Endpoint.broadcast! "players:#{other_player.id}", "match_requested", socket.assigns[:user]
+    {:noreply, socket}
+  end
+  def handle_in("respond_to_request", %{"id" => id, "responds" => responds}, socket) do
+    push socket, "request_responds", %{responds: responds} 
+    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_responds", %{responds: responds} 
+    {:noreply, socket}
+  end
+
+  #TODO when channel closes due to errors
+  def terminate(_, socket) do
+    RegionMapper.remove_player(socket.assigns[:user])
+  end
+  
+
+
+
   #TODO on socket close call RegionMapper.remove_player/1
   
   @doc """

@@ -18,6 +18,8 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: "lolbuddy.herokuapp.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  #todo remember to change this
+  check_origin: false,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
 config :lol_buddy, riot_api_key: System.get_env("RIOT_API_KEY")

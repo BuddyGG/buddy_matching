@@ -25,6 +25,6 @@ defmodule LolBuddy.Players.Player do
   defp positions_from_json(positions) do
     positions
     |> Enum.filter(fn {_, value} -> value end)
-    |> Enum.map(fn {key,_} -> key end)
+    |> Enum.map(fn {key,_} -> String.to_atom(key) end)
   end
 end

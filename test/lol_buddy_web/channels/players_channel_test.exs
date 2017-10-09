@@ -3,6 +3,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   alias LolBuddyWeb.PlayersChannel
   alias LolBuddy.Players.Player
   alias LolBuddy.Players.Criteria
+  alias Poison
   
   @broad_criteria  %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
       voice: false, age_groups: [1,2,3]}
@@ -158,7 +159,4 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       
   end
   
- 
-   
-   
 end

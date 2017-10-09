@@ -38,11 +38,12 @@ defmodule LolBuddyWeb.PlayersChannel do
   end
 
   def handle_in("request_match", %{"player" => other_player}, socket) do
-    parsed_player = Player.from_json(other_player)
+    id = get_player_id(other_player)
     push socket, "match_requested", other_player
-    LolBuddyWeb.Endpoint.broadcast! "players:#{parsed_player.id}", "match_requested", socket.assigns[:user]
+    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "match_requested", socket.assigns[:user]
     {:noreply, socket}
   end
+
   def handle_in("respond_to_request", %{"id" => id, "responds" => responds}, socket) do
     push socket, "request_responds", %{responds: responds} 
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_responds", %{responds: responds} 
@@ -53,14 +54,19 @@ defmodule LolBuddyWeb.PlayersChannel do
   def terminate(_, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
   end
-  
 
-
-
-  #TODO on socket close call RegionMapper.remove_player/1
+  #HACK
+  def get_player_id(%Player{} = player) do
+    player.id
+  end
+  #
+  #HACK
+  def get_player_id(%{} = player) do
+    player["id"]
+  end
   
   @doc """
-  Parse player from the payload, if we get a player stuckt, we just return it, 
+  Parse player from the payload, if we get a player struct, we just return it, 
   else we parse the payload as json
   """
   def parse_player_payload(%Player{} = player) do
@@ -69,6 +75,10 @@ defmodule LolBuddyWeb.PlayersChannel do
 
   def parse_player_payload(%{"payload" => payload}) do
     Player.from_json(payload)
+  end
+
+  def parse_player_payload(%{} = player) do
+    Player.from_json(player)
   end
 
 end

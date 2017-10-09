@@ -139,7 +139,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
     
     player1 
-    |> push("respond_to_request", %{"id" => @base_player2.id, "responds" => "accepted"})
+    |> push("respond_to_request", %{"id" => @base_player2.id, "response" => "accepted"})
     
     :ok = close(player1)
     :ok = close(player2)
@@ -147,14 +147,14 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #Both players should recive the request response from player1
     assert_receive %Phoenix.Socket.Message{
       topic: "players:1",
-      event: "request_responds",
-      payload: %{responds: "accepted"}
+      event: "request_response",
+      payload: %{response: "accepted"}
     }
 
     assert_receive %Phoenix.Socket.Message{
       topic: "players:2",
-      event: "request_responds",
-      payload: %{responds: "accepted"}
+      event: "request_response",
+      payload: %{response: "accepted"}
     }
       
   end

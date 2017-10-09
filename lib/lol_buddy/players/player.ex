@@ -3,9 +3,7 @@ defmodule LolBuddy.Players.Player do
     age_group: nil, positions: [], leagues: nil, champions: [],
     criteria: nil, comment: ""
 
-
   def from_json(data) do
-    IO.inspect(data)
     %LolBuddy.Players.Player{id: data["userInfo"]["id"], name: data["name"],
       region: String.to_atom(data["region"]), voice: data["userInfo"]["voicechat"],
       languages: data["userInfo"]["languages"], age_group: data["userInfo"]["agegroup"], 
@@ -32,7 +30,6 @@ defmodule LolBuddy.Players.Player do
   # [:top, mid]
   def positions_from_json(positions) do
     positions
-    |> IO.inspect
     |> Enum.filter(fn {_, value} -> value end)
     |> Enum.map(fn {key,_} -> String.to_atom(key) end)
   end

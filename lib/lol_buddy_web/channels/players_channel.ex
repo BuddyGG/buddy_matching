@@ -44,9 +44,9 @@ defmodule LolBuddyWeb.PlayersChannel do
     {:noreply, socket}
   end
 
-  def handle_in("respond_to_request", %{"id" => id, "responds" => responds}, socket) do
-    push socket, "request_responds", %{responds: responds} 
-    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_responds", %{responds: responds} 
+  def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do
+    push socket, "request_response", %{response: response} 
+    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_response", %{response: response} 
     {:noreply, socket}
   end
 
@@ -55,30 +55,19 @@ defmodule LolBuddyWeb.PlayersChannel do
     RegionMapper.remove_player(socket.assigns[:user])
   end
 
-  #HACK
-  def get_player_id(%Player{} = player) do
-    player.id
-  end
-  #
-  #HACK
-  def get_player_id(%{} = player) do
-    player["id"]
-  end
+  #HACK - to correctly get id for various types. Mostly to make tests work.
+  # Tests should probably be adapted or it should be handled in a cleaner way.
+  # Generally due to 'other_player' being currently not being possible to parse
+  # as json, since it will not contain userInfo in given context.
+  def get_player_id(%Player{} = player), do: player.id
+  def get_player_id(%{} = player), do: player["id"]
   
   @doc """
   Parse player from the payload, if we get a player struct, we just return it, 
   else we parse the payload as json
   """
-  def parse_player_payload(%Player{} = player) do
-    player
-  end
-
-  def parse_player_payload(%{"payload" => payload}) do
-    Player.from_json(payload)
-  end
-
-  def parse_player_payload(%{} = player) do
-    Player.from_json(player)
-  end
+  def parse_player_payload(%Player{} = player), do: player
+  def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
+  def parse_player_payload(%{} = player), do: Player.from_json(player)
 
 end

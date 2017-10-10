@@ -116,10 +116,11 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(player1)
     :ok = close(player2)
     
-    #Both players should recive the match request
+    # Player 1 should receive a message confirming that he is requesting,
+    # while player 2 should receive the match_request.
     assert_receive %Phoenix.Socket.Message{
       topic: "players:1",
-      event: "match_requested",
+      event: "requesting_match",
       payload: @base_player2
     }
 

@@ -14,8 +14,6 @@ defmodule LolBuddy.RiotApi.Regions do
     ru: "https://ru.api.riotgames.com",
     pbe: "https://pbe1.api.riotgames.com"}
 
-  def endpoint(region) do
-    @regions[region]
-  end
+  def endpoint(region), do: @regions[region]
 
 end

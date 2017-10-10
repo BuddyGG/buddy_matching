@@ -39,7 +39,7 @@ defmodule LolBuddyWeb.PlayersChannel do
 
   def handle_in("request_match", %{"player" => other_player}, socket) do
     id = get_player_id(other_player)
-    push socket, "match_requested", other_player
+    push socket, "requesting_match", other_player
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "match_requested", socket.assigns[:user]
     {:noreply, socket}
   end

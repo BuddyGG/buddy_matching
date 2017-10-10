@@ -76,9 +76,7 @@ defmodule LolBuddy.RiotApi.Api do
     |>  OK.success
   end
 
-  defp name_from_id(id) do
-    Champions.find_by_id(id).name
-  end
+  defp name_from_id(id), do: Champions.find_by_id(id).name
 
   defp fetch_champions(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)

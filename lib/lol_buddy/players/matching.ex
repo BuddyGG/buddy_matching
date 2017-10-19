@@ -10,8 +10,8 @@ defmodule LolBuddy.Players.Matching do
 
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
-      iex> criteria1 = %Criteria{positions: [:top, :support], voice: false, age_groups: [1]}
-      iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: false, age_groups: [1]}
+      iex> criteria1 = %Criteria{positions: [:top, :support], voice: [false, true], age_groups: [1]}
+      iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
@@ -54,7 +54,7 @@ defmodule LolBuddy.Players.Matching do
 
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
-      iex> criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+      iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
@@ -63,7 +63,7 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
-      criteria.voice == player.voice
+      Enum.member?(criteria.voice, player.voice)
       && lists_intersect?(criteria.positions, player.positions) 
       && Enum.member?(criteria.age_groups, player.age_group)
   end

@@ -8,9 +8,9 @@ defmodule LolBuddy.MatchingTest do
   # to custom definitions for testing
   setup_all do
     broad_criteria = %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: false, age_groups: [1,2,3]}
+      voice: [true, false], age_groups: [1,2,3]}
 
-    narrow_criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+    narrow_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
 
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
@@ -50,28 +50,28 @@ defmodule LolBuddy.MatchingTest do
 
   ### --- Criteria compatibility tests --- ###
   test "test that 1:1 criteria/player fit is compatible", context do
-    perfect_criteria = %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+    perfect_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
     assert Matching.criteria_compatible?(perfect_criteria, context[:player1])
   end
 
    test "test that voice criteria, for no voice player is incompatible", context do
-    voice_criteria = %Criteria{positions: [:marksman], voice: true, age_groups: [1]}
+    voice_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: [1]}
     refute Matching.criteria_compatible?(voice_criteria, context[:player1])
   end
 
   test "test that age_group criteria doesn't match with bad age groups for player", context do
-    age_criteria = %Criteria{positions: [:marksman], voice: true, age_groups: [2,3]}
+    age_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: [2,3]}
     refute Matching.criteria_compatible?(age_criteria, context[:player1])
   end
 
   test "test that positions criteria doesn't match with other positions", context do
     positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top],
-      voice: true, age_groups: [1]}
+      voice: [true], age_groups: [1]}
     refute Matching.criteria_compatible?(positions_criteria, context[:player1])
   end
 
   test "test that entirely wrong criteria/player combination is incompatible", context do
-    bad_criteria = %Criteria{positions: [:support], voice: true, age_groups: [3]}
+    bad_criteria = %Criteria{positions: [:support], voice: [true], age_groups: [3]}
     refute Matching.criteria_compatible?(bad_criteria, context[:player1])
   end
 

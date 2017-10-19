@@ -6,7 +6,7 @@ defmodule LolBuddy.RiotApi.Positions do
   @positions %{ "Aatrox" => [{:top, @mainly}, {:jungle, @rarely}],
                 "Ahri" => [{:mid, @always}],
                 "Akali" => [{:top, @mainly}, {:mid, @rarely}],
-                "Alistar" => [{:support, @mainly}, {:jungle, @rarely}, {:top, @rarely}],
+                "Alistar" => [{:support, @mainly}, {:jungle, @rarely}],
                 "Amumu" => [{:jungle, @mainly}, {:top, @rarely}],
                 "Anivia" => [{:mid, @always}],
                 "Annie" => [{:mid, @mainly}, {:support, @rarely}],
@@ -18,19 +18,19 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Brand" => [{:mid, @mainly}, {:support, @rarely}],
                 "Braum" => [{:support, @always}],
                 "Caitlyn" => [{:marksman, @always}],
-                "Camille" => [{:top, @always}],
+                "Camille" => [{:top, @mainly}, {:mid, @rarely}],
                 "Cassiopeia" => [{:mid, @always}],
                 "Cho'Gath" => [{:top, @mainly}, {:jungle, @rarely}],
                 "Corki" => [{:marksman, @mainly}, {:mid, @rarely}],
                 "Darius" => [{:top, @always}],
-                "Diana" => [{:jungle, @mainly}, {:mid, @rarely}],
+                "Diana" => [{:mid, @mainly}, {:jungle, @rarely}],
                 "Dr. Mundo" => [{:jungle, @mainly}, {:top, @rarely}],
                 "Draven" => [{:marksman, @always}],
                 "Ekko" => [{:mid, @mainly}, {:jungle, @rarely}],
                 "Elise" => [{:jungle, @always}],
                 "Evelynn" => [{:jungle, @always}],
-                "Ezreal" => [{:marksman, @always}],
-                "Fiddlesticks" => [{:jungle, @mainly}, {:mid, @rarely}],
+                "Ezreal" => [{:jungle, @mainly}, {:marksman, @rarely}],
+                "Fiddlesticks" => [{:jungle, @mainly}, {:support, @rarely}],
                 "Fiora" => [{:top, @always}],
                 "Fizz" => [{:mid, @mainly}, {:jungle, @rarely}],
                 "Galio" => [{:top, @always}],
@@ -40,7 +40,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Gragas" => [{:jungle, @mainly}, {:top, @rarely}],
                 "Graves" => [{:marksman, @mainly}, {:jungle, @rarely}],
                 "Hecarim" => [{:jungle, @always}],
-                "Heimerdinger" => [{:mid, @always}],
+                "Heimerdinger" => [{:mid, @mainly}, {:top, @rarely}],
                 "Illaoi" => [{:top, @always}],
                 "Irelia" => [{:top, @mainly}, {:jungle, @rarely}],
                 "Ivern" => [{:jungle, @always}],
@@ -55,7 +55,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Karthus" => [{:mid, @always}],
                 "Kassadin" => [{:mid, @always}],
                 "Katarina" => [{:mid, @always}],
-                "Kayle" => [{:mid, @always}],
+                "Kayle" => [{:mid, @mainly}, {:top, @rarely}],
                 "Kayn" => [{:jungle, @mainly}, {:top, @rarely}],
                 "Kennen" => [{:top, @mainly}, {:mid, @rarely}],
                 "Kha'Zix" => [{:jungle, @always}],
@@ -124,7 +124,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Varus" => [{:marksman, @always}],
                 "Vayne" => [{:marksman, @always}],
                 "Veigar" => [{:mid, @always}],
-                "Vel'Koz" => [{:support, @mainly}, {:mid, @rarely}],
+                "Vel'Koz" => [{:mid, @mainly}, {:support, @rarely}],
                 "Vi" => [{:jungle, @always}],
                 "Viktor" => [{:mid, @mainly}],
                 "Vladimir" => [{:mid, @mainly}, {:top, @rarely}],
@@ -139,7 +139,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Zac" => [{:jungle, @always}],
                 "Zed" => [{:mid, @always}],
                 "Ziggs" => [{:mid, @always}],
-                "Zilean" => [{:mid, @always}],
+                "Zilean" => [{:support, @mainly}, {:mid, @rarely}],
                 "Zyra" => [{:support, @always}]
               }
 
@@ -169,6 +169,15 @@ defmodule LolBuddy.RiotApi.Positions do
     end
   end
 
+  @doc """
+  Based on a list of champion names, returns a list of either 1 or 2 roles
+  that are most likely the roles associated with the given champions.
+
+  ## Examples
+      iex> champs = ["Vayne", "Xayah", "Caitlyn"]
+      iex> LolBuddy.RiotApi.Positions.positions(champs)
+      [:marksman]
+  """
   # Expects a list of champion names, and returns a list of positions as atoms
   def positions(champions) do
     List.foldl(champions, [], fn(x, acc) -> 
@@ -176,5 +185,4 @@ defmodule LolBuddy.RiotApi.Positions do
     end)
     |> deduce_positions
   end
-
 end

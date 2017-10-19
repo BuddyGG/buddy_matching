@@ -3,13 +3,13 @@ defmodule LolBuddyRiotApi.PositionsTest do
   use ExUnit.Case, async: true
 
   test "3 marksmen return marksman only position" do
-    champs = ["Vayne", "Ezreal", "Caitlyn"]
+    champs = ["Vayne", "Xayah", "Caitlyn"]
     positions = LolBuddy.RiotApi.Positions.positions(champs)
     assert positions == [:marksman]
   end
 
   test "combination of mid and marksmen" do
-    champs = ["Viktor", "Ezreal", "Caitlyn"]
+    champs = ["Viktor", "Vayne", "Caitlyn"]
     positions = LolBuddy.RiotApi.Positions.positions(champs)
     assert Enum.member?(positions, :marksman)
     assert Enum.member?(positions, :mid)

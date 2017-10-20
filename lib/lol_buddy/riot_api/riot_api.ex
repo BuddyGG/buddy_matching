@@ -26,19 +26,21 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns a id and icon_id from a summoner name for a region.
+  Returns name, id and icon_id of a summoner for a region.
 
-  Returns {:ok, {id, icon_id}}
+  Returns {:ok, {summoner_name, name, id, icon_id}}
 
   ## Examples
-      iex> LolBuddy.RiotApi.Api.summoner_ids("Lethly", :euw)
-      {:ok, {22267137, 512}}
+      iex> LolBuddy.RiotApi.Api.summoner_info("lethly", :euw)
+      {:ok, {"Lethly", 22267137, 512}}
   """
-  def summoner_ids(name, region) do
+  def summoner_info(name, region) do
     OK.for do
-      %{"id" => id, "profileIconId" => icon_id} <- fetch_summoner(name, region)
+      %{"name" => summoner_name, 
+        "id" => id, 
+        "profileIconId" => icon_id} <- fetch_summoner(name, region)
     after
-      {id, icon_id}
+      {summoner_name, id, icon_id}
     end
   end
 
@@ -116,12 +118,12 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def fetch_summoner_info(name, region) do
     OK.for do
-      {id, icon_id} <- summoner_ids(name, region)
+      {summoner_name, id, icon_id} <- summoner_info(name, region)
       champions <- champions(id, region)
       leagues <- leagues(id, region)
     after
       positions = Positions.positions(champions)
-      %{name: name,
+      %{name: summoner_name,
         region: region,
         icon_id: icon_id,
         champions: champions,

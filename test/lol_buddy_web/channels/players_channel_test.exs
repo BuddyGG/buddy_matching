@@ -5,20 +5,25 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   alias LolBuddy.Players.Criteria
   alias Poison
   
-  @broad_criteria  %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: [false], age_groups: [1,2,3]}
+  @broad_criteria  %Criteria{positions: [:marksman, :top, :jungle, :top, :support],
+      voice: [false], age_groups: ["interval1", "interval2", "interval3"]}
 
-  @narrow_criteria  %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
+  @narrow_criteria  %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
 
   @diamond1  %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
   @base_player1  %Player{id: 1, name: "Lethly", region: :euw, voice: false,
-  languages: ["danish"], age_group: 1, positions: [:marksman],
+  languages: ["danish"], age_group: "interval1", positions: [:marksman],
   leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
   criteria: @broad_criteria, comment: "Never dies on Vayne"}
 
+  @narrow_player1  %Player{id: 1, name: "Lethly", region: :euw, voice: false,
+  languages: ["danish"], age_group: "interval1", positions: [:marksman],
+  leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
+  criteria: @narrow_criteria, comment: "Never dies on Vayne"}
+
   @base_player2  %Player{id: 2, name: "hansp", region: :euw, voice: false,
-  languages: ["danish", "english"], age_group: 1, positions: [:top],
+  languages: ["danish", "english"], age_group: "interval3", positions: [:top],
   leagues: [@diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
   criteria: @narrow_criteria, comment: "Apparently I play Riven"}
 
@@ -177,21 +182,29 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
 
   test "update criteria returns updated match list" do
-    strict_player1 = %{@base_player1 | criteria: @narrow_criteria}
     {:ok, _, player1} = socket("user:1", %{})
-      |> subscribe_and_join(PlayersChannel, "players:#{strict_player1.id}", strict_player1)
+      |> subscribe_and_join(PlayersChannel, "players:#{@narrow_player1.id}", @narrow_player1)
    
-    {:ok, _, player2} = socket("user:2", %{})
+    #assert player 1 got no one else
+    assert_receive %Phoenix.Socket.Message{
+      topic: "players:1",
+      event: "new_players",
+      payload: %{players: []}}
+   
+    {:ok, _, player2} =socket("user:2", %{})
     |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
+
+    #assert player 2 got no one else
+    assert_receive %Phoenix.Socket.Message{
+      topic: "players:2",
+      event: "new_players",
+      payload: %{players: []}}
 
     broad_criteria = 
       %{"positions" => %{"top" => true, "jungle" => true, "mid" => true, 
         "marksman" => true, "support" => true}, 
         "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
         "voiceChat" => %{"YES" => true, "NO" => true}}
-
-    broad_criteria_parsed = Criteria.from_json(broad_criteria)
-    broad_player1 = %{strict_player1 | criteria: broad_criteria_parsed}
 
     # update player 1's criteria to a stricter version
     push(player1, "update_criteria", broad_criteria)
@@ -201,26 +214,14 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     assert_receive %Phoenix.Socket.Message{
       topic: "players:1",
-      event: "new_player",
-      payload: @base_player2}
-
-    #assert that player 1 got a new_player with player 1
-    assert_receive %Phoenix.Socket.Message{
-      topic: "players:1",
       event: "new_players",
-      payload: %{players: []}}
+      payload: %{players: [@base_player2]}}
 
-    # assert_receive %Phoenix.Socket.Message{
-    #   topic: "players:1",
-    #   event: "new_players",
-    #   payload: %{players: [@base_player2]}}
-
-    #assert that player 2 got a new_player with player 1
-    assert_receive %Phoenix.Socket.Broadcast{
+    broad_criteria_parsed = Criteria.from_json(broad_criteria)
+    broad_player1 = %{@narrow_player1 | criteria: broad_criteria_parsed}
+    assert_receive %Phoenix.Socket.Message{
       topic: "players:2",
       event: "new_player",
       payload: ^broad_player1}
-
-
   end
 end

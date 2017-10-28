@@ -82,4 +82,12 @@ defmodule LolBuddy.PlayersTest do
     assert Enum.member?(matches, context[:g3_player])
     assert Enum.member?(matches, context[:b5_player])
   end
+
+  test "players with incompatible position/position criteria don't match", context do
+    matches = Players.get_matches(context[:s4_player], context[:all_players])
+    assert length(matches) == 2
+    assert Enum.member?(matches, context[:g3_player])
+    assert Enum.member?(matches, context[:b5_player])
+  end
+
 end

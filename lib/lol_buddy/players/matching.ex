@@ -33,7 +33,7 @@ defmodule LolBuddy.Players.Matching do
 
   # convert two lists to MapSets and see if they intersect?
   defp lists_intersect?(a, b) do
-    MapSet.intersection(MapSet.new(a), MapSet.new(b)) != []
+    !MapSet.disjoint?(MapSet.new(a), MapSet.new(b))
   end
 
   # helper for extracting solo queue and determining if it is possible for

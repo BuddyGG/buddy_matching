@@ -6,9 +6,9 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   alias Poison
   
   @broad_criteria  %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: false, age_groups: [1,2,3]}
+      voice: [false], age_groups: [1,2,3]}
 
-  @narrow_criteria  %Criteria{positions: [:marksman], voice: false, age_groups: [1]}
+  @narrow_criteria  %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
 
   @diamond1  %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 

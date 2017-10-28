@@ -30,10 +30,15 @@ defmodule LolBuddy.CriteriaTest do
     assert Criteria.from_json(data) == expected_criteria
   end
 
-  @tag :pending
-  test "test two positions are correctly parsed from json" do
-    input = %{"jungle" => true, "marksman" => false, "mid" => true, "support" => false, "top" => false}
-    expected_positions = [:jungle, :mid]
-    assert expected_positions == Player.positions_from_json(input)
+  test "test voice_chat criteria are parsed correctly" do
+    input = %{"YES" => true, "NO" => false}
+    expected_voice= [true]
+    assert expected_voice == Criteria.voice_from_json(input)
+  end
+
+  test "test age_groups are parsed correctly" do
+    input = %{"interval1" => true, "interval2" => false, "interval3" => false}
+    expected_age_groups= ["interval1"]
+    assert expected_age_groups == Criteria.age_groups_from_json(input)
   end
 end

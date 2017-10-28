@@ -12,21 +12,6 @@ defmodule LolBuddy.Players.Criteria do
       age_groups: age_groups_from_json(data["ageGroups"])}
   end
 
-  @doc """
-  Parses positions given as json into the atom list format used for positions
-  for the Player struct.
-
-  ## Examples
-    iex> positions = {"jungle" => true, "marksman" => false, 
-      "mid" => true, "support" => false, "top" => false}
-    iex> positions_from_json(positions)
-    [:jungle, :mid]
-  """
-  def positions_from_json(positions) do
-    positions
-    |> Enum.filter(fn {_, value} -> value end)
-    |> Enum.map(fn {key,_} -> String.to_atom(key) end)
-  end
 
   defp voice_parse("YES"), do: true
   defp voice_parse("NO"), do: false

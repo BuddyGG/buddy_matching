@@ -3,6 +3,10 @@ defmodule LolBuddy.Players.Player do
     age_group: nil, positions: [], leagues: [], champions: [],
     criteria: nil, comment: ""
 
+  @doc """
+  Parses an entire player from json into the Player struct used in the backend,
+  including parsing for Criteria into its struct
+  """
   def from_json(data) do
     %LolBuddy.Players.Player{id: data["userInfo"]["id"], name: data["name"],
       region: String.to_atom(data["region"]), voice: data["userInfo"]["voicechat"],
@@ -24,10 +28,16 @@ defmodule LolBuddy.Players.Player do
         end)
   end
 
-  # Maps a map of structure:
-  # {"jungle" => true, "marksman" => false, "mid" => true, "support" => false, "top" => false}
-  # To a a list of selected positions as atoms, with above case resulting in:
-  # [:top, mid]
+  @doc """
+  Parses positions given as json into the atom list format used for positions
+  for the Player struct.
+
+  ## Examples
+    iex> positions = {"jungle" => true, "marksman" => false, 
+      "mid" => true, "support" => false, "top" => false}
+    iex> positions_from_json(positions)
+    [:jungle, :mid]
+  """
   def positions_from_json(positions) do
     positions
     |> Enum.filter(fn {_, value} -> value end)

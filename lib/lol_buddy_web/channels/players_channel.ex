@@ -53,6 +53,15 @@ defmodule LolBuddyWeb.PlayersChannel do
   #TODO when channel closes due to errors
   def terminate(_, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
+    region_players = RegionMapper.get_players(socket.assigns[:user].region)
+    matching_players = Players.get_matches(socket.assigns[:user], region_players)
+
+    #Tell all the mathing players that the player left
+    matching_players
+    |> Enum.each(fn player ->
+      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "player_left", socket.assigns[:user]
+    end)
+
   end
 
   #HACK - to correctly get id for various types. Mostly to make tests work.

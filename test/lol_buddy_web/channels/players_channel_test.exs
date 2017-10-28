@@ -79,6 +79,24 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     "name":"Lethly",
     "region":"euw",
     "userInfo":{
+      "criteria": {
+        "positions":{
+            "top":true,
+            "jungle":true,
+            "mid":true,
+            "marksman":true,
+            "support":true
+         },
+         "ageGroups":{
+            "interval1":true,
+            "interval2":true,
+            "interval3":true
+         },
+         "voiceChat":{
+            "YES":true,
+            "NO":true
+         }
+      },
     "id" : 1,
        "selectedRoles":{
           "top":true,

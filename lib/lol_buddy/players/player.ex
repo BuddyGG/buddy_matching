@@ -1,4 +1,5 @@
 defmodule LolBuddy.Players.Player do
+  alias LolBuddy.Players.Criteria
   defstruct id: nil, name: nil, region: nil, voice: false, languages: [],
     age_group: nil, positions: [], leagues: [], champions: [],
     criteria: nil, comment: ""
@@ -13,7 +14,7 @@ defmodule LolBuddy.Players.Player do
       languages: languages_from_json(data["userInfo"]["languages"]), age_group: data["userInfo"]["agegroup"], 
       positions: positions_from_json(data["userInfo"]["selectedRoles"]),
       leagues: leagues_from_json(data["leagues"]), champions: data["champions"],
-      criteria: nil, comment: data["userInfo"]["comment"]}
+      criteria: Criteria.from_json(data["userInfo"]["criteria"]), comment: data["userInfo"]["comment"]}
   end
   
   # Parses a json leagues specification of format:

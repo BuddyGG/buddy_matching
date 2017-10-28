@@ -1,5 +1,7 @@
 defmodule LolBuddyWeb.PlayersChannel do
   use LolBuddyWeb, :channel
+  require Logger
+
   alias LolBuddy.Players
   alias LolBuddy.Players.Criteria
   alias LolBuddy.Players.Player
@@ -70,9 +72,11 @@ defmodule LolBuddyWeb.PlayersChannel do
   def handle_in("update_criteria", criteria, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
+    Logger.debug "Region Players: #{inspect region_players}"
     current_matches = Players.get_matches(socket.assigns[:user], region_players)
     updated_criteria = Criteria.from_json(criteria)
     updated_player = %{socket.assigns[:user] | criteria: updated_criteria}
+    RegionMapper.add_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
 
     #update socket's player

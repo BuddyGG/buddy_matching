@@ -71,9 +71,9 @@ defmodule LolBuddyWeb.PlayersChannel do
     RegionMapper.remove_player(socket.assigns[:user])
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
     current_matches = Players.get_matches(socket.assigns[:user], region_players)
-    updated_criteria = Criteria.from_json(criteria) |> IO.inspect
+    updated_criteria = Criteria.from_json(criteria)
     updated_player = %{socket.assigns[:user] | criteria: updated_criteria}
-    updated_matches = Players.get_matches(updated_player, region_players) |> IO.inspect
+    updated_matches = Players.get_matches(updated_player, region_players)
 
     #update socket's player
     socket = assign(socket, :user, updated_player)
@@ -81,13 +81,13 @@ defmodule LolBuddyWeb.PlayersChannel do
     # broadcast new_player to newly matched players
     updated_matches -- current_matches
     |> Enum.each(fn player ->
-        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", socket.assigns[:user]
+        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", updated_player
       end)
 
     # broadcast remove_player to players who are no longer matched
     current_matches -- updated_matches
     |> Enum.each(fn player ->
-        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "remove_player", socket.assigns[:user]
+        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "remove_player", updated_player
       end)
 
     # send the full list of updated matches on the socket

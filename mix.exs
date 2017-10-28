@@ -41,7 +41,8 @@ defmodule LolBuddy.Mixfile do
       {:httpoison, "~> 0.13"},
       {:poison, "~> 3.1"},
       {:cors_plug, "~> 1.3"},
-      {:ok, "~> 1.9"}
+      {:ok, "~> 1.9"},
+      { :uuid, "~> 1.1" }
     ]
   end
 end

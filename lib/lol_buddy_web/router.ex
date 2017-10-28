@@ -9,5 +9,6 @@ defmodule LolBuddyWeb.Router do
     pipe_through :api
 
     get "/summoner/:region/:name", SummonerController, :show
+    get "/auth/request", AuthController, :show
   end
 end

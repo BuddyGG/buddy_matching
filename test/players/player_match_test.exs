@@ -9,7 +9,7 @@ defmodule LolBuddy.PlayersTest do
   # Players module.
   setup_all do
     broad_criteria = %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: false, age_groups: [1,2,3]}
+      voice: [false], age_groups: [1,2,3]}
 
     master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}

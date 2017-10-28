@@ -160,4 +160,22 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       
   end
   
+  test "send leave event to player 2 when player 1 leaves" do
+    {:ok, _, player1} = socket("user:1", %{})
+      |> subscribe_and_join(PlayersChannel, "players:#{@base_player1.id}", @base_player1)
+   
+    {:ok, _, player2} =socket("user:2", %{})
+    |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
+
+    :ok = close(player1)
+    :ok = close(player2)
+    
+    #assert that player got told that player 1 left
+    assert_receive %Phoenix.Socket.Message{
+      topic: "players:2",
+      event: "player_left",
+      payload: @base_player1}
+
+  end
+
 end

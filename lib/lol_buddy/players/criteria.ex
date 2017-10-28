@@ -12,7 +12,6 @@ defmodule LolBuddy.Players.Criteria do
       age_groups: age_groups_from_json(data["ageGroups"])}
   end
 
-
   defp voice_parse("YES"), do: true
   defp voice_parse("NO"), do: false
 
@@ -22,7 +21,7 @@ defmodule LolBuddy.Players.Criteria do
   accepted values for a player's voice field.
 
   ## Examples
-    iex> voice = {"YES" => true, "NO" -> true}
+    iex> voice = {"YES" => true, "NO" => true}
     iex> voice_from_json(voice)
     [true, false]
   """

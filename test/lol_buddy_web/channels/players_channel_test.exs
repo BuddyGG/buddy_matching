@@ -110,8 +110,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, _, player2} = socket("test2", %{})
     |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
     
-    player1 
-    |> push("request_match", %{"player" => @base_player2})
+    push(player1, "request_match", %{"player" => @base_player2})
 
     :ok = close(player1)
     :ok = close(player2)
@@ -139,8 +138,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, _, player2} = socket("test2", %{})
     |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
     
-    player1 
-    |> push("respond_to_request", %{"id" => @base_player2.id, "response" => "accepted"})
+    push(player1, "respond_to_request", %{"id" => @base_player2.id, "response" => "accepted"})
     
     :ok = close(player1)
     :ok = close(player2)
@@ -157,7 +155,6 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       event: "request_response",
       payload: %{response: "accepted"}
     }
-      
   end
   
   test "send leave event to player 2 when player 1 leaves" do
@@ -178,4 +175,52 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
   end
 
+
+  test "update criteria returns updated match list" do
+    strict_player1 = %{@base_player1 | criteria: @narrow_criteria}
+    {:ok, _, player1} = socket("user:1", %{})
+      |> subscribe_and_join(PlayersChannel, "players:#{strict_player1.id}", strict_player1)
+   
+    {:ok, _, player2} = socket("user:2", %{})
+    |> join(PlayersChannel, "players:#{@base_player2.id}", @base_player2)
+
+    broad_criteria = 
+      %{"positions" => %{"top" => true, "jungle" => true, "mid" => true, 
+        "marksman" => true, "support" => true}, 
+        "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
+        "voiceChat" => %{"YES" => true, "NO" => true}}
+
+    broad_criteria_parsed = Criteria.from_json(broad_criteria)
+    broad_player1 = %{strict_player1 | criteria: broad_criteria_parsed}
+
+    # update player 1's criteria to a stricter version
+    push(player1, "update_criteria", broad_criteria)
+
+    :ok = close(player1)
+    :ok = close(player2)
+
+    assert_receive %Phoenix.Socket.Message{
+      topic: "players:1",
+      event: "new_player",
+      payload: @base_player2}
+
+    #assert that player 1 got a new_player with player 1
+    assert_receive %Phoenix.Socket.Message{
+      topic: "players:1",
+      event: "new_players",
+      payload: %{players: []}}
+
+    # assert_receive %Phoenix.Socket.Message{
+    #   topic: "players:1",
+    #   event: "new_players",
+    #   payload: %{players: [@base_player2]}}
+
+    #assert that player 2 got a new_player with player 1
+    assert_receive %Phoenix.Socket.Broadcast{
+      topic: "players:2",
+      event: "new_player",
+      payload: ^broad_player1}
+
+
+  end
 end

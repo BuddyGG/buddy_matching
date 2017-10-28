@@ -37,6 +37,12 @@ defmodule LolBuddyWeb.PlayersChannel do
     {:noreply, socket}
   end
 
+  @doc """
+  When a player requests a match, we get the reqested player's id
+  and push a "requesting_match" event to his socket.
+  Other than this, we return a "match_requested" event to the player doing the request
+  to confirm the request, such that relevant actions can be taken in the front end.
+  """
   def handle_in("request_match", %{"player" => other_player}, socket) do
     id = get_player_id(other_player)
     push socket, "requesting_match", other_player
@@ -44,6 +50,11 @@ defmodule LolBuddyWeb.PlayersChannel do
     {:noreply, socket}
   end
 
+  @doc """
+  The event used for responding to a match_request. This is used both for cancellation
+  from the requester and accept/rejection of the requested player. The response is sent
+  as is to the player with the given id in the event.
+    """
   def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do
     push socket, "request_response", %{response: response} 
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_response", %{response: response} 

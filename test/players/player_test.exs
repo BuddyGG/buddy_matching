@@ -31,7 +31,10 @@ defmodule LolBuddy.PlayerTest do
           "support":false
        },
        "languages":[
-          "DA"
+          "DA",
+          "KO",
+          "EN"
+          
        ],
        "voicechat":true,
        "agegroup":"20-29",
@@ -42,7 +45,7 @@ defmodule LolBuddy.PlayerTest do
   test "entire player is correctly parsed from json" do
     expected_player = 
       %Player{age_group: "20-29", champions: ["Vayne", "Caitlyn", "Ezreal"], criteria: nil, id: 1,
-              languages: ["DA"], leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}], 
+              languages: ["EN", "DA", "KO"], leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}], 
               name: "Lethly", positions: [:jungle, :top], region: :euw, voice: true, comment: "test"}
     data = Poison.Parser.parse!(@player)
     assert Player.from_json(data) == expected_player

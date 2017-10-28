@@ -6,7 +6,7 @@ defmodule LolBuddy.Players.Player do
   def from_json(data) do
     %LolBuddy.Players.Player{id: data["userInfo"]["id"], name: data["name"],
       region: String.to_atom(data["region"]), voice: data["userInfo"]["voicechat"],
-      languages: data["userInfo"]["languages"], age_group: data["userInfo"]["agegroup"], 
+      languages: languages_from_json(data["userInfo"]["languages"]), age_group: data["userInfo"]["agegroup"], 
       positions: positions_from_json(data["userInfo"]["selectedRoles"]),
       leagues: leagues_from_json(data["leagues"]), champions: data["champions"],
       criteria: nil, comment: data["userInfo"]["comment"]}
@@ -33,4 +33,12 @@ defmodule LolBuddy.Players.Player do
     |> Enum.filter(fn {_, value} -> value end)
     |> Enum.map(fn {key,_} -> String.to_atom(key) end)
   end
+
+  # Sort the languages alphabetically, but ensure that english is first
+  def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
+
+  defp sorter(_,"EN"), do: false
+  defp sorter("EN",_), do: true 
+  defp sorter(left,right), do: left < right
+
 end

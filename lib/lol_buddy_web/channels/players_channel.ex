@@ -29,11 +29,13 @@ defmodule LolBuddyWeb.PlayersChannel do
     RegionMapper.add_player(socket.assigns[:user])
 
     #Send all matching players
+    Logger.debug "Pushing new players: #{inspect matching_players}"
     push socket, "new_players", %{players: matching_players}
     
     #Send the newly joined user to all matching players
     matching_players
     |> Enum.each(fn player ->
+      Logger.debug "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}"
       LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", socket.assigns[:user]
     end)
     
@@ -48,7 +50,11 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def handle_in("request_match", %{"player" => other_player}, socket) do
     id = get_player_id(other_player)
+
+    Logger.debug "Push match request #{inspect other_player}"
     push socket, "requesting_match", other_player
+    
+    Logger.debug "Broadcast match request to #{id}: #{inspect socket.assigns[:user]}"
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "match_requested", socket.assigns[:user]
     {:noreply, socket}
   end
@@ -59,7 +65,11 @@ defmodule LolBuddyWeb.PlayersChannel do
   as is to the player with the given id in the event.
     """
   def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do
+    
+    Logger.debug "Push request response #{inspect response}"
     push socket, "request_response", %{response: response} 
+    
+    Logger.debug "Broadcast request response to #{id}: #{inspect response}"
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_response", %{response: response} 
     {:noreply, socket}
   end
@@ -72,10 +82,12 @@ defmodule LolBuddyWeb.PlayersChannel do
   def handle_in("update_criteria", criteria, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    Logger.debug "Region Players: #{inspect region_players}"
+    
     current_matches = Players.get_matches(socket.assigns[:user], region_players)
+    
     updated_criteria = Criteria.from_json(criteria)
     updated_player = %{socket.assigns[:user] | criteria: updated_criteria}
+    
     RegionMapper.add_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
 
@@ -85,16 +97,19 @@ defmodule LolBuddyWeb.PlayersChannel do
     # broadcast new_player to newly matched players
     updated_matches -- current_matches
     |> Enum.each(fn player ->
+        Logger.debug "Broadcast new player to #{player.id}: #{inspect updated_player}"
         LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", updated_player
       end)
 
     # broadcast remove_player to players who are no longer matched
     current_matches -- updated_matches
     |> Enum.each(fn player ->
+        Logger.debug "Broadcast remove player to #{player.id}: #{inspect updated_player}"
         LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "remove_player", updated_player
       end)
 
     # send the full list of updated matches on the socket
+    Logger.debug "Pushing new players: #{inspect updated_matches}"
     push socket, "new_players", %{players: updated_matches}
     {:noreply, socket}
   end
@@ -108,7 +123,8 @@ defmodule LolBuddyWeb.PlayersChannel do
     #Tell all the mathing players that the player left
     matching_players
     |> Enum.each(fn player ->
-      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "player_left", socket.assigns[:user]
+      Logger.debug "Broadcast remove player to #{player.id}: #{inspect socket.assigns[:user]}"
+      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "remove_player", socket.assigns[:user]
     end)
 
   end

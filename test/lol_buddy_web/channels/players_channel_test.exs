@@ -193,7 +193,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #assert that player got told that player 1 left
     assert_receive %Phoenix.Socket.Message{
       topic: "players:2",
-      event: "player_left",
+      event: "remove_player",
       payload: @base_player1}
 
   end

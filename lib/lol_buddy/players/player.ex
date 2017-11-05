@@ -39,11 +39,7 @@ defmodule LolBuddy.Players.Player do
     iex> positions_from_json(positions)
     [:jungle, :mid]
   """
-  def positions_from_json(positions) do
-    positions
-    |> Enum.filter(fn {_, value} -> value end)
-    |> Enum.map(fn {key,_} -> String.to_atom(key) end)
-  end
+  def positions_from_json(positions), do: for {val, true} <- positions, do: String.to_atom(val)
 
   # Sort the languages alphabetically, but ensure that english is first
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)

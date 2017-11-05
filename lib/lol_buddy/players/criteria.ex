@@ -25,11 +25,7 @@ defmodule LolBuddy.Players.Criteria do
     iex> voice_from_json(voice)
     [true, false]
   """
-  def voice_from_json(voice) do
-    voice
-    |> Enum.filter(fn {_, value} -> value end)
-    |> Enum.map(fn {key,_} -> voice_parse(key) end)
-  end
+  def voice_from_json(voice), do: for {val, true} <- voice, do: voice_parse(val)
 
   @doc """
   Parses the checkbox format the frontend uses for age_groups.
@@ -41,9 +37,5 @@ defmodule LolBuddy.Players.Criteria do
   iex> age_groups_from_json(age_groups)
   ["interval1", "interval2"]
   """
-  def age_groups_from_json(age_groups) do
-    age_groups
-    |> Enum.filter(fn {_, value} -> value end)
-    |> Enum.map(fn {key,_} -> key end)
-  end
+  def age_groups_from_json(age_groups), do: for {val, true} <- age_groups, do: val
 end

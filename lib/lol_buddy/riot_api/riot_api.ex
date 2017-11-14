@@ -26,21 +26,22 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns name, id and icon_id of a summoner for a region.
+  Returns name, id and account_id and icon_id of a summoner for a region.
 
-  Returns {:ok, {summoner_name, name, id, icon_id}}
+  Returns {:ok, {name, id, account_id, icon_id}}
 
   ## Examples
       iex> LolBuddy.RiotApi.Api.summoner_info("lethly", :euw)
-      {:ok, {"Lethly", 22267137, 512}}
+      {:ok, {"Lethly", 22267137, 26102926, 512}}
   """
   def summoner_info(name, region) do
     OK.for do
-      %{"name" => summoner_name, 
+      %{"name" => name, 
         "id" => id, 
+        "accountId" => account_id,
         "profileIconId" => icon_id} <- fetch_summoner(name, region)
     after
-      {summoner_name, id, icon_id}
+      {name, id, account_id, icon_id}
     end
   end
 
@@ -87,7 +88,8 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns a id and icon_id from a summoner name for a region.
+  Returns the 3 champions with highest mastery score for a given
+  summoner_id and region.
 
   Returns {:ok, ["champion1", "champion2", "champion3"]}
 
@@ -118,7 +120,7 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def fetch_summoner_info(name, region) do
     OK.for do
-      {summoner_name, id, icon_id} <- summoner_info(name, region)
+      {summoner_name, id, account_id, icon_id} <- summoner_info(name, region)
       champions <- champions(id, region)
       leagues <- leagues(id, region)
     after
@@ -130,5 +132,28 @@ defmodule LolBuddy.RiotApi.Api do
         leagues: leagues,
         positions: positions}
     end
+  end
+
+  def fetch_recent_champions(id, region) do
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
+    Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
+    |> parse_json
+  end
+
+  @doc """
+  Returns a id and icon_id from a summoner name for a region.
+
+  Returns {:ok, ["champion1", "champion2", "champion3"]}
+
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.champions(22267137, :euw)
+      {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
+  """
+  def recent_champions(account_id, region) do
+    fetch_champions(account_id, region)
+    ~>> Enum.take(3)
+    |>  Enum.map(fn map -> Map.get(map,"championId") end)
+    |>  Enum.map(fn id -> name_from_id(id) end)
+    |>  OK.success
   end
 end

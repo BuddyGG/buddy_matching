@@ -6,16 +6,26 @@ defmodule LolBuddyWeb.PlayersChannel do
   alias LolBuddy.Players.Criteria
   alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer.RegionMapper
+  alias LolBuddy.Auth
 
 
   @doc """
   Each clients joins their own player channel players:cookie_id 
   """
   #TODO auth users
-  def join("players:" <> cookie_id, player, socket) do
-      socket = assign(socket, :user, parse_player_payload(player))
-      send(self(), {:on_join, {}})
-      {:ok, socket}
+  def join("players:" <> session_id, player, socket) do
+      if socket.assigns[:session_id] == session_id do
+        parsed_player = parse_player_payload(player)
+        if parsed_player.id == session_id do
+          socket = assign(socket, :user, parse_player_payload(player))
+          send(self(), {:on_join, {}})
+          {:ok, socket}
+        else
+          {:error, %{reason: "session id mismatch"}}
+        end
+      else
+        {:error, %{reason: "unauthorized"}}
+      end
   end
 
   @doc """
@@ -27,6 +37,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
     matching_players = Players.get_matches(socket.assigns[:user], region_players)
     RegionMapper.add_player(socket.assigns[:user])
+    
 
     #Send all matching players
     Logger.debug "Pushing new players: #{inspect matching_players}"

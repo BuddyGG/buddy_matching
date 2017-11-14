@@ -1,5 +1,6 @@
 defmodule LolBuddyWeb.PlayerSocket do
   use Phoenix.Socket
+  alias LolBuddy.Auth
 
   ## Channels
   channel "players:*", LolBuddyWeb.PlayersChannel
@@ -19,8 +20,17 @@ defmodule LolBuddyWeb.PlayerSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"session_id" => session_id, "session_token" => session_token}, socket) do
+    if Auth.verify_session(session_id, session_token) do
+        socket = assign(socket, :session_id, session_id)
+        {:ok, socket}
+    else
+        {:error, %{reason: "unauthorized"}}
+    end
+  end
+
+  def connect(_params, _socket) do
+    {:error, %{reason: "Missing session_id or session_token"}}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

@@ -112,7 +112,8 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns a id and icon_id from a summoner name for a region.
+  Returns the three most played champions based on the last 20 maches played
+  for the given account_id on the given region.
 
   Returns {:ok, ["champion1", "champion2", "champion3"]}
 

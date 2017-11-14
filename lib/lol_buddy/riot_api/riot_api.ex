@@ -150,7 +150,6 @@ defmodule LolBuddy.RiotApi.Api do
   def recent_champions(account_id, region) do
     fetch_recent_champions(account_id, region)
     ~>> Map.get("matches")
-    |>  IO.inspect
     |>  extract_most_played()
     |>  OK.success
   end

@@ -105,6 +105,32 @@ defmodule LolBuddy.RiotApi.Api do
     |>  OK.success
   end
 
+  @doc """
+  Returns the names of the 3 most played champions based on a list of maps 
+  containing data of matches in league of legends.
+
+  ### Examples
+  iex> matches =
+    [%{"champion" => 24, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 24, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 37, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 37, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 18, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 18, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
+     %{"champion" => 27, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"}]
+  iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
+  ["Jax", "Sona", "Tristana"]
+  """
+  def extract_most_played(matches) do
+    matches
+    |> Enum.map(fn map -> Map.get(map, "champion") end)
+    |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
+    |> Enum.into([])
+    |> Enum.sort(&(elem(&1,1) >= elem(&2,1)))
+    |> Enum.take(3)
+    |> Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
+  end
+
   defp fetch_recent_champions(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
@@ -124,12 +150,8 @@ defmodule LolBuddy.RiotApi.Api do
   def recent_champions(account_id, region) do
     fetch_recent_champions(account_id, region)
     ~>> Map.get("matches")
-    |>  Enum.map(fn map -> Map.get(map, "champion") end)
-    |>  Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
-    |>  Enum.into([])
-    |>  Enum.sort(&(elem(&1,1) >= elem(&2,1)))
-    |>  Enum.take(3)
-    |>  Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
+    |>  IO.inspect
+    |>  extract_most_played()
     |>  OK.success
   end
 

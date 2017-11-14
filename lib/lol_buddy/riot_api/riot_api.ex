@@ -105,6 +105,33 @@ defmodule LolBuddy.RiotApi.Api do
     |>  OK.success
   end
 
+  defp fetch_recent_champions(id, region) do
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
+    Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
+    |> parse_json
+  end
+
+  @doc """
+  Returns a id and icon_id from a summoner name for a region.
+
+  Returns {:ok, ["champion1", "champion2", "champion3"]}
+
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.recent_champions(26102926, :euw)
+      {:ok, ["Vayne", "Varus", "Xayah"]}
+  """
+  def recent_champions(account_id, region) do
+    fetch_recent_champions(account_id, region)
+    ~>> Map.get("matches")
+    |>  Enum.map(fn map -> Map.get(map, "champion") end)
+    |>  Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
+    |>  Enum.into([])
+    |>  Enum.sort(&(elem(&1,1) >= elem(&2,1)))
+    |>  Enum.take(3)
+    |>  Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
+    |>  OK.success
+  end
+
   @doc """
   Return a map containing the given summoner's
   name, region, icon_id, champions, leagues and positions.
@@ -121,7 +148,8 @@ defmodule LolBuddy.RiotApi.Api do
   def fetch_summoner_info(name, region) do
     OK.for do
       {summoner_name, id, account_id, icon_id} <- summoner_info(name, region)
-      champions <- champions(id, region)
+      champions <- recent_champions(account_id, region)
+      #champions <- champions(id, region)
       leagues <- leagues(id, region)
     after
       positions = Positions.positions(champions)
@@ -132,28 +160,5 @@ defmodule LolBuddy.RiotApi.Api do
         leagues: leagues,
         positions: positions}
     end
-  end
-
-  def fetch_recent_champions(id, region) do
-    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
-    Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
-    |> parse_json
-  end
-
-  @doc """
-  Returns a id and icon_id from a summoner name for a region.
-
-  Returns {:ok, ["champion1", "champion2", "champion3"]}
-
-  ## Examples
-      iex> LolBuddy.RiotApi.Api.champions(22267137, :euw)
-      {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
-  """
-  def recent_champions(account_id, region) do
-    fetch_champions(account_id, region)
-    ~>> Enum.take(3)
-    |>  Enum.map(fn map -> Map.get(map,"championId") end)
-    |>  Enum.map(fn id -> name_from_id(id) end)
-    |>  OK.success
   end
 end

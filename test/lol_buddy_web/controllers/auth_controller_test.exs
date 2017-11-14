@@ -1,5 +1,6 @@
 defmodule LolBuddy.AuthControllerTest do
     use LolBuddyWeb.ConnCase
+    alias LolBuddy.Auth
 
     test "generate session id and token" do
       conn = build_conn()
@@ -11,8 +12,7 @@ defmodule LolBuddy.AuthControllerTest do
       assert is_binary(response["session_id"])
       assert is_binary(response["session_token"])
 
-      {:ok, session_id} =  Phoenix.Token.verify(LolBuddyWeb.Endpoint, "session", response["session_token"])
-      assert session_id == response["session_id"]
+      assert Auth.verify_session(response["session_id"], response["session_token"])
       
     end
   end

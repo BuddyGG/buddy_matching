@@ -25,12 +25,12 @@ defmodule LolBuddyWeb.PlayerSocket do
         socket = assign(socket, :session_id, session_id)
         {:ok, socket}
     else
-        {:error, %{reason: "unauthorized"}}
+        :error
     end
   end
 
   def connect(_params, _socket) do
-    {:error, %{reason: "Missing session_id or session_token"}}
+    :error
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

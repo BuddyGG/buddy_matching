@@ -24,7 +24,7 @@ defmodule LolBuddy.Players.Player do
     leagues 
     |>  Enum.map(
         fn elem -> elem 
-                   |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end)
+                   |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
                    |> Enum.into(%{})
         end)
   end
@@ -44,8 +44,8 @@ defmodule LolBuddy.Players.Player do
   # Sort the languages alphabetically, but ensure that english is first
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
 
-  defp sorter(_,"EN"), do: false
-  defp sorter("EN",_), do: true 
-  defp sorter(left,right), do: left < right
+  defp sorter(_, "EN"), do: false
+  defp sorter("EN", _), do: true 
+  defp sorter(left, right), do: left < right
 
 end

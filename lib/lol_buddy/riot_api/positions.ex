@@ -3,7 +3,7 @@ defmodule LolBuddy.RiotApi.Positions do
   @mainly 2
   @rarely 1
 
-  @positions %{ "Aatrox" => [{:top, @mainly}, {:jungle, @rarely}],
+  @positions %{"Aatrox" => [{:top, @mainly}, {:jungle, @rarely}],
                 "Ahri" => [{:mid, @always}],
                 "Akali" => [{:top, @mainly}, {:mid, @rarely}],
                 "Alistar" => [{:support, @mainly}, {:jungle, @rarely}],
@@ -140,8 +140,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Zed" => [{:mid, @always}],
                 "Ziggs" => [{:mid, @always}],
                 "Zilean" => [{:support, @mainly}, {:mid, @rarely}],
-                "Zyra" => [{:support, @always}]
-              }
+                "Zyra" => [{:support, @always}]}
 
   # Here, we expect a list of positions with their total weight.
   # We sort this on the weights, and set the threshold of
@@ -161,7 +160,7 @@ defmodule LolBuddy.RiotApi.Positions do
   #
   defp deduce_positions(weights) do
     threshold = @always * 2 + @rarely
-    List.keysort(weights, 1)
+    weights = List.keysort(weights, 1)
     |> Enum.reverse
     case List.first(weights) do
       {pos, weight} when weight > threshold -> [pos]
@@ -181,7 +180,7 @@ defmodule LolBuddy.RiotApi.Positions do
   # Expects a list of champion names, and returns a list of positions as atoms
   def positions(champions) do
     List.foldl(champions, [], fn(x, acc) -> 
-      Keyword.merge(acc, @positions[x], fn _k, v1 ,v2 -> v1 + v2 end)
+      Keyword.merge(acc, @positions[x], fn _k, v1, v2 -> v1 + v2 end)
     end)
     |> deduce_positions
   end

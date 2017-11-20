@@ -6,7 +6,7 @@ defmodule LolBuddy.RiotApi.Api do
   import OK, only: ["~>>": 2]
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
-    {:ok ,Poison.Parser.parse!(body)}
+    {:ok, Poison.Parser.parse!(body)}
   end
 
   defp handle_json({_, %{status_code: _, body: body}}) do
@@ -100,7 +100,7 @@ defmodule LolBuddy.RiotApi.Api do
   def champions(id, region) do
     fetch_champions(id, region)
     ~>> Enum.take(3)
-    |>  Enum.map(fn map -> Map.get(map,"championId") end)
+    |>  Enum.map(fn map -> Map.get(map, "championId") end)
     |>  Enum.map(fn id -> name_from_id(id) end)
     |>  OK.success
   end
@@ -126,7 +126,7 @@ defmodule LolBuddy.RiotApi.Api do
     |> Enum.map(fn map -> Map.get(map, "champion") end)
     |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
     |> Enum.into([])
-    |> Enum.sort(&(elem(&1,1) >= elem(&2,1)))
+    |> Enum.sort(&(elem(&1, 1) >= elem(&2, 1)))
     |> Enum.take(3)
     |> Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
   end

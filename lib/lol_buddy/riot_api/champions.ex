@@ -1,7 +1,7 @@
 defmodule LolBuddy.RiotApi.Champions do
 
     
-    @champions  [ %{
+    @champions  [%{
         "id": 24,
         "key": "Jax",
         "name": "Jax",

@@ -135,7 +135,7 @@ defmodule LolBuddy.Players.Matching do
     cond do
       tier1 > tier2 -> {league1, league2}
       tier2 > tier1 -> {league2, league1}
-      true -> if (league1.rank <= league2.rank),
+      true -> if league1.rank <= league2.rank,
               do: {league1, league2},
               else: {league2, league1}
     end

@@ -10,7 +10,7 @@ defmodule LolBuddyWeb.ErrorView do
   end
 
   def render("error.json", %{error: error}) do
-    %{ error: error }
+    %{error: error}
   end
 
   # In case no render clause matches or no

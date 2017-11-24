@@ -1,5 +1,11 @@
 defmodule LolBuddy.Players.Player do
+  @moduledoc """
+  Struct handling a player including json parsing 
+  """
+
   alias LolBuddy.Players.Criteria
+
+
   defstruct id: nil, name: nil, region: nil, voice: false, languages: [],
     age_group: nil, positions: [], leagues: [], champions: [],
     criteria: nil, comment: ""

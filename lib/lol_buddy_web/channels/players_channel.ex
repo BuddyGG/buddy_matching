@@ -10,9 +10,8 @@ defmodule LolBuddyWeb.PlayersChannel do
 
 
   @doc """
-  Each clients joins their own player channel players:cookie_id 
+  Each clients joins their own player channel players:session_id 
   """
-  #TODO auth users
   def join("players:" <> session_id, player, socket) do
       if socket.assigns[:session_id] == session_id do
         parsed_player = parse_player_payload(player)

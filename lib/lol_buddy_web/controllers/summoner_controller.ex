@@ -4,7 +4,7 @@ defmodule LolBuddyWeb.SummonerController do
 
   alias LolBuddy.RiotApi.Api
 
-  @@doc """
+  @doc """
   Get request to find a lol player via specified region and name
   """
   def show(conn, %{"region" => region, "name" => name}) do

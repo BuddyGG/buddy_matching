@@ -1,6 +1,8 @@
 defmodule LolBuddy.Players.Matching do
   alias LolBuddy.Players.Player
   alias LolBuddy.Players.Criteria
+  
+  @loose_tiers ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
   # resource for who can play with who
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
 
@@ -73,9 +75,8 @@ defmodule LolBuddy.Players.Matching do
   # Helper for handling special restrictions for cases
   # when the players queuing have a tier discrepancy of 1
   defp rank_compatible?(%{tier: ht, rank: hr}, %{tier: lt, rank: lr}) do
-    loose_tiers = ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
     cond do
-      ht in loose_tiers -> true
+      ht in @loose_tiers -> true
       ht == "CHALLENGER" -> false # always reject
       ht == "MASTER" -> lr in 1..3
 

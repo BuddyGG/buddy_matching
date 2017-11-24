@@ -5,7 +5,7 @@ defmodule LolBuddyWeb.AuthController do
   alias LolBuddy.RiotApi.Api
   alias LolBuddy.Auth
 
-  @@doc """
+  @doc """
   Get request to get a new session_id and matching token
   """
   def show(conn, _param) do

@@ -7,19 +7,8 @@ defmodule LolBuddyWeb.PlayerSocket do
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
-  # transport :longpoll, Phoenix.Transports.LongPoll
 
-  # Socket params are passed from the client and can
-  # be used to verify and authenticate a user. After
-  # verification, you can put default assigns into
-  # the socket that will be set for all channels, ie
-  #
-  #     {:ok, assign(socket, :user_id, verified_user_id)}
-  #
-  # To deny connection, return `:error`.
-  #
-  # See `Phoenix.Token` documentation for examples in
-  # performing token verification on connect.
+  #O n connect verify that the session and session token match
   def connect(%{"session_id" => session_id, "session_token" => session_token}, socket) do
     if Auth.verify_session(session_id, session_token) do
         socket = assign(socket, :session_id, session_id)
@@ -29,6 +18,7 @@ defmodule LolBuddyWeb.PlayerSocket do
     end
   end
 
+  # If no session token and id are sent just return adn error
   def connect(_params, _socket) do
     :error
   end

@@ -1,9 +1,12 @@
 defmodule LolBuddyWeb.SummonerController do
-    use LolBuddyWeb, :controller
-    action_fallback CarExtractorWeb.FallbackController
+  use LolBuddyWeb, :controller
+  action_fallback CarExtractorWeb.FallbackController
 
-    alias LolBuddy.RiotApi.Api
+  alias LolBuddy.RiotApi.Api
 
+  @@doc """
+  Get request to find a lol player via specified region and name
+  """
   def show(conn, %{"region" => region, "name" => name}) do
     Api.fetch_summoner_info(name, String.to_atom(region))
     |> case do

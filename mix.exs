@@ -43,7 +43,8 @@ defmodule LolBuddy.Mixfile do
       {:cors_plug, "~> 1.3"},
       {:ok, "~> 1.9"},
       {:uuid, "~> 1.1"},
-      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
+      {:pre_commit, "~> 0.2.4", only: :dev},
     ]
   end
 end

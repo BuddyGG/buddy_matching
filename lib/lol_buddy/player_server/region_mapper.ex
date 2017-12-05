@@ -1,4 +1,11 @@
 defmodule LolBuddy.PlayerServer.RegionMapper do
+  @moduledoc """
+  The interface from which access to PlayerServers should be handled.
+  Since players are stored in PlayerServers separated by region, this
+  module unifies the access by mapping functions on PlayerServers to the correct
+  PlayerServer, based on the given Player's region.
+  """
+
   alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer
 

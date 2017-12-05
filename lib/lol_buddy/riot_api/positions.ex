@@ -1,4 +1,10 @@
 defmodule LolBuddy.RiotApi.Positions do
+  @moduledoc """
+  Module for deducing positions from a list of champions.
+  This is done through a manually maintained list of most likely played positions
+  for each champion.
+  """
+
   @always 3
   @mainly 2
   @rarely 1

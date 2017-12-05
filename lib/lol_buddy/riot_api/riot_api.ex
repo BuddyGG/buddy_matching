@@ -1,4 +1,10 @@
 defmodule LolBuddy.RiotApi.Api do
+  @moduledoc """
+  This module handles all interaction with Riot's Developer Api.
+  It is expected to me accessed through 'LolBuddy.RiotApi.Api.fetch_summoner_info/2',
+  although several other functions are public, primarily for the sake of testing.
+  """
+
   require OK
   alias LolBuddy.RiotApi.Regions
   alias LolBuddy.RiotApi.Positions
@@ -108,10 +114,11 @@ defmodule LolBuddy.RiotApi.Api do
   @doc """
   Generic function for extracting the most frequent occuring elements in a list.
   Counts each element, sorts in decending order and takes the first 'amount'.
+  Returns it as a map of (key => occurences)
 
   ## Examples
     iex> LolBuddy.RiotApi.extract_most_frequent([3,3,3,2,2,1], 2)
-    [3,2]
+    [3 => 3,2 => 2]
   """
   def extract_most_frequent(matches, amount) do
     matches
@@ -126,16 +133,16 @@ defmodule LolBuddy.RiotApi.Api do
   containing data of matches in league of legends.
 
   ### Examples
-  iex> matches =
-    [%{"champion" => 24, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 24, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 37, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 37, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 18, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 18, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"},
-     %{"champion" => 27, "lane" => "BOTTOM", 440, "role" => "DUO_SUPPORT"}]
-  iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
-  ["Jax", "Sona", "Tristana"]
+    iex> matches =
+      [%{"champion" => 24},
+       %{"champion" => 24},
+       %{"champion" => 37},
+       %{"champion" => 37},
+       %{"champion" => 18},
+       %{"champion" => 18},
+       %{"champion" => 27}]
+    iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
+    ["Jax", "Sona", "Tristana"]
   """
   def extract_most_played_champions(matches, amount \\ 3) do
     matches
@@ -144,6 +151,19 @@ defmodule LolBuddy.RiotApi.Api do
     |> Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
   end
 
+  @doc """
+  From a match, converts Riot's lane/role combination to an atom
+  indicating the role. For bottom, the role is based on Riot's own deduction
+  and can be either "DUO", "DUO_CARRY" or "DUO_SUPPORT". This can be expanded
+  to look at specific champions for the ambiguous "DUO" case but currently just
+  says "DUO_CARRY" = :marksman, and the other two cases = :support.
+
+  ### Examples
+    iex> RiotApi.Api.role_from_match(%{"lane" => "TOP", "role" => "SOLO"})
+    :top
+    iex> RiotApi.Api.role_from_match(%{"lane" => "BOTTOM", "role" => "DUO"})
+    :support
+  """
   def role_from_match(%{"lane" => lane, "role" => role}) do
     case lane do
       "TOP" -> :top
@@ -158,6 +178,7 @@ defmodule LolBuddy.RiotApi.Api do
     matches
     |> Enum.map(fn match -> role_from_match(match) end)
     |> extract_most_frequent(amount)
+    |> Keyword.keys
   end
 
   defp fetch_recent_champions(id, region) do

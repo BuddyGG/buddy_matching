@@ -1,4 +1,9 @@
 defmodule LolBuddy.RiotApi.Regions do
+  @moduledoc """
+  Contains the the list of rigions as well as the addresses for all of their endpoints.
+  These can be found here:
+  https://developer.riotgames.com/regional-endpoints.html
+  """
   @type region :: :br | :eune | :euw | :jp | :kr | :lan | :las | :na | :oce | :tr | :ru | :pbe
   @regions %{
     br: "https://br1.api.riotgames.com",

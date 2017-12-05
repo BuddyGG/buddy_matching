@@ -1,4 +1,7 @@
 defmodule LolBuddy.PlayerServer do
+  @moduledoc """
+  Simple GenServer for storing Players.
+  """
   use GenServer
   alias LolBuddy.Players.Player
 

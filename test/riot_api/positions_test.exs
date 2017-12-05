@@ -21,4 +21,13 @@ defmodule LolBuddyRiotApi.PositionsTest do
     assert Enum.count(positions) == 2
   end
 
+  test "3 roles covered just the two most likely" do
+    champs = ["Kennen", "Kayle", "Vayne"]
+    positions = LolBuddy.RiotApi.Positions.positions(champs)
+    IO.inspect(positions)
+    assert Enum.count(positions) == 2
+    assert Enum.member?(positions, :marksman)
+    assert Enum.member?(positions, :top)
+  end
+
 end

@@ -29,7 +29,7 @@ defmodule LolBuddy.RiotApi.Positions do
                 "Ekko" => [{:mid, @mainly}, {:jungle, @rarely}],
                 "Elise" => [{:jungle, @always}],
                 "Evelynn" => [{:jungle, @always}],
-                "Ezreal" => [{:jungle, @mainly}, {:marksman, @rarely}],
+                "Ezreal" => [{:marksman, @always}],
                 "Fiddlesticks" => [{:jungle, @mainly}, {:support, @rarely}],
                 "Fiora" => [{:top, @always}],
                 "Fizz" => [{:mid, @mainly}, {:jungle, @rarely}],
@@ -160,8 +160,7 @@ defmodule LolBuddy.RiotApi.Positions do
   #
   defp deduce_positions(weights) do
     threshold = @always * 2 + @rarely
-    weights = List.keysort(weights, 1)
-    |> Enum.reverse
+    weights = List.keysort(weights, 1) |> Enum.reverse
     case List.first(weights) do
       {pos, weight} when weight > threshold -> [pos]
       _ -> Enum.take(Keyword.keys(weights), 2)

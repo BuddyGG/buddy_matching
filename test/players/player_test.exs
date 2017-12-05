@@ -81,5 +81,16 @@ defmodule LolBuddy.PlayerTest do
     expected_positions = [:jungle, :mid]
     assert expected_positions == Player.positions_from_json(input)
   end
-end
 
+  test "test that languages are correctly parsed and sorted with english" do
+    input = ["DK", "KR", "EN", "FR"]
+    expected_languages = ["EN", "DK", "FR", "KR"]
+    assert expected_languages == Player.languages_from_json(input)
+  end
+
+  test "test that languages are correctly parsed and sorted without english" do
+    input = ["DK", "KR", "GR", "FR"]
+    expected_languages = ["DK", "FR", "GR", "KR"]
+    assert expected_languages == Player.languages_from_json(input)
+  end
+end

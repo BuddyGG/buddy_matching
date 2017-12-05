@@ -1,7 +1,7 @@
 defmodule LolBuddy.RiotApi.Api do
   @moduledoc """
   This module handles all interaction with Riot's Developer Api.
-  It is expected to me accessed through 'LolBuddy.RiotApi.Api.fetch_summoner_info/2',
+  It is expected to be accessed through 'LolBuddy.RiotApi.Api.fetch_summoner_info/2',
   although several other functions are public, primarily for the sake of testing.
   """
 

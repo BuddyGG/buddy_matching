@@ -828,6 +828,12 @@ defmodule LolBuddy.RiotApi.Champions do
         "key": "Gragas",
         "name": "Gragas",
         "title": "the Rabble Rouser"
+    },
+    %{
+        "id": 142,
+        "key": "Zoe",
+        "name": "Zoe",
+        "title": "the Aspect of Twilight",
     }]
 
 

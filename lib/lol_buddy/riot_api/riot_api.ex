@@ -129,8 +129,8 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns the names of the 3 most played champions based on a list of maps 
-  containing data of matches in league of legends.
+  Returns a list of the names of the 3 most played champions based on a 
+  list of maps containing data of matches in league of legends.
 
   ### Examples
     iex> matches =
@@ -174,6 +174,22 @@ defmodule LolBuddy.RiotApi.Api do
     end
   end
 
+  @doc """
+  Returns a list of 3 most played roles based on a list of maps 
+  containing data of matches in league of legends.
+
+  ### Examples
+    iex> matches =
+      [%{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "JUNGLE", "role" => "NONE"},
+       %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
+       %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
+    iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
+    [:top, :mid]
+  """
   def extract_most_played_roles(matches, amount \\ 2) do
     matches
     |> Enum.map(fn match -> role_from_match(match) end)
@@ -181,27 +197,30 @@ defmodule LolBuddy.RiotApi.Api do
     |> Keyword.keys
   end
 
-  defp fetch_recent_champions(id, region) do
+  defp fetch_recent_matches(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
     |> parse_json
   end
 
   @doc """
-  Returns the three most played champions based on the last 20 maches played
-  for the given account_id on the given region.
+  Returns the three most played champions and two most played roles based 
+  on the last 20 maches played for the given account_id on the given region.
 
-  Returns {:ok, ["champion1", "champion2", "champion3"]}
+  Returns {:ok, {["champion1", "champion2", "champion3"], [:marksman, :support]}}
 
   ## Examples
       iex> LolBuddy.RiotApi.Api.recent_champions(26102926, :euw)
-      {:ok, ["Vayne", "Varus", "Xayah"]}
+      {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
   """
-  def recent_champions(account_id, region) do
-    fetch_recent_champions(account_id, region)
-    ~>> Map.get("matches")
-    |>  extract_most_played_champions
-    |>  OK.success
+  def recent_champions_and_roles(account_id, region) do
+    OK.for do
+      %{"matches" => matches} <- fetch_recent_matches(account_id, region)
+    after
+      champions = extract_most_played_champions(matches)
+      roles = extract_most_played_roles(matches)
+      {champions, roles}
+    end
   end
 
   @doc """
@@ -220,17 +239,15 @@ defmodule LolBuddy.RiotApi.Api do
   def fetch_summoner_info(name, region) do
     OK.for do
       {summoner_name, id, account_id, icon_id} <- summoner_info(name, region)
-      champions <- recent_champions(account_id, region)
-      #champions <- champions(id, region)
+      {champions, roles} <- recent_champions_and_roles(account_id, region)
       leagues <- leagues(id, region)
     after
-      positions = Positions.positions(champions)
       %{name: summoner_name,
         region: region,
         icon_id: icon_id,
         champions: champions,
         leagues: leagues,
-        positions: positions}
+        positions: roles}
     end
   end
 end

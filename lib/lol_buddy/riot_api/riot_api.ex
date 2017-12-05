@@ -106,6 +106,22 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
+  Generic function for extracting the most frequent occuring elements in a list.
+  Counts each element, sorts in decending order and takes the first 'amount'.
+
+  ## Examples
+    iex> LolBuddy.RiotApi.extract_most_frequent([3,3,3,2,2,1], 2)
+    [3,2]
+  """
+  def extract_most_frequent(matches, amount) do
+    matches
+    |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
+    |> Enum.into([])
+    |> Enum.sort(&(elem(&1, 1) >= elem(&2, 1)))
+    |> Enum.take(amount)
+  end
+
+  @doc """
   Returns the names of the 3 most played champions based on a list of maps 
   containing data of matches in league of legends.
 
@@ -121,14 +137,27 @@ defmodule LolBuddy.RiotApi.Api do
   iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
   ["Jax", "Sona", "Tristana"]
   """
-  def extract_most_played(matches) do
+  def extract_most_played_champions(matches, amount \\ 3) do
     matches
     |> Enum.map(fn map -> Map.get(map, "champion") end)
-    |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
-    |> Enum.into([])
-    |> Enum.sort(&(elem(&1, 1) >= elem(&2, 1)))
-    |> Enum.take(3)
+    |> extract_most_frequent(amount)
     |> Enum.map(fn {champ_id, _} -> name_from_id(champ_id) end)
+  end
+
+  def role_from_match(%{"lane" => lane, "role" => role}) do
+    case lane do
+      "TOP" -> :top
+      "JUNGLE" -> :jungle
+      "MID" -> :mid
+      "BOTTOM" when role == "DUO_CARRY" -> :marksman
+      _ -> :support
+    end
+  end
+
+  def extract_most_played_role(matches, amount \\ 2) do
+    matches
+    |> Enum.map(fn match -> role_from_match(match) end)
+    |> extract_most_frequent(amount)
   end
 
   defp fetch_recent_champions(id, region) do
@@ -150,7 +179,7 @@ defmodule LolBuddy.RiotApi.Api do
   def recent_champions(account_id, region) do
     fetch_recent_champions(account_id, region)
     ~>> Map.get("matches")
-    |>  extract_most_played()
+    |>  extract_most_played_champions
     |>  OK.success
   end
 

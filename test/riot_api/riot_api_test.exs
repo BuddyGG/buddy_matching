@@ -11,7 +11,7 @@ defmodule LolBuddyRiotApi.ApiTest do
        %{"champion" => 18, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 18, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 27, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"}]
-    most_played = LolBuddy.RiotApi.Api.extract_most_played(matches)
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_champions(matches)
     assert Enum.member?(most_played, "Jax")
     assert Enum.member?(most_played, "Sona")
     assert Enum.member?(most_played, "Tristana")
@@ -24,7 +24,7 @@ defmodule LolBuddyRiotApi.ApiTest do
        %{"champion" => 37, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 18, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 27, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"}]
-    most_played = LolBuddy.RiotApi.Api.extract_most_played(matches)
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_champions(matches)
     assert Enum.count(most_played) == 3
   end
 
@@ -33,7 +33,7 @@ defmodule LolBuddyRiotApi.ApiTest do
       [%{"champion" => 24, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 24, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"champion" => 24, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"}]
-    most_played = LolBuddy.RiotApi.Api.extract_most_played(matches)
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_champions(matches)
     assert Enum.member?(most_played, "Jax")
     assert Enum.count(most_played) == 1
   end

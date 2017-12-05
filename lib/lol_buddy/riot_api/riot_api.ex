@@ -174,7 +174,7 @@ defmodule LolBuddy.RiotApi.Api do
     end
   end
 
-  def extract_most_played_role(matches, amount \\ 2) do
+  def extract_most_played_roles(matches, amount \\ 2) do
     matches
     |> Enum.map(fn match -> role_from_match(match) end)
     |> extract_most_frequent(amount)

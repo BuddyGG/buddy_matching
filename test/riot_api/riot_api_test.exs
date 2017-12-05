@@ -74,21 +74,52 @@ defmodule LolBuddyRiotApi.ApiTest do
        %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
        %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"}]
-    most_played = LolBuddy.RiotApi.Api.extract_most_played_role(matches, 2)
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_roles(matches, 2)
     assert Enum.count(most_played) == 1
     assert Enum.member?(most_played, :support)
   end
 
   test "correct most played role is extracted from a match list" do
     matches =
-      [%{"champion" => 24, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
-       %{"champion" => 37, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
-       %{"champion" => 18, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
-       %{"champion" => 27, "lane" => "BOTTOM", "role" => "DUO_SUPPORT"}]
-    most_played = LolBuddy.RiotApi.Api.extract_most_played_role(matches, 2)
-    assert Enum.count(most_played) == 1
-    assert Enum.member?(most_played, :support)
+      [%{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "JUNGLE", "role" => "NONE"},
+       %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
+       %{"lane" => "BOTTOM", "role" => "DUO_CARRY"},
+       %{"lane" => "BOTTOM", "role" => "DUO"}]
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_roles(matches, 2)
+    assert Enum.count(most_played) == 2
+    assert Enum.member?(most_played, :top)
+    assert Enum.member?(most_played, :mid)
   end
 
+  test "correct amount of roles extracted with 5-way draw" do
+    matches =
+      [%{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "JUNGLE", "role" => "NONE"},
+       %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
+       %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_roles(matches, 2)
+    assert Enum.count(most_played) == 2
+  end
 
+  test "test with draw for second role but clear winner for first" do
+    matches =
+      [%{"lane" => "TOP", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "MID", "role" => "SOLO"},
+       %{"lane" => "JUNGLE", "role" => "NONE"},
+       %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
+       %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
+    most_played = LolBuddy.RiotApi.Api.extract_most_played_roles(matches, 2)
+    assert Enum.count(most_played) == 2
+    assert Enum.member?(most_played, :mid)
+  end
 end

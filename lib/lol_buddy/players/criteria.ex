@@ -1,4 +1,8 @@
 defmodule LolBuddy.Players.Criteria do
+  @moduledoc """
+  Struct definining the possible criterias with which Players can
+  filter their matches.
+  """
   alias LolBuddy.Players.Player
   defstruct positions: [], voice: false, age_groups: []
 

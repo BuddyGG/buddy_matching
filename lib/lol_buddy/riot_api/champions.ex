@@ -1,5 +1,8 @@
 defmodule LolBuddy.RiotApi.Champions do
-
+  @moduledoc """
+  A manually maintained list of champion names from champion id.
+  Primarily to save calls to Riot's Api and thereby reduce latency.
+  """
     
     @champions  [%{
         "id": 24,

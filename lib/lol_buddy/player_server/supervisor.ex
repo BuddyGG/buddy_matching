@@ -1,4 +1,10 @@
 defmodule LolBuddy.PlayerServer.Supervisor do
+  @moduledoc """
+  The Supervisor responsible for the PlayerServers spawned for each region.
+  Failures are handled individually on each PlayerServer and thereby only results
+  in restarts of the single failing instance.
+  """
+
   use Supervisor
   alias LolBuddy.PlayerServer
 

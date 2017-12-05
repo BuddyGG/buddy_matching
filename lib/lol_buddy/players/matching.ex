@@ -1,10 +1,15 @@
 defmodule LolBuddy.Players.Matching do
+  @moduledoc """
+  Module containing all logic for matching players with other players.
+  This included handling whether or not they can play with eachother based on Riot's
+  own rules on the matter: 
+    https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
+  and whether Players criterias' are mutually compatible.
+  """
   alias LolBuddy.Players.Player
   alias LolBuddy.Players.Criteria
   
   @loose_tiers ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
-  # resource for who can play with who
-  # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
 
   @doc """
   Returns a boolean representing whether Player 'player' and Player 'candidate'

@@ -11,10 +11,12 @@ env:
     - MIX_ENV=test
 
 notifications:
-  email: false
+  - email: false
+  - slack: altumhq:wozd6jygpkoRkGVRtOoXfAVb
 
 sudo: false
 
 script:
   - mix test
   - mix credo
+  

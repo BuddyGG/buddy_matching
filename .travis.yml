@@ -12,7 +12,7 @@ env:
 
 notifications:
   - email: false
-  - slack: altumhq:wozd6jygpkoRkGVRtOoXfAVb
+  - slack: altumhq:iIGyoyfNXDRP7hvem5Zney6h
 
 sudo: false
 

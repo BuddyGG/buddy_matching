@@ -28,9 +28,9 @@ defmodule LolBuddyWeb.PlayersChannel do
   end
 
   @doc """
-  On join we find players mathing the newly joined player,
-  return the list of mathing players to the newly joined player
-  and notifies each of the mathing players about the newly joined players aswell
+  On join we find players matching the newly joined player,
+  return a list of matching players to the newly joined player with an 'initial_matches' event,
+  and notify each of the matches about the newly joined player as well with a 'new_match' event.
   """
   def handle_info({:on_join, _msg}, socket) do
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
@@ -40,13 +40,13 @@ defmodule LolBuddyWeb.PlayersChannel do
 
     #Send all matching players
     Logger.debug fn -> "Pushing new players: #{inspect matching_players}"  end
-    push socket, "new_players", %{players: matching_players}
+    push socket, "initial_matches", %{players: matching_players}
     
     #Send the newly joined user to all matching players
     matching_players
     |> Enum.each(fn player ->
       Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}" end
-      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_player", socket.assigns[:user]
+      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", "new_match", socket.assigns[:user]
     end)
     
     {:noreply, socket}

@@ -53,17 +53,14 @@ defmodule LolBuddyWeb.PlayersChannel do
   end
 
   @doc """
-  When a player requests a match, we get the reqested player's id
-  and push a "requesting_match" event to his socket.
-  Other than this, we return a "match_requested" event to the player doing the request
-  to confirm the request, such that relevant actions can be taken in the front end.
+  When a player requests a match, we get the reqested player's id.
+  We then send the requested player a "match_requested", who is accepted to send back
+  a confirmation response, saying whether he received the request and was available,
+  or whether he was busy. This is handled in the frontend using the "respond_to_request" event.
   """
   def handle_in("request_match", %{"player" => other_player}, socket) do
     id = get_player_id(other_player)
 
-    Logger.debug fn -> "Push match request #{inspect other_player}" end
-    push socket, "requesting_match", other_player
-    
     Logger.debug fn -> "Broadcast match request to #{id}: #{inspect socket.assigns[:user]}" end
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "match_requested", socket.assigns[:user]
     {:noreply, socket}

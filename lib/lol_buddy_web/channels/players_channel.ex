@@ -74,11 +74,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   from the requester and accept/rejection of the requested player. The response is sent
   as is to the player with the given id in the event.
     """
-  def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do
-    
-    Logger.debug fn -> "Push request response #{inspect response}" end
-    push socket, "request_response", %{response: response} 
-    
+  def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do 
     Logger.debug fn -> "Broadcast request response to #{id}: #{inspect response}" end
     LolBuddyWeb.Endpoint.broadcast! "players:#{id}", "request_response", %{response: response} 
     {:noreply, socket}

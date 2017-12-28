@@ -6,6 +6,7 @@
 .elixir_ls/
 # Generated on crash by the VM
 erl_crash.dump
+.deliver/releases/
 
 # Files matching config/*.secret.exs pattern contain sensitive
 # data and you should not commit them into version control.

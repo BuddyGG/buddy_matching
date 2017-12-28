@@ -20,12 +20,14 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   #TODO remember to reenable check_origin
   check_origin: false,
-  secret_key_base: System.get_env("SECRET_KEY_BASE")
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  server: true,
+  code_reloader: false
 
 config :lol_buddy, riot_api_key: System.get_env("RIOT_API_KEY")
 
- # Do not print debug messages in production
-config :logger, level: :debug
+# Do not print debug messages in production
+# config :logger, level: :debug
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
@@ -56,7 +58,7 @@ config :logger, level: :debug
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start the server for all endpoints:
 #
-#     config :phoenix, :serve_endpoints, true
+ config :phoenix, :serve_endpoints, true
 #
 # Alternatively, you can configure exactly which server to
 # start per endpoint:

@@ -1,0 +1,9 @@
+APP="lol_buddy"
+
+BUILD_HOST="api.lolbuddy.tk"
+BUILD_USER="worker"
+BUILD_AT="/home/worker/app_build"
+
+PRODUCTION_HOSTS="api.lolbuddy.tk" 
+PRODUCTION_USER="worker" 
+DELIVER_TO="/home/worker/app_release" 

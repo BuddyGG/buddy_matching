@@ -7,8 +7,11 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   alias Poison
   alias LolBuddy.Auth
 
-  @new_players_event "new_players"
-  @new_player_event "new_player"
+  @initial_matches_event "initial_matches"
+  @new_match_event "new_match"
+  @unmatch_event "remove_player"
+  @request_event "match_requested"
+  @request_response "request_response"
   
   @broad_criteria  %Criteria{positions: [:marksman, :top, :jungle, :top, :support],
       voice: [false], age_groups: ["interval1", "interval2", "interval3"]}
@@ -53,21 +56,21 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
-      event: @new_players_event,
+      event: @initial_matches_event,
       payload: %{players: []}
     }
    
     #assert player 2 got player 1
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: @new_players_event,
+      event: @initial_matches_event,
       payload: %{players: [^player1]}
     }
 
     #assert that player 1 got player 2
     assert_receive %Phoenix.Socket.Broadcast{
       topic: ^topic1,
-      event: @new_player_event,
+      event: @new_match_event,
       payload: ^player2
     }
 
@@ -138,7 +141,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     
     assert_receive %Phoenix.Socket.Message{
     topic: ^topic,
-    event: @new_players_event,
+    event: @initial_matches_event,
     payload: %{players: []}}
   end
 
@@ -154,20 +157,11 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(channel1)
     :ok = close(channel2)
     
-    # Player 1 should receive a message confirming that he is requesting,
-    # while player 2 should receive the match_request.
-    assert_receive %Phoenix.Socket.Message{
-      topic: ^topic1,
-      event: "requesting_match",
-      payload: ^player2
-    }
-
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: "match_requested",
       payload: ^player1
     }
-      
   end
   
   test "player can respond to match request" do
@@ -182,13 +176,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(channel1)
     :ok = close(channel2)
     
-    #Both players should recive the request response from player1
-    assert_receive %Phoenix.Socket.Message{
-      topic: ^topic1,
-      event: "request_response",
-      payload: %{response: "accepted"}
-    }
-
+    #player2 should recive the request response from player1
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: "request_response",
@@ -226,14 +214,14 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
-      event: @new_players_event,
+      event: @initial_matches_event,
       payload: %{players: []}}
     
    
     #assert player 2 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: @new_players_event,
+      event: @initial_matches_event,
       payload: %{players: []}}
 
     broad_criteria = 
@@ -250,14 +238,14 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
-      event: @new_players_event,
+      event: @initial_matches_event,
       payload: %{players: [^player2]}}
 
     broad_criteria_parsed = Criteria.from_json(broad_criteria)
     broad_player1 = %{player1 | criteria: broad_criteria_parsed}
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: @new_player_event,
+      event: @new_match_event,
       payload: ^broad_player1}
   end
 end

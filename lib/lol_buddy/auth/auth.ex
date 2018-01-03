@@ -3,6 +3,8 @@ defmodule LolBuddy.Auth do
   Authenticate module using Phoenix tokens
   Used to generate session ids, tokens and verifying these
   """
+  alias LolBuddyWeb.Endpoint
+  alias Phoenix.Token
 
   @salt "session"
 
@@ -16,17 +18,17 @@ defmodule LolBuddy.Auth do
       "fe8d2ecb-38d3-4b17-a745-b455ce78183b"
   """
   def generate_session_id do
-      UUID.uuid4() 
+      UUID.uuid4()
   end
 
   @doc """
-  Sign a session id to a create session token with a max_age of 30 days 
+  Sign a session id to a create session token with a max_age of 30 days
   ## Example
     iex> LolBuddy.Auth.generate_session_token("fe8d2ecb-38d3-4b17-a745-b455ce78183b")
       "SFMyNTY.g3QAAAACZAAEZGF0YW0AAAAkZmU4ZDJlY2ItMzhkMy00YjE3LWE3NDUtYjQ1NWNlNzgxODNiZAAGc2lnbmVkbgYAa_yf218B.a4U-ibqtnyFogL_LN9EmkDruXUuT4S_r--U6twFZSqo"
   """
   def generate_session_token(session_id) do
-      Phoenix.Token.sign(LolBuddyWeb.Endpoint, @salt, session_id, max_age: @max_age)
+      Token.sign(Endpoint, @salt, session_id, max_age: @max_age)
   end
 
   @doc """
@@ -37,7 +39,7 @@ defmodule LolBuddy.Auth do
       true
   """
   def verify_session(session_id, session_token) do
-      case Phoenix.Token.verify(LolBuddyWeb.Endpoint, @salt, session_token, max_age: @max_age) do
+      case Token.verify(Endpoint, @salt, session_token, max_age: @max_age) do
           {:ok, id_from_token} -> id_from_token == session_id
           {:error, _error} -> false
       end

@@ -1,10 +1,9 @@
 defmodule LolBuddy.Players.Player do
   @moduledoc """
-  Struct handling a player including json parsing 
+  Struct handling a player including json parsing
   """
 
   alias LolBuddy.Players.Criteria
-
 
   defstruct id: nil, name: nil, region: nil, voice: false, languages: [],
     age_group: nil, positions: [], leagues: [], champions: [],
@@ -15,21 +14,27 @@ defmodule LolBuddy.Players.Player do
   including parsing for Criteria into its struct
   """
   def from_json(data) do
-    %LolBuddy.Players.Player{id: data["userInfo"]["id"], name: data["name"],
-      region: String.to_atom(data["region"]), voice: data["userInfo"]["voicechat"],
-      languages: languages_from_json(data["userInfo"]["languages"]), age_group: data["userInfo"]["agegroup"], 
+    %LolBuddy.Players.Player{
+      id: data["userInfo"]["id"],
+      name: data["name"],
+      region: String.to_atom(data["region"]),
+      voice: data["userInfo"]["voicechat"],
+      languages: languages_from_json(data["userInfo"]["languages"]),
+      age_group: data["userInfo"]["agegroup"],
       positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-      leagues: leagues_from_json(data["leagues"]), champions: data["champions"],
-      criteria: Criteria.from_json(data["userInfo"]["criteria"]), comment: data["userInfo"]["comment"]}
+      leagues: leagues_from_json(data["leagues"]),
+      champions: data["champions"],
+      criteria: Criteria.from_json(data["userInfo"]["criteria"]),
+      comment: data["userInfo"]["comment"]}
   end
-  
+
   # Parses a json leagues specification of format:
   # ..."leagues" => [%{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}]...
   # to [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}]
   defp leagues_from_json(leagues) do
-    leagues 
+    leagues
     |>  Enum.map(
-        fn elem -> elem 
+        fn elem -> elem
                    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
                    |> Enum.into(%{})
         end)
@@ -40,7 +45,7 @@ defmodule LolBuddy.Players.Player do
   for the Player struct.
 
   ## Examples
-    iex> positions = {"jungle" => true, "marksman" => false, 
+    iex> positions = {"jungle" => true, "marksman" => false,
       "mid" => true, "support" => false, "top" => false}
     iex> positions_from_json(positions)
     [:jungle, :mid]
@@ -51,7 +56,7 @@ defmodule LolBuddy.Players.Player do
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
 
   defp sorter(_, "EN"), do: false
-  defp sorter("EN", _), do: true 
+  defp sorter("EN", _), do: true
   defp sorter(left, right), do: left < right
 
 end

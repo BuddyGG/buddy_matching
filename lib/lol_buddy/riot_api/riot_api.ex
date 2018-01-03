@@ -7,12 +7,12 @@ defmodule LolBuddy.RiotApi.Api do
 
   require OK
   alias LolBuddy.RiotApi.Regions
-  alias LolBuddy.RiotApi.Positions
   alias LolBuddy.RiotApi.Champions
+  alias Poison.Parser
   import OK, only: ["~>>": 2]
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
-    {:ok, Poison.Parser.parse!(body)}
+    {:ok, Parser.parse!(body)}
   end
 
   defp handle_json({_, %{status_code: _, body: body}}) do
@@ -42,8 +42,8 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def summoner_info(name, region) do
     OK.for do
-      %{"name" => name, 
-        "id" => id, 
+      %{"name" => name,
+        "id" => id,
         "accountId" => account_id,
         "profileIconId" => icon_id} <- fetch_summoner(name, region)
     after
@@ -122,14 +122,15 @@ defmodule LolBuddy.RiotApi.Api do
   """
   def extract_most_frequent(matches, amount) do
     matches
-    |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
+    |> Enum.reduce(%{}, fn x, acc ->
+       Map.update(acc, x, 1, &(&1 + 1)) end) # count occurences
     |> Enum.into([])
     |> Enum.sort(&(elem(&1, 1) >= elem(&2, 1)))
     |> Enum.take(amount)
   end
 
   @doc """
-  Returns a list of the names of the 3 most played champions based on a 
+  Returns a list of the names of the 3 most played champions based on a
   list of maps containing data of matches in league of legends.
 
   ### Examples
@@ -175,7 +176,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns a list of 3 most played roles based on a list of maps 
+  Returns a list of 3 most played roles based on a list of maps
   containing data of matches in league of legends.
 
   ### Examples
@@ -204,7 +205,7 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns the three most played champions and two most played roles based 
+  Returns the three most played champions and two most played roles based
   on the last 20 maches played for the given account_id on the given region.
 
   Returns {:ok, {["champion1", "champion2", "champion3"], [:marksman, :support]}}

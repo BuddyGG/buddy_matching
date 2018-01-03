@@ -1,5 +1,10 @@
 defmodule LolBuddy.Application do
+  @moduledoc """
+  Application configuration. The PlayerServer.Supervisor is started from here.
+  """
+
   use Application
+  alias LolBuddyWeb.Endpoint
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
@@ -9,7 +14,7 @@ defmodule LolBuddy.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(LolBuddyWeb.Endpoint, []),
+      supervisor(Endpoint, []),
       supervisor(LolBuddy.PlayerServer.Supervisor, [])
       # Start your own worker by calling: LolBuddy.Worker.start_link(arg1, arg2, arg3)
       # worker(LolBuddy.Worker, [arg1, arg2, arg3]),
@@ -24,7 +29,7 @@ defmodule LolBuddy.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    LolBuddyWeb.Endpoint.config_change(changed, removed)
+    Endpoint.config_change(changed, removed)
     :ok
   end
 end

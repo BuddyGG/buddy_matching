@@ -36,7 +36,6 @@ defmodule LolBuddyWeb.Endpoint do
     key: "_lol_buddy_key",
     signing_salt: "XJ+2fLa6"
 
-  
   plug CORSPlug
   plug LolBuddyWeb.Router
 

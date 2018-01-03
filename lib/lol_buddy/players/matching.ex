@@ -2,13 +2,13 @@ defmodule LolBuddy.Players.Matching do
   @moduledoc """
   Module containing all logic for matching players with other players.
   This included handling whether or not they can play with eachother based on Riot's
-  own rules on the matter: 
+  own rules on the matter:
     https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
   and whether Players criterias' are mutually compatible.
   """
   alias LolBuddy.Players.Player
   alias LolBuddy.Players.Criteria
-  
+
   @loose_tiers ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
 
   @doc """
@@ -21,11 +21,11 @@ defmodule LolBuddy.Players.Matching do
       iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria1, comment: "Great player, promise"}
       iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: false,
         languages: ["danish", "english"], age_group: 1, positions: [:top],
-        leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"], 
+        leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
         criteria: criteria2, comment: "Ok player, promise"}
       iex> LolBuddy.Players.Matching.match?(player, candidate)
       true
@@ -34,7 +34,7 @@ defmodule LolBuddy.Players.Matching do
     player.id != candidate.id
     && can_queue?(player, candidate)
     && lists_intersect?(player.languages, candidate.languages)
-    && criteria_compatible?(player.criteria, candidate) 
+    && criteria_compatible?(player.criteria, candidate)
     && criteria_compatible?(candidate.criteria, player)
   end
 
@@ -64,14 +64,14 @@ defmodule LolBuddy.Players.Matching do
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria, comment: "Fantastic player"}
       iex> LolBuddy.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
   def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
       Enum.member?(criteria.voice, player.voice)
-      && lists_intersect?(criteria.positions, player.positions) 
+      && lists_intersect?(criteria.positions, player.positions)
       && Enum.member?(criteria.age_groups, player.age_group)
   end
 

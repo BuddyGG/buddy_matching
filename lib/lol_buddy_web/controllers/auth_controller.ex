@@ -2,7 +2,6 @@ defmodule LolBuddyWeb.AuthController do
   use LolBuddyWeb, :controller
   action_fallback CarExtractorWeb.FallbackController
 
-  alias LolBuddy.RiotApi.Api
   alias LolBuddy.Auth
 
   @doc """
@@ -14,5 +13,3 @@ defmodule LolBuddyWeb.AuthController do
      json conn, %{session_id: session_id, session_token: token}
   end
 end
-  
-  

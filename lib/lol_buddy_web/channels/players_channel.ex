@@ -12,7 +12,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   @new_match_event "new_match"
   @unmatch_event "remove_player"
   @request_event "match_requested"
-  @request_response "request_response"
+  @request_response_event "request_response"
 
   @doc """
   Each clients joins their own player channel players:session_id 
@@ -78,7 +78,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do 
     Logger.debug fn -> "Broadcast request response to #{id}: #{inspect response}" end
-    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", @request_response, %{response: response} 
+    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", @request_response_event, %{response: response} 
     {:noreply, socket}
   end
 

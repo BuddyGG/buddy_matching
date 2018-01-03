@@ -3,7 +3,7 @@ defmodule LolBuddy.RiotApi.Champions do
   A manually maintained list of champion names from champion id.
   Primarily to save calls to Riot's Api and thereby reduce latency.
   """
-    
+
     @champions  [%{
         "id": 24,
         "key": "Jax",
@@ -838,7 +838,6 @@ defmodule LolBuddy.RiotApi.Champions do
         "name": "Zoe",
         "title": "the Aspect of Twilight",
     }]
-
 
     def find_by_id(id) do
         Enum.find(@champions, fn champion -> champion[:id] == id end)

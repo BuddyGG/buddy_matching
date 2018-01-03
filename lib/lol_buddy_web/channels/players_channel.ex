@@ -1,4 +1,8 @@
 defmodule LolBuddyWeb.PlayersChannel do
+  @moduledoc """
+  The channel on which all player matching is handled.
+  """
+
   use LolBuddyWeb, :channel
   require Logger
 
@@ -6,7 +10,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   alias LolBuddy.Players.Criteria
   alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer.RegionMapper
-  alias LolBuddy.Auth
+  alias LolBuddyWeb.Endpoint
 
   @initial_matches_event "initial_matches"
   @new_match_event "new_match"
@@ -15,7 +19,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   @request_response_event "request_response"
 
   @doc """
-  Each clients joins their own player channel players:session_id 
+  Each clients joins their own player channel players:session_id
   """
   def join("players:" <> session_id, player, socket) do
       if socket.assigns[:session_id] == session_id do
@@ -39,21 +43,20 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def handle_info({:on_join, _msg}, socket) do
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    matching_players = Players.get_matches(socket.assigns[:user], region_players)
+    matches = Players.get_matches(socket.assigns[:user], region_players)
     RegionMapper.add_player(socket.assigns[:user])
-    
 
     #Send all matching players
-    Logger.debug fn -> "Pushing new players: #{inspect matching_players}"  end
-    push socket, @initial_matches_event, %{players: matching_players}
-    
+    Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
+    push socket, @initial_matches_event, %{players: matches}
+
     #Send the newly joined user to all matching players
-    matching_players
+    matches
     |> Enum.each(fn player ->
       Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}" end
-      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns[:user]
+      Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns[:user]
     end)
-    
+
     {:noreply, socket}
   end
 
@@ -67,7 +70,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     id = get_player_id(other_player)
 
     Logger.debug fn -> "Broadcast match request to #{id}: #{inspect socket.assigns[:user]}" end
-    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", @request_event, socket.assigns[:user]
+    Endpoint.broadcast! "players:#{id}", @request_event, socket.assigns[:user]
     {:noreply, socket}
   end
 
@@ -76,25 +79,25 @@ defmodule LolBuddyWeb.PlayersChannel do
   from the requester and accept/rejection of the requested player. The response is sent
   as is to the player with the given id in the event.
   """
-  def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do 
+  def handle_in("respond_to_request", %{"id" => id, "response" => response}, socket) do
     Logger.debug fn -> "Broadcast request response to #{id}: #{inspect response}" end
-    LolBuddyWeb.Endpoint.broadcast! "players:#{id}", @request_response_event, %{response: response} 
+    Endpoint.broadcast! "players:#{id}", @request_response_event, %{response: response}
     {:noreply, socket}
   end
 
   @doc """
   When update criteria is received with a new criteria for the player bound to the socket,
-  we broadcast a 'new_player' 
+  we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    
+
     current_matches = Players.get_matches(socket.assigns[:user], region_players)
-    
+
     updated_criteria = Criteria.from_json(criteria)
     updated_player = %{socket.assigns[:user] | criteria: updated_criteria}
-    
+
     RegionMapper.add_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
 
@@ -105,14 +108,14 @@ defmodule LolBuddyWeb.PlayersChannel do
     updated_matches -- current_matches
     |> Enum.each(fn player ->
         Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect updated_player}" end
-        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", @new_match_event, updated_player
+        Endpoint.broadcast! "players:#{player.id}", @new_match_event, updated_player
       end)
 
     # broadcast remove_player to players who are no longer matched
     current_matches -- updated_matches
     |> Enum.each(fn player ->
         Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect updated_player}" end
-        LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", @unmatch_event, updated_player
+        Endpoint.broadcast! "players:#{player.id}", @unmatch_event, updated_player
       end)
 
     # send the full list of updated matches on the socket
@@ -125,13 +128,13 @@ defmodule LolBuddyWeb.PlayersChannel do
   def terminate(_, socket) do
     RegionMapper.remove_player(socket.assigns[:user])
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    matching_players = Players.get_matches(socket.assigns[:user], region_players)
+    matches = Players.get_matches(socket.assigns[:user], region_players)
 
     #Tell all the matching players that the player left
-    matching_players
+    matches
     |> Enum.each(fn player ->
       Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect socket.assigns[:user]}" end
-      LolBuddyWeb.Endpoint.broadcast! "players:#{player.id}", @unmatch_event, socket.assigns[:user]
+      Endpoint.broadcast! "players:#{player.id}", @unmatch_event, socket.assigns[:user]
     end)
 
   end
@@ -142,9 +145,9 @@ defmodule LolBuddyWeb.PlayersChannel do
   # as json, since it will not contain userInfo in given context.
   def get_player_id(%Player{} = player), do: player.id
   def get_player_id(%{} = player), do: player["id"]
-  
+
   @doc """
-  Parse player from the payload, if we get a player struct, we just return it, 
+  Parse player from the payload, if we get a player struct, we just return it,
   else we parse the payload as json
   """
   def parse_player_payload(%Player{} = player), do: player

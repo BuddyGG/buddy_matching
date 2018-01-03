@@ -16,5 +16,3 @@ defmodule LolBuddyWeb.SummonerController do
 
   end
 end
-  
-  

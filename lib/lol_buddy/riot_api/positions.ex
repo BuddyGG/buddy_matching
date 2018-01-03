@@ -152,12 +152,12 @@ defmodule LolBuddy.RiotApi.Positions do
   # We sort this on the weights, and set the threshold of
   # @always * 2 + @rarely as being weight needed for us to assume
   # that the player mains only this role.
-  # 
+  #
   # If no such weight is present, we take the first 2 positions
   # from the sorted list, and return this, without applying
   # any clever tricks in case of equal weights.
   #
-  # Returns eg: `[:marksman, :mid]` 
+  # Returns eg: `[:marksman, :mid]`
   #
   # Examples
   #
@@ -184,7 +184,7 @@ defmodule LolBuddy.RiotApi.Positions do
   """
   # Expects a list of champion names, and returns a list of positions as atoms
   def positions(champions) do
-    List.foldl(champions, [], fn(x, acc) -> 
+    List.foldl(champions, [], fn(x, acc) ->
       Keyword.merge(acc, @positions[x], fn _k, v1, v2 -> v1 + v2 end)
     end)
     |> deduce_positions

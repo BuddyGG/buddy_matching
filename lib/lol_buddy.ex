@@ -7,3 +7,4 @@ defmodule LolBuddy do
   if it comes from the database, an external API or others.
   """
 end
+

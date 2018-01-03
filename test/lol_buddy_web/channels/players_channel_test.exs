@@ -11,7 +11,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   @new_match_event "new_match"
   @unmatch_event "remove_player"
   @request_event "match_requested"
-  @request_response "request_response"
+  @request_response_event "request_response"
   
   @broad_criteria  %Criteria{positions: [:marksman, :top, :jungle, :top, :support],
       voice: [false], age_groups: ["interval1", "interval2", "interval3"]}
@@ -159,7 +159,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: "match_requested",
+      event: @request_event,
       payload: ^player1
     }
   end
@@ -179,7 +179,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #player2 should recive the request response from player1
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: "request_response",
+      event: @request_response_event,
       payload: %{response: "accepted"}
     }
   end
@@ -197,11 +197,9 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     #assert that player got told that player 1 left
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: "remove_player",
+      event: @unmatch_event,
       payload: ^player1}
-
   end
-
   
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)

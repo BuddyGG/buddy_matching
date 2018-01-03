@@ -6,6 +6,12 @@ defmodule LolBuddy.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
+    api_key = System.get_env("RIOT_API_KEY")
+    if api_key do
+      Application.put_env(:lol_buddy, :riot_api_key, api_key)
+    end
+    
+
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts

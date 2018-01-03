@@ -49,7 +49,14 @@ defmodule LolBuddyWeb.Endpoint do
   def init(_key, config) do
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
-      {:ok, Keyword.put(config, :http, [:inet6, port: port])}
+      host = System.get_env("HOST") || raise "expected the HOST environment variable to be set"
+      secret = System.get_env("SECRET_KEY_BASE") || raise "expected the SECRET_KEY_BASE environment variable to be set"
+      [secret_key_base: secret] ++
+      [url: [scheme: "https", host: host, port: 443]] ++ 
+      [http:  [:inet6, port: port]] ++ 
+      config
+
+      {:ok, config}
     else
       {:ok, config}
     end

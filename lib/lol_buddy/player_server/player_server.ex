@@ -78,6 +78,7 @@ defmodule LolBuddy.PlayerServer do
       iex> LolBuddy.PlayerServer.add(%Player{})
         :ok
   """
+  #TODO fix so that a player can only be added once
   def add(pid, %Player{} = player) do
     GenServer.cast(pid, {:add, player})
   end

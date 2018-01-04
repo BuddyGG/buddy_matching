@@ -16,7 +16,6 @@ use Mix.Config
 config :lol_buddy, LolBuddyWeb.Endpoint,
   
   load_from_system_env: true,
-  force_ssl: [rewrite_on: [:x_forwarded_proto]],
   #TODO remember to reenable check_origin
   check_origin: false,
   server: true,

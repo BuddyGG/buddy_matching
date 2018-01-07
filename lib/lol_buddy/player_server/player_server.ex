@@ -1,6 +1,8 @@
 defmodule LolBuddy.PlayerServer do
   @moduledoc """
   Simple GenServer for storing Players.
+  MapSet used for data structure, as a PlayerServer is
+  expected to contain no duplicates.
   """
   use GenServer
   alias LolBuddy.Players.Player
@@ -31,27 +33,27 @@ defmodule LolBuddy.PlayerServer do
   # Called automatically by start_link
   # Returns :ok and initial state of GenServer
   def init(:ok) do
-    {:ok, []}
+    {:ok, MapSet.new}
   end
 
   # Handle calls with read - synchronous
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:read}, _from, list) do
-    {:reply, list, list}
+    {:reply, MapSet.to_list(list), list}
   end
 
   # Handle casts with remove - asynchronous
   # Remove a player from the state
   # Returns {:noreply, <state>}
   def handle_cast({:remove, player}, list) do
-    {:noreply, List.delete(list, player)}
+    {:noreply, MapSet.delete(list, player)}
   end
 
   # Handle casts with add - asynchronous
-  # Merely append the player to the list
+  # Merely add the player into the MapSet
   # Returns {:noreply, <state>}
   def handle_cast({:add, player}, list) do
-    {:noreply, [player | list]}
+    {:noreply, MapSet.put(list, player)}
   end
 
   @doc """
@@ -62,7 +64,7 @@ defmodule LolBuddy.PlayerServer do
       iex> LolBuddy.PlayerServer.read(:euw)
         [%{%Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"], 
+        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria, comment: "Fantastic player"}]
   """
   def read(pid) do

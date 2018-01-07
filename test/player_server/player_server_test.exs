@@ -28,7 +28,6 @@ defmodule LolBuddy.PlayerServerTest do
     assert length(PlayerServer.read(server)) == 2
   end
 
-  @tag :pending
   test "players may not be added twice", %{server: server} do
     assert PlayerServer.read(server) == []
     player1 = %Player{id: 1}

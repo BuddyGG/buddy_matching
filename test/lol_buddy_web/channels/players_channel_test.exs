@@ -12,7 +12,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   @unmatch_event "remove_player"
   @request_event "match_requested"
   @request_response_event "request_response"
-  
+  @already_signed_up_event "already_signed_up"
+
   @broad_criteria  %Criteria{positions: [:marksman, :top, :jungle, :top, :support],
       voice: [false], age_groups: ["interval1", "interval2", "interval3"]}
 
@@ -25,7 +26,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
   criteria: @broad_criteria, comment: "Never dies on Vayne"}
 
-  @narrow_player1  %Player{name: "Lethly", region: :euw, voice: false,
+  @narrow_player1  %Player{name: "Trolleren", region: :euw, voice: false,
   languages: ["danish"], age_group: "interval1", positions: [:marksman],
   leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
   criteria: @narrow_criteria, comment: "Never dies on Vayne"}
@@ -59,7 +60,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       event: @initial_matches_event,
       payload: %{players: []}
     }
-   
+
     #assert player 2 got player 1
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
@@ -78,7 +79,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
   test "can join channel with valid json payload" do
     {socket, auth_player, topic} = setup_socket(%{id: 1})
-    
+
     player =  ~s({
     "champions":[
        "Vayne",
@@ -138,7 +139,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     {:ok, _, channel} = socket |> subscribe_and_join(PlayersChannel, topic, data)
     :ok = close(channel)
-    
+
     assert_receive %Phoenix.Socket.Message{
     topic: ^topic,
     event: @initial_matches_event,
@@ -151,31 +152,50 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
-    
+
     push(channel1, "request_match", %{"player" => player2})
 
     :ok = close(channel1)
     :ok = close(channel2)
-    
+
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: @request_event,
       payload: ^player1
     }
   end
-  
+
+  test "same player can't sign up twice" do
+    # although they get different ids, these players will be recognized
+    # as the same by the PlayerServer
+    {socket1, player1, topic1} = setup_socket(@base_player1)
+    {socket2, player2, topic2} = setup_socket(@base_player1)
+
+    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+
+    :ok = close(channel1)
+    :ok = close(channel2)
+
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic2,
+      event: @already_signed_up_event,
+      payload: _
+    }
+  end
+
   test "player can respond to match request" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
-    
+
     push(channel1, "respond_to_request", %{"id" => player2.id, "response" => "accepted"})
-    
+
     :ok = close(channel1)
     :ok = close(channel2)
-    
+
     #player2 should recive the request response from player1
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
@@ -193,38 +213,38 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     :ok = close(channel1)
     :ok = close(channel2)
-    
+
     #assert that player got told that player 1 left
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: @unmatch_event,
       payload: ^player1}
   end
-  
+
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
-    
+
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
-   
+
     #assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
       payload: %{players: []}}
-    
-   
+
+
     #assert player 2 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: @initial_matches_event,
       payload: %{players: []}}
 
-    broad_criteria = 
-      %{"positions" => %{"top" => true, "jungle" => true, "mid" => true, 
-        "marksman" => true, "support" => true}, 
+    broad_criteria =
+      %{"positions" => %{"top" => true, "jungle" => true, "mid" => true,
+        "marksman" => true, "support" => true},
         "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
         "voiceChat" => %{"YES" => true, "NO" => true}}
 

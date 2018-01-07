@@ -1,8 +1,9 @@
 defmodule LolBuddy.PlayerServer do
   @moduledoc """
   Simple GenServer for storing Players.
-  MapSet used for data structure, as a PlayerServer is
-  expected to contain no duplicates.
+  Map used for data structure with name as key. Since PlayerServers
+  are expected to be realm specific and without duplicates,
+  this should disallow duplicates without conflicting keys.
   """
   use GenServer
   alias LolBuddy.Players.Player
@@ -33,27 +34,32 @@ defmodule LolBuddy.PlayerServer do
   # Called automatically by start_link
   # Returns :ok and initial state of GenServer
   def init(:ok) do
-    {:ok, MapSet.new}
+    {:ok, %{}}
   end
 
   # Handle calls with read - synchronous
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:read}, _from, list) do
-    {:reply, MapSet.to_list(list), list}
+    {:reply, Map.values(list), list}
+  end
+
+  # Handle call with add - synchronous
+  # Merely add the player into the Map. Return :ok, if Player
+  # was added, otherwise return :error.
+  # Returns {:noreply, <value returned to client>, <state>}
+  def handle_call({:add, player}, _from, list) do
+    unless Map.has_key?(list, player.name) do
+      {:reply, :ok, Map.put_new(list, player.name, player)}
+    else
+      {:reply, :error, list}
+    end
   end
 
   # Handle casts with remove - asynchronous
   # Remove a player from the state
   # Returns {:noreply, <state>}
   def handle_cast({:remove, player}, list) do
-    {:noreply, MapSet.delete(list, player)}
-  end
-
-  # Handle casts with add - asynchronous
-  # Merely add the player into the MapSet
-  # Returns {:noreply, <state>}
-  def handle_cast({:add, player}, list) do
-    {:noreply, MapSet.put(list, player)}
+    {:noreply, Map.delete(list, player.name)}
   end
 
   @doc """
@@ -73,16 +79,19 @@ defmodule LolBuddy.PlayerServer do
 
   @doc """
   Adds the given player to the specified server
-  Always returns :ok if server exists.
-  Method will run asynchronously.
+  Returns :ok if Player was not already in MapSet.
+  Otherwise returns :error.
+  Method will run synchronously.
 
   ## Examples
-      iex> LolBuddy.PlayerServer.add(%Player{})
+      iex> p1 = %Player{}
+      iex> LolBuddy.PlayerServer.add(p1)
         :ok
+      iex> LolBuddy.PlayerServer.add(p1)
+        :error
   """
-  #TODO fix so that a player can only be added once
   def add(pid, %Player{} = player) do
-    GenServer.cast(pid, {:add, player})
+    GenServer.call(pid, {:add, player})
   end
 
   @doc """

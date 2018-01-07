@@ -17,6 +17,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   @unmatch_event "remove_player"
   @request_event "match_requested"
   @request_response_event "request_response"
+  @already_signed_up_event "already_signed_up"
 
   @doc """
   Each clients joins their own player channel players:session_id
@@ -40,23 +41,28 @@ defmodule LolBuddyWeb.PlayersChannel do
   On join we find players matching the newly joined player,
   return a list of matching players to the newly joined player with an 'initial_matches' event,
   and notify each of the matches about the newly joined player as well with a 'new_match' event.
+
+  If the given player is already signed up we return a @already_signed_up_event instead.
   """
   def handle_info({:on_join, _msg}, socket) do
     region_players = RegionMapper.get_players(socket.assigns[:user].region)
     matches = Players.get_matches(socket.assigns[:user], region_players)
-    RegionMapper.add_player(socket.assigns[:user])
+    case RegionMapper.add_player(socket.assigns[:user]) do
+      :ok ->
+        #Send all matching players
+        Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
+        push socket, @initial_matches_event, %{players: matches}
 
-    #Send all matching players
-    Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
-    push socket, @initial_matches_event, %{players: matches}
+        #Send the newly joined user to all matching players
+        matches
+        |> Enum.each(fn player ->
+          Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}" end
+          Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns[:user]
+        end)
 
-    #Send the newly joined user to all matching players
-    matches
-    |> Enum.each(fn player ->
-      Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}" end
-      Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns[:user]
-    end)
-
+      :error ->
+        push socket, @already_signed_up_event, %{reason: "The given summoner is already signed up"}
+    end
     {:noreply, socket}
   end
 

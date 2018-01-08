@@ -47,6 +47,7 @@ end
 
 release :lol_buddy do
   set version: current_version(:lol_buddy)
+  plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools
   ]

@@ -20,6 +20,15 @@ defmodule LolBuddyWeb.PlayersChannel do
   @already_signed_up_event "already_signed_up"
 
   @doc """
+  Define init to trap exit signals, such that we can always clean
+  up PlayerServers upon crashes.
+  """
+  def init(_) do
+    Process.flag(:trap_exit, true)
+    {:ok, %{}}
+  end
+
+  @doc """
   Each clients joins their own player channel players:session_id
   """
   def join("players:" <> session_id, player, socket) do
@@ -159,5 +168,4 @@ defmodule LolBuddyWeb.PlayersChannel do
   def parse_player_payload(%Player{} = player), do: player
   def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
   def parse_player_payload(%{} = player), do: Player.from_json(player)
-
 end

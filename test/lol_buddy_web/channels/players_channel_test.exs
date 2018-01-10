@@ -21,17 +21,17 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
   @diamond1  %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
-  @base_player1  %Player{ name: "Lethly", region: :euw, voice: false,
+  @base_player1  %Player{ name: "Lethly", region: :euw, voice: false, id: "1",
   languages: ["danish"], age_group: "interval1", positions: [:marksman],
   leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
   criteria: @broad_criteria, comment: "Never dies on Vayne"}
 
-  @narrow_player1  %Player{name: "Trolleren", region: :euw, voice: false,
+  @narrow_player1  %Player{name: "Trolleren", region: :euw, voice: false, id: "2",
   languages: ["danish"], age_group: "interval1", positions: [:marksman],
   leagues: [@diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
   criteria: @narrow_criteria, comment: "Never dies on Vayne"}
 
-  @base_player2  %Player{name: "hansp", region: :euw, voice: false,
+  @base_player2  %Player{name: "hansp", region: :euw, voice: false, id: "3",
   languages: ["danish", "english"], age_group: "interval3", positions: [:top],
   leagues: [@diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
   criteria: @narrow_criteria, comment: "Apparently I play Riven"}

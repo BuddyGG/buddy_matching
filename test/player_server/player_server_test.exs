@@ -11,7 +11,7 @@ defmodule LolBuddy.PlayerServerTest do
   test "player is added", %{server: server} do
     assert PlayerServer.read(server) == []
 
-    player = %Player{id: 1, name: "foo"}
+    player = %Player{id: "1", name: "foo"}
     PlayerServer.add(server, player)
     assert [^player] = PlayerServer.read(server)
   end
@@ -19,8 +19,8 @@ defmodule LolBuddy.PlayerServerTest do
   test "players are added", %{server: server} do
     assert PlayerServer.read(server) == []
 
-    player1 = %Player{id: 1, name: "foo"}
-    player2 = %Player{id: 2, name: "bar"}
+    player1 = %Player{id: "1", name: "foo"}
+    player2 = %Player{id: "2", name: "bar"}
     PlayerServer.add(server, player1)
     assert [^player1] = PlayerServer.read(server)
 
@@ -30,7 +30,7 @@ defmodule LolBuddy.PlayerServerTest do
 
   test "players may not be added twice", %{server: server} do
     assert PlayerServer.read(server) == []
-    player1 = %Player{id: 1, name: "foo"}
+    player1 = %Player{id: "1", name: "foo"}
 
     PlayerServer.add(server, player1)
     assert [^player1] = PlayerServer.read(server)
@@ -42,7 +42,7 @@ defmodule LolBuddy.PlayerServerTest do
   test "player is removed", %{server: server} do
     assert PlayerServer.read(server) == []
 
-    player = %Player{id: 1, name: "foo"}
+    player = %Player{id: "1", name: "foo"}
 
     # player is added
     PlayerServer.add(server, player)
@@ -56,8 +56,8 @@ defmodule LolBuddy.PlayerServerTest do
   test "absent player removal has no effect", %{server: server} do
     assert PlayerServer.read(server) == []
 
-    absent_player = %Player{id: 0, name: "bar"}
-    player = %Player{id: 1, name: "foo"}
+    absent_player = %Player{id: "0", name: "bar"}
+    player = %Player{id: "1", name: "foo"}
 
     # player is added
     PlayerServer.add(server, player)

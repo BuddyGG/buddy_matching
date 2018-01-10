@@ -15,13 +15,14 @@ defmodule LolBuddy.Application do
     if api_key do
       Application.put_env(:lol_buddy, :riot_api_key, api_key)
     end
-    
+
 
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
       supervisor(Endpoint, []),
-      supervisor(LolBuddy.PlayerServer.Supervisor, [])
+      supervisor(LolBuddy.PlayerServer.Supervisor, []),
+      supervisor(LolBuddyWeb.Presence, [])
       # Start your own worker by calling: LolBuddy.Worker.start_link(arg1, arg2, arg3)
       # worker(LolBuddy.Worker, [arg1, arg2, arg3]),
     ]

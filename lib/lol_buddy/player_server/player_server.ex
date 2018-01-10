@@ -6,9 +6,13 @@ defmodule LolBuddy.PlayerServer do
   this should disallow duplicates without conflicting keys.
   """
   use GenServer
+  require Logger
+  alias LolBuddy.Players
   alias LolBuddy.Players.Player
   alias LolBuddyWeb.Endpoint
-  alias LolBuddyWeb.Presence
+  alias Phoenix.Socket.Broadcast
+
+  @unmatch_event "remove_player"
 
   @doc """
   Starts the PlayerServer.
@@ -51,16 +55,36 @@ defmodule LolBuddy.PlayerServer do
   # Returns {:noreply, <value returned to client>, <state>}
   def handle_call({:add, player}, _from, list) do
     unless Map.has_key?(list, player.name) do
-      #:ok = Endpoint.subscribe("players:" <> player.id, [])
+      :ok = Endpoint.subscribe("players:" <> player.id, [])
       {:reply, :ok, Map.put_new(list, player.name, player)}
     else
       {:reply, :error, list}
     end
   end
 
-  def handle_diff(diff, list) do
-    IO.inspect(diff)
-    {:noreply, list}
+  # When we get a 'presence_diff' with no leaves, we do nothing.
+  def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: %{} = leaves}}, state)
+  when leaves == %{} do
+    {:noreply, state}
+  end
+
+  # When a player leaves the channel, we unsubscribe to his topic, remove him from the state
+  # and in a separate process alert all the matches he may have had, that he has left.
+  def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
+    [topic | _ ] = Map.keys(leaves)
+    [name | _ ] = Map.values(leaves) |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
+    Endpoint.unsubscribe("players:" <> topic)
+
+    # spawn a process to handle unmatching so GenServer can continue
+    spawn fn ->
+      player = state[name]
+      Players.get_matches(player, state)
+      |> Enum.each(fn match ->
+         Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
+         Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
+      end)
+    end
+    {:noreply, Map.delete(state, name)}
   end
 
   # Handle casts with remove - asynchronous

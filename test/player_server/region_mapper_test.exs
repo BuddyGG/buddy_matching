@@ -14,22 +14,22 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
   end
 
   test "player is added to region specific server", %{region1: region} do
-    player = %Player{id: 1, name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", region: region}
     RegionMapper.add_player(player)
 
     assert [^player] = RegionMapper.get_players(player.region)
   end
 
   test "player is not accessible from other servers", %{region1: region1, region2: region2} do
-    player = %Player{id: 1, name: "foo", region: region1}
+    player = %Player{id: "1", name: "foo", region: region1}
     RegionMapper.add_player(player)
 
     assert [] = RegionMapper.get_players(region2)
   end
 
   test "multiple players may be added to same server", %{region1: region} do
-    player1 = %Player{id: 1, name: "bar", region: region}
-    player2 = %Player{id: 2, name: "foo", region: region}
+    player1 = %Player{id: "1", name: "bar", region: region}
+    player2 = %Player{id: "2", name: "foo", region: region}
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)
 
@@ -37,7 +37,7 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
   end
 
   test "players can be removed from server", %{region1: region} do
-    player = %Player{id: 1, name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", region: region}
 
     RegionMapper.add_player(player)
     assert [^player] = RegionMapper.get_players(player.region)
@@ -47,8 +47,8 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
   end
 
   test "remove_player removes correct player", %{region1: region} do
-    player1 = %Player{id: 1, name: "foo", region: region}
-    player2 = %Player{id: 2, name: "bar", region: region}
+    player1 = %Player{id: "1", name: "foo", region: region}
+    player2 = %Player{id: "2", name: "bar", region: region}
 
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)

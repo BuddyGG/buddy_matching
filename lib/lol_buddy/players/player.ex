@@ -7,7 +7,7 @@ defmodule LolBuddy.Players.Player do
 
   defstruct id: nil, name: nil, region: nil, voice: false, languages: [],
     age_group: nil, positions: [], leagues: [], champions: [],
-    criteria: nil, comment: ""
+    criteria: nil, comment: nil
 
   @doc """
   Parses an entire player from json into the Player struct used in the backend,

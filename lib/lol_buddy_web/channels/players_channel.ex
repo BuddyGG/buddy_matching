@@ -12,6 +12,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   alias LolBuddy.PlayerServer.RegionMapper
   alias LolBuddyWeb.Endpoint
   alias LolBuddyWeb.Presence
+  alias Phoenix.Socket.Broadcast
 
   @initial_matches_event "initial_matches"
   @new_match_event "new_match"
@@ -80,6 +81,15 @@ defmodule LolBuddyWeb.PlayersChannel do
   end
 
   @doc """
+  Catch all Presence 'presence_diff' events and merely ignore them for now.
+  These will occur when someone joins/leaves the topic, thus only when the PlayerServer
+  subscribes to monitor the topic.
+  """
+  def handle_info(%Broadcast{event: "presence_diff"}, socket) do
+    {:noreply, socket}
+  end
+
+  @doc """
   When a player requests a match, we get the reqested player's id.
   We then send the requested player a "match_requested", who is accepted to send back
   a confirmation response, saying whether he received the request and was available,
@@ -141,21 +151,6 @@ defmodule LolBuddyWeb.PlayersChannel do
     Logger.debug fn -> "Pushing new players: #{inspect updated_matches}" end
     push socket, @initial_matches_event, %{players: updated_matches}
     {:noreply, socket}
-  end
-
-  #TODO when channel closes due to errors
-  def terminate(_, socket) do
-    RegionMapper.remove_player(socket.assigns.user)
-    region_players = RegionMapper.get_players(socket.assigns.user.region)
-    matches = Players.get_matches(socket.assigns.user, region_players)
-
-    #Tell all the matching players that the player left
-    matches
-    |> Enum.each(fn player ->
-      Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect socket.assigns.user}" end
-      Endpoint.broadcast! "players:#{player.id}", @unmatch_event, socket.assigns.user
-    end)
-
   end
 
   #HACK - to correctly get id for various types. Mostly to make tests work.

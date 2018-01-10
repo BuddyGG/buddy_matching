@@ -221,25 +221,6 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       payload: ^player1}
   end
 
-  @tag :pending
-  test "send leave event to player 2 when player 1 crashes" do
-    {socket1, player1, topic1} = setup_socket(@base_player1)
-    {socket2, player2, topic2} = setup_socket(@base_player2)
-
-    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
-
-    Process.exit(socket1.transport_pid, :normal)
-    IO.inspect "COCK"
-    :ok = close(channel2)
-
-    #assert that player 2 got told that player 1 left when player 1 crashes
-    assert_receive %Phoenix.Socket.Message{
-      topic: ^topic2,
-      event: @unmatch_event,
-      payload: ^player1}
-  end
-
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)

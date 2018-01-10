@@ -7,6 +7,8 @@ defmodule LolBuddy.PlayerServer do
   """
   use GenServer
   alias LolBuddy.Players.Player
+  alias LolBuddyWeb.Endpoint
+  alias LolBuddyWeb.Presence
 
   @doc """
   Starts the PlayerServer.
@@ -49,10 +51,16 @@ defmodule LolBuddy.PlayerServer do
   # Returns {:noreply, <value returned to client>, <state>}
   def handle_call({:add, player}, _from, list) do
     unless Map.has_key?(list, player.name) do
+      #:ok = Endpoint.subscribe("players:" <> player.id, [])
       {:reply, :ok, Map.put_new(list, player.name, player)}
     else
       {:reply, :error, list}
     end
+  end
+
+  def handle_diff(diff, list) do
+    IO.inspect(diff)
+    {:noreply, list}
   end
 
   # Handle casts with remove - asynchronous
@@ -90,7 +98,7 @@ defmodule LolBuddy.PlayerServer do
       iex> LolBuddy.PlayerServer.add(p1)
         :error
   """
-  def add(pid, %Player{} = player) do
+  def add(pid, player) do
     GenServer.call(pid, {:add, player})
   end
 

@@ -11,6 +11,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   alias LolBuddy.Players.Player
   alias LolBuddy.PlayerServer.RegionMapper
   alias LolBuddyWeb.Endpoint
+  alias LolBuddyWeb.Presence
 
   @initial_matches_event "initial_matches"
   @new_match_event "new_match"
@@ -20,23 +21,15 @@ defmodule LolBuddyWeb.PlayersChannel do
   @already_signed_up_event "already_signed_up"
 
   @doc """
-  Define init to trap exit signals, such that we can always clean
-  up PlayerServers upon crashes.
-  """
-  def init(_) do
-    Process.flag(:trap_exit, true)
-    {:ok, %{}}
-  end
-
-  @doc """
   Each clients joins their own player channel players:session_id
   """
-  def join("players:" <> session_id, player, socket) do
-      if socket.assigns[:session_id] == session_id do
+  def join("players:" <> session_id, %{} = player, socket) do
+      if socket.assigns.session_id == session_id do
         parsed_player = parse_player_payload(player)
         if parsed_player.id == session_id do
           socket = assign(socket, :user, parse_player_payload(player))
           send(self(), {:on_join, {}})
+          send(self(), :after_join)
           {:ok, socket}
         else
           {:error, %{reason: "session id mismatch"}}
@@ -54,9 +47,9 @@ defmodule LolBuddyWeb.PlayersChannel do
   If the given player is already signed up we return a @already_signed_up_event instead.
   """
   def handle_info({:on_join, _msg}, socket) do
-    region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    matches = Players.get_matches(socket.assigns[:user], region_players)
-    case RegionMapper.add_player(socket.assigns[:user]) do
+    region_players = RegionMapper.get_players(socket.assigns.user.region)
+    matches = Players.get_matches(socket.assigns.user, region_players)
+    case RegionMapper.add_player(socket.assigns.user) do
       :ok ->
         #Send all matching players
         Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
@@ -65,13 +58,24 @@ defmodule LolBuddyWeb.PlayersChannel do
         #Send the newly joined user to all matching players
         matches
         |> Enum.each(fn player ->
-          Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns[:user]}" end
-          Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns[:user]
+          Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns.user}" end
+          Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns.user
         end)
 
       :error ->
         push socket, @already_signed_up_event, %{reason: "The given summoner is already signed up"}
     end
+    {:noreply, socket}
+  end
+
+  @doc """
+  After joining, let Presence track when a certain user joins the channel.
+  This has the added benefit of allowing Presence to track the channel and handle
+  potential crashes.
+    """
+  def handle_info(:after_join, socket) do
+    # Presence has to track some metadata - so give it an empty map
+    {:ok, _} = Presence.track(socket, socket.assigns.user.id, %{name: socket.assigns.user.name})
     {:noreply, socket}
   end
 
@@ -84,8 +88,8 @@ defmodule LolBuddyWeb.PlayersChannel do
   def handle_in("request_match", %{"player" => other_player}, socket) do
     id = get_player_id(other_player)
 
-    Logger.debug fn -> "Broadcast match request to #{id}: #{inspect socket.assigns[:user]}" end
-    Endpoint.broadcast! "players:#{id}", @request_event, socket.assigns[:user]
+    Logger.debug fn -> "Broadcast match request to #{id}: #{inspect socket.assigns.user}" end
+    Endpoint.broadcast! "players:#{id}", @request_event, socket.assigns.user
     {:noreply, socket}
   end
 
@@ -105,13 +109,13 @@ defmodule LolBuddyWeb.PlayersChannel do
   we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
-    RegionMapper.remove_player(socket.assigns[:user])
-    region_players = RegionMapper.get_players(socket.assigns[:user].region)
+    RegionMapper.remove_player(socket.assigns.user)
+    region_players = RegionMapper.get_players(socket.assigns.user.region)
 
-    current_matches = Players.get_matches(socket.assigns[:user], region_players)
+    current_matches = Players.get_matches(socket.assigns.user, region_players)
 
     updated_criteria = Criteria.from_json(criteria)
-    updated_player = %{socket.assigns[:user] | criteria: updated_criteria}
+    updated_player = %{socket.assigns.user | criteria: updated_criteria}
 
     RegionMapper.add_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
@@ -141,15 +145,15 @@ defmodule LolBuddyWeb.PlayersChannel do
 
   #TODO when channel closes due to errors
   def terminate(_, socket) do
-    RegionMapper.remove_player(socket.assigns[:user])
-    region_players = RegionMapper.get_players(socket.assigns[:user].region)
-    matches = Players.get_matches(socket.assigns[:user], region_players)
+    RegionMapper.remove_player(socket.assigns.user)
+    region_players = RegionMapper.get_players(socket.assigns.user.region)
+    matches = Players.get_matches(socket.assigns.user, region_players)
 
     #Tell all the matching players that the player left
     matches
     |> Enum.each(fn player ->
-      Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect socket.assigns[:user]}" end
-      Endpoint.broadcast! "players:#{player.id}", @unmatch_event, socket.assigns[:user]
+      Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect socket.assigns.user}" end
+      Endpoint.broadcast! "players:#{player.id}", @unmatch_event, socket.assigns.user
     end)
 
   end

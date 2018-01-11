@@ -55,7 +55,9 @@ defmodule LolBuddy.PlayerServer do
   # Returns {:noreply, <value returned to client>, <state>}
   def handle_call({:add, player}, _from, list) do
     unless Map.has_key?(list, player.name) do
+      IO.inspect "adding #{player.name}"
       :ok = Endpoint.subscribe("players:" <> player.id, [])
+      IO.inspect Map.put_new(list, player.name, player)
       {:reply, :ok, Map.put_new(list, player.name, player)}
     else
       {:reply, :error, list}
@@ -76,21 +78,33 @@ defmodule LolBuddy.PlayerServer do
     Endpoint.unsubscribe("players:" <> topic)
 
     # spawn a process to handle unmatching so GenServer can continue
-    spawn fn ->
+    #spawn fn ->
       player = state[name]
-      Players.get_matches(player, state)
+      if player == nil do
+        IO.inspect(name, label: "name")
+        IO.inspect(state, label: "state")
+      end
+      Players.get_matches(player, Map.values(state))
+      |> IO.inspect(label: "matches")
       |> Enum.each(fn match ->
          Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
          Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
       end)
-    end
+      #end
     {:noreply, Map.delete(state, name)}
+  end
+
+  # We ignore all other messages
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   # Handle casts with remove - asynchronous
   # Remove a player from the state
   # Returns {:noreply, <state>}
   def handle_cast({:remove, player}, list) do
+    IO.inspect "removing #{player.name}"
+    IO.inspect list
     {:noreply, Map.delete(list, player.name)}
   end
 

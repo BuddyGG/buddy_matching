@@ -88,7 +88,7 @@ defmodule LolBuddy.Players.Matching do
       # now we may can assume ht is diamond
       # we also know if hr is diamond, lt has to be platinum
       hr == 1 -> ht == lt && lr in 1..4
-      hr == 2 -> false      # d2 can't queue with plat (should never be called tho)
+      hr == 2 -> false      # d2 can't queue with plat (should'nt happen tho)
       hr == 3 -> lr == 1    # d3 can queue with plat 1
       hr == 4 -> lr in 1..2 # d4 can queue with plat 1/2
       hr == 5 -> lr in 1..3 # d5 can queue with plat 1..3

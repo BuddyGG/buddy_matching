@@ -59,8 +59,7 @@ defmodule LolBuddyWeb.PlayersChannel do
         #Send the newly joined user to all matching players
         matches
         |> Enum.each(fn player ->
-          Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect socket.assigns.user}" end
-          Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns.user
+           Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns.user
         end)
 
       :error ->
@@ -76,7 +75,8 @@ defmodule LolBuddyWeb.PlayersChannel do
     """
   def handle_info(:after_join, socket) do
     # Presence has to track some metadata - so give it an empty map
-    {:ok, _} = Presence.track(socket, socket.assigns.user.id, %{name: socket.assigns.user.name})
+    {:ok, _} = Presence.track(socket, socket.assigns.user.id,
+                              %{name: socket.assigns.user.name})
     {:noreply, socket}
   end
 
@@ -120,18 +120,16 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def handle_in("update_criteria", criteria, socket) do
     RegionMapper.remove_player(socket.assigns.user)
-    region_players = RegionMapper.get_players(socket.assigns.user.region)
 
+    region_players = RegionMapper.get_players(socket.assigns.user.region)
     current_matches = Players.get_matches(socket.assigns.user, region_players)
 
     updated_criteria = Criteria.from_json(criteria)
     updated_player = %{socket.assigns.user | criteria: updated_criteria}
+    socket = assign(socket, :user, updated_player)
 
     RegionMapper.add_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
-
-    # update socket's player
-    socket = assign(socket, :user, updated_player)
 
     # broadcast new_player to newly matched players
     updated_matches -- current_matches

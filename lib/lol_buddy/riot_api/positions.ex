@@ -166,7 +166,9 @@ defmodule LolBuddy.RiotApi.Positions do
   #
   defp deduce_positions(weights) do
     threshold = @always * 2 + @rarely
-    weights = List.keysort(weights, 1) |> Enum.reverse
+    weights = weights
+              |> List.keysort(1)
+              |> Enum.reverse
     case List.first(weights) do
       {pos, weight} when weight > threshold -> [pos]
       _ -> Enum.take(Keyword.keys(weights), 2)
@@ -184,8 +186,9 @@ defmodule LolBuddy.RiotApi.Positions do
   """
   # Expects a list of champion names, and returns a list of positions as atoms
   def positions(champions) do
-    List.foldl(champions, [], fn(x, acc) ->
-      Keyword.merge(acc, @positions[x], fn _k, v1, v2 -> v1 + v2 end)
+    champions
+    |> List.foldl([], fn(x, acc) ->
+         Keyword.merge(acc, @positions[x], fn _k, v1, v2 -> v1 + v2 end)
     end)
     |> deduce_positions
   end

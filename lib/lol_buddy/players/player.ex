@@ -29,7 +29,7 @@ defmodule LolBuddy.Players.Player do
   end
 
   # Parses a json leagues specification of format:
-  # ..."leagues" => [%{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}]...
+  # "leagues" => [%{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}]
   # to [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}]
   defp leagues_from_json(leagues) do
     leagues

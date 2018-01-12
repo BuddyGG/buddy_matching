@@ -54,13 +54,11 @@ defmodule LolBuddy.PlayerServer do
   # was added, otherwise return :error.
   # Returns {:noreply, <value returned to client>, <state>}
   def handle_call({:add, player}, _from, list) do
-    unless Map.has_key?(list, player.name) do
-      IO.inspect "adding #{player.name}"
-      :ok = Endpoint.subscribe("players:" <> player.id, [])
-      IO.inspect Map.put_new(list, player.name, player)
-      {:reply, :ok, Map.put_new(list, player.name, player)}
-    else
+    if Map.has_key?(list, player.name) do
       {:reply, :error, list}
+    else
+      :ok = Endpoint.subscribe("players:" <> player.id, [])
+      {:reply, :ok, Map.put_new(list, player.name, player)}
     end
   end
 
@@ -70,11 +68,14 @@ defmodule LolBuddy.PlayerServer do
     {:noreply, state}
   end
 
-  # When a player leaves the channel, we unsubscribe to his topic, remove him from the state
-  # and in a separate process alert all the matches he may have had, that he has left.
+  # When a player leaves the channel, we unsubscribe to his topic,
+  # remove him from the state. In a separate process alert all the matches
+  # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    [topic | _ ] = Map.keys(leaves)
-    [name | _ ] = Map.values(leaves) |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
+    [topic|_] = Map.keys(leaves)
+    [name|_] = leaves
+                  |> Map.values()
+                  |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
     Endpoint.unsubscribe("players:" <> topic)
 
     # spawn a process to handle unmatching so GenServer can continue
@@ -84,7 +85,8 @@ defmodule LolBuddy.PlayerServer do
         IO.inspect(name, label: "name")
         IO.inspect(state, label: "state")
       end
-      Players.get_matches(player, Map.values(state))
+      player
+      |> Players.get_matches(Map.values(state))
       |> IO.inspect(label: "matches")
       |> Enum.each(fn match ->
          Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end

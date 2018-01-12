@@ -221,6 +221,25 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
+  test "send leave event to player 2 when player 1 crashes" do
+    {socket1, player1, topic1} = setup_socket(@base_player1)
+    {socket2, player2, topic2} = setup_socket(@base_player2)
+
+    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+
+    # unlink to first to avoid test being killed as well
+    Process.unlink(channel1.channel_pid)
+    Process.exit(channel1.channel_pid, :kill)
+
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic2,
+      event: @unmatch_event,
+      payload: ^player1}
+
+    :ok = close(channel2)
+  end
+
   @tag :wip
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)

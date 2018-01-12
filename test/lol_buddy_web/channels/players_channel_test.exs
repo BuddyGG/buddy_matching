@@ -240,7 +240,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
-  @tag :wip
+  #@tag :wip
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
@@ -268,7 +268,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
         "voiceChat" => %{"YES" => true, "NO" => true}}
 
-    # update player 1's criteria to a stricter version
+    # update player 1's criteria to a less strict one
     push(channel1, "update_criteria", broad_criteria)
 
     assert_receive %Phoenix.Socket.Message{
@@ -282,6 +282,53 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       topic: ^topic2,
       event: @new_match_event,
       payload: ^broad_player1}
+
+    :ok = close(channel1)
+    :ok = close(channel2)
+  end
+
+  @tag :wip
+  test "update criteria sends unmatch events when no longer matching" do
+    {socket1, player1, topic1} = setup_socket(@base_player1)
+    {socket2, player2, topic2} = setup_socket(@base_player2)
+
+    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+
+
+    #assert player 1 got no one else
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic1,
+      event: @initial_matches_event,
+      payload: %{players: []}}
+
+
+    #assert player 2 got no one else
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic2,
+      event: @initial_matches_event,
+      payload: %{players: [^player1]}}
+
+    narrow_criteria =
+      %{"positions" => %{"top" => true, "jungle" => true, "mid" => true,
+        "marksman" => true, "support" => true},
+        "ageGroups" => %{"interval1" => true, "interval2" => false, "interval3" => false},
+        "voiceChat" => %{"YES" => false, "NO" => true}}
+
+    # update player 1's criteria to a stricter version
+    push(channel1, "update_criteria", narrow_criteria)
+
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic1,
+      event: @initial_matches_event,
+      payload: %{players: []}}
+
+    narrow_criteria_parsed = Criteria.from_json(narrow_criteria)
+    narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic2,
+      event: @unmatch_event,
+      payload: ^narrow_player1}
 
     :ok = close(channel1)
     :ok = close(channel2)

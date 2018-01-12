@@ -295,13 +295,11 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
-
     #assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
       payload: %{players: []}}
-
 
     #assert player 2 got no one else
     assert_receive %Phoenix.Socket.Message{

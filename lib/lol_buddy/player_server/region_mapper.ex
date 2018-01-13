@@ -47,4 +47,23 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
   def remove_player(%Player{} = player) do
     PlayerServer.remove(player.region, player)
   end
+
+  @doc """
+  Updates the given player from its region's PlayerServer
+  This will have no effect if the player isn't already in the PlayerServer.
+
+  ## Examples
+      iex> c1 = %Criteria{positions: [:marksman]}
+      iex> player = %{id: 1, name: "Lethly", region: :non_existent_region,
+        criteria: c1}
+      iex> LolBuddy.RegionMapper.add(player)
+        :ok
+      iex> c2 = %Criteria{positions: [:jungle]}
+      iex> player1 = %{player | criteria: c2}
+      iex> LolBuddy.RegionMapper.update(player1)
+        :ok
+  """
+  def update_player(%Player{} = player) do
+    PlayerServer.update(player.region, player)
+  end
 end

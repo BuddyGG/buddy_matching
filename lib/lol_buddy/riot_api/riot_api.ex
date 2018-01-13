@@ -180,16 +180,16 @@ defmodule LolBuddy.RiotApi.Api do
   containing data of matches in league of legends.
 
   ### Examples
-    iex> matches =
-      [%{"lane" => "TOP", "role" => "SOLO"},
-       %{"lane" => "TOP", "role" => "SOLO"},
-       %{"lane" => "MID", "role" => "SOLO"},
-       %{"lane" => "MID", "role" => "SOLO"},
-       %{"lane" => "JUNGLE", "role" => "NONE"},
-       %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
-       %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
-    iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
-    [:top, :mid]
+  iex> matches =
+    [%{"lane" => "TOP", "role" => "SOLO"},
+     %{"lane" => "TOP", "role" => "SOLO"},
+     %{"lane" => "MID", "role" => "SOLO"},
+     %{"lane" => "MID", "role" => "SOLO"},
+     %{"lane" => "JUNGLE", "role" => "NONE"},
+     %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
+     %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
+  iex> LolBuddy.RiotApi.Api.extract_most_played(matches)
+  [:top, :mid]
   """
   def extract_most_played_roles(matches, amount \\ 2) do
     matches
@@ -198,10 +198,72 @@ defmodule LolBuddy.RiotApi.Api do
     |> Keyword.keys
   end
 
+  @doc """
+  Returns the last played solo queue match for the given
+  account_id, if they have played one.
+
+  ### Examples
+  iex> LolBuddy.RiotApi.Api.fetch_last_solo_match(26102926, :euw)
+    {:ok, %{"gameCreation" => 1515525992929, "gameDuration" => 1382...}}
+  """
+  def fetch_last_solo_match(account_id, region) do
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
+    OK.for do
+      %{"matches" => matches} <-
+        region
+        |> Regions.endpoint()
+        |> Kernel.<>("/lol/match/v3/matchlists/by-account/#{account_id}")
+        |> Kernel.<>("?queue=420&endIndex=1&api_key=#{key}")
+        |> parse_json
+      first = List.first(matches)["gameId"]
+      last_game <-
+        region
+        |> Regions.endpoint()
+        |> Kernel.<>("/lol/match/v3/matches/#{first}?api_key=#{key}")
+        |> parse_json
+    after
+      last_game
+    end
+  end
+
+  # From an account_id and a match, we find the border
+  # for the given account_id. Eg. "PLATINUM" or "UNRANKED",
+  # indicating what rank they had in last season in this queue.
+  defp last_season_tier_from_match(account_id, match) do
+    participant_id =
+      match["participantIdentities"]
+      |> Enum.find(fn %{"player" => %{"accountId" => id}} -> account_id == id end)
+      |> Map.get("participantId")
+
+    match["participants"]
+    |> Enum.find(fn %{"participantId" => id} -> participant_id == id end)
+    |> Map.get("highestAchievedSeasonTier")
+  end
+
+  # Fetches the last 20 matches of any queue type for given account id
   defp fetch_recent_matches(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}"
     |> parse_json
+  end
+
+  @doc """
+  Estimates last season's highest tier in "RANKED_SOLO_5x5" for a given
+  account ID.
+
+  Returns {:ok, %{rank: 4, tier: "PLATINUM", type: "RANKED_SOLO_5x5"}}
+
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.last_seasons_rank(26102926, :euw)
+        {:ok, %{rank: 1, tier: "DIAMOND", type: "RANKED_SOLO_5x5"}}
+  """
+  def last_seasons_rank(account_id, region) do
+    OK.for do
+      match <- fetch_last_solo_match(account_id, region)
+    after
+      tier = last_season_tier_from_match(account_id, match)
+      %{rank: 1, tier: tier, type: "RANKED_SOLO_5x5"}
+    end
   end
 
   @doc """
@@ -212,7 +274,7 @@ defmodule LolBuddy.RiotApi.Api do
 
   ## Examples
       iex> LolBuddy.RiotApi.Api.recent_champions(26102926, :euw)
-      {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
+        {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
   """
   def recent_champions_and_roles(account_id, region) do
     OK.for do

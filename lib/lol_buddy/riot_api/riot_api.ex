@@ -50,9 +50,10 @@ defmodule LolBuddy.RiotApi.Api do
     end
   end
 
-  defp fetch_leagues(id, region) do
+  def fetch_leagues(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
+    |> IO.inspect
     |> parse_json
   end
 
@@ -72,19 +73,24 @@ defmodule LolBuddy.RiotApi.Api do
 
   Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
 
-  ## Examples (one queue)
-      iex> LolBuddy.RiotApi.Api.leagues(22267137, :euw)
-      {:ok, [{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}]}
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.leagues(22267137, 26102926, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
+      iex> LolBuddy.RiotApi.Api.leagues(27866981, 31690752, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}}
   """
-  def leagues(id, region) do
-    # TODO - this should not need to be wrapped in a list, but currently is
-    # for frontend compatability
-    extract = fn(x) -> [%{type: x["queueType"], tier: x["tier"],
-       rank: deromanize(x["rank"])}] end
-    fetch_leagues(id, region)
-    ~>> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
-    |>  extract.()
-    |>  OK.success
+  def leagues(id, account_id, region) do
+    OK.for do
+      leagues <- fetch_leagues(id, region)
+    after
+      Enum.find(leagues, fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
+      |> case do
+        nil -> last_seasons_rank(account_id, region)
+        # TODO - this should not need to be wrapped in a list, but currently is
+        # for frontend compatability
+        x -> %{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}
+      end
+    end
   end
 
   defp name_from_id(id), do: Champions.find_by_id(id).name
@@ -263,8 +269,11 @@ defmodule LolBuddy.RiotApi.Api do
     OK.for do
       match <- fetch_last_solo_match(account_id, region)
     after
-      tier = last_season_tier_from_match(account_id, match)
-      %{rank: 1, tier: tier, type: "RANKED_SOLO_5x5"}
+      last_season_tier_from_match(account_id, match)
+      |> case do
+        nil  -> %{rank: 5, tier: "SILVER", type: "RANKED_SOLO_5x5"}
+        tier -> %{rank: 5, tier: tier, type: "RANKED_SOLO_5x5"}
+      end
     end
   end
 
@@ -305,7 +314,7 @@ defmodule LolBuddy.RiotApi.Api do
     OK.for do
       {summoner_name, id, account_id, icon_id} <- summoner_info(name, region)
       {champions, roles} <- recent_champions_and_roles(account_id, region)
-      leagues <- leagues(id, region)
+      leagues <- leagues(id, account_id, region)
     after
       %{name: summoner_name,
         region: region,

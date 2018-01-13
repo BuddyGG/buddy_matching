@@ -3,6 +3,7 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
   alias LolBuddy.PlayerServer
   alias LolBuddy.PlayerServer.RegionMapper
   alias LolBuddy.Players.Player
+  alias LolBuddy.Players.Criteria
 
   setup do
     # Prepare two servers for our region mapper to use
@@ -56,5 +57,33 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
 
     RegionMapper.remove_player(player2)
     assert [^player1] = RegionMapper.get_players(region)
+  end
+
+  test "update player updates player in server", %{region1: region} do
+    assert RegionMapper.get_players(region) == []
+
+    c1 = %Criteria{positions: [:marksman]}
+    c2 = %Criteria{positions: [:jungle]}
+    player = %Player{id: "0", name: "bar", criteria: c1, region: region}
+    updated_player = %{player | criteria: c2}
+
+    # player is added
+    RegionMapper.add_player(player)
+    assert [^player] = RegionMapper.get_players(region)
+
+    # player is removed
+    RegionMapper.update_player(updated_player)
+    assert [^updated_player] = RegionMapper.get_players(region)
+  end
+
+  test "updating a player that isn't in server has no effect", %{region1: region} do
+    assert RegionMapper.get_players(region) == []
+
+    c1 = %Criteria{positions: [:marksman]}
+    player = %Player{id: "0", name: "bar", criteria: c1, region: region}
+
+    # player should not get added because not already present
+    RegionMapper.update_player(player)
+    assert [] = RegionMapper.get_players(region)
   end
 end

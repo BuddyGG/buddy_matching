@@ -119,8 +119,6 @@ defmodule LolBuddyWeb.PlayersChannel do
   we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
-    RegionMapper.remove_player(socket.assigns.user)
-
     region_players = RegionMapper.get_players(socket.assigns.user.region)
     current_matches = Players.get_matches(socket.assigns.user, region_players)
 
@@ -128,7 +126,7 @@ defmodule LolBuddyWeb.PlayersChannel do
     updated_player = %{socket.assigns.user | criteria: updated_criteria}
     socket = assign(socket, :user, updated_player)
 
-    RegionMapper.add_player(updated_player)
+    RegionMapper.update_player(updated_player)
     updated_matches = Players.get_matches(updated_player, region_players)
 
     # broadcast new_player to newly matched players

@@ -240,7 +240,6 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
-  #@tag :wip
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@narrow_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
@@ -271,6 +270,9 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     # update player 1's criteria to a less strict one
     push(channel1, "update_criteria", broad_criteria)
 
+    :ok = close(channel1)
+    :ok = close(channel2)
+
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
@@ -282,12 +284,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       topic: ^topic2,
       event: @new_match_event,
       payload: ^broad_player1}
-
-    :ok = close(channel1)
-    :ok = close(channel2)
   end
 
-  @tag :wip
   test "update criteria sends unmatch events when no longer matching" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
@@ -316,6 +314,9 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     # update player 1's criteria to a stricter version
     push(channel1, "update_criteria", narrow_criteria)
 
+    :ok = close(channel1)
+    :ok = close(channel2)
+
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
@@ -327,8 +328,5 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       topic: ^topic2,
       event: @unmatch_event,
       payload: ^narrow_player1}
-
-    :ok = close(channel1)
-    :ok = close(channel2)
   end
 end

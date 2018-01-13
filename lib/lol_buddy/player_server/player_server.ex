@@ -62,6 +62,22 @@ defmodule LolBuddy.PlayerServer do
     end
   end
 
+  # Handle casts with remove - asynchronous
+  # Remove a player from the state
+  # Returns {:noreply, <state>}
+  def handle_cast({:remove, player}, list) do
+    {:noreply, Map.delete(list, player.name)}
+  end
+
+  # Handle casts with update - asynchronous
+  # Updates a player from the state, hence expects at least
+  # the key, to match a player in the state. - If the key does not exist,
+  # nothing is done.
+  # Returns {:noreply, <state>}
+  def handle_cast({:update, player}, list) do
+    {:noreply, Map.replace(list, player.name, player)}
+  end
+
   # When we get a 'presence_diff' with no leaves, we do nothing.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: %{} = leaves}}, state)
   when leaves == %{} do
@@ -79,35 +95,21 @@ defmodule LolBuddy.PlayerServer do
     Endpoint.unsubscribe("players:" <> topic)
 
     # spawn a process to handle unmatching so GenServer can continue
-    #spawn fn ->
+    spawn fn ->
       player = state[name]
-      if player == nil do
-        IO.inspect(name, label: "name")
-        IO.inspect(state, label: "state")
-      end
       player
       |> Players.get_matches(Map.values(state))
-      |> IO.inspect(label: "matches")
       |> Enum.each(fn match ->
          Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
          Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
       end)
-      #end
+    end
     {:noreply, Map.delete(state, name)}
   end
 
   # We ignore all other messages
   def handle_info(_, state) do
     {:noreply, state}
-  end
-
-  # Handle casts with remove - asynchronous
-  # Remove a player from the state
-  # Returns {:noreply, <state>}
-  def handle_cast({:remove, player}, list) do
-    IO.inspect "removing #{player.name}"
-    IO.inspect list
-    {:noreply, Map.delete(list, player.name)}
   end
 
   @doc """
@@ -154,4 +156,20 @@ defmodule LolBuddy.PlayerServer do
   def remove(pid, %Player{} = player) do
     GenServer.cast(pid, {:remove, player})
   end
+
+  @doc """
+  Updates the given player from the specified server
+  if he exists in the server's state. That is, if his key
+  currently exists in the state.
+  Always returns :ok if server exists.
+  Method will run asynchronously.
+
+  ## Examples
+      iex> LolBuddy.PlayerServer.update(%Player{name = "Lethly"})
+        :ok
+  """
+  def update(pid, %Player{} = player) do
+    GenServer.cast(pid, {:update, player})
+  end
+
 end

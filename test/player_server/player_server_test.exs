@@ -2,6 +2,7 @@ defmodule LolBuddy.PlayerServerTest do
   use ExUnit.Case, async: true
   alias LolBuddy.PlayerServer
   alias LolBuddy.Players.Player
+  alias LolBuddy.Players.Criteria
 
   setup do
     {:ok, server} = start_supervised PlayerServer
@@ -66,5 +67,33 @@ defmodule LolBuddy.PlayerServerTest do
     # player is removed
     PlayerServer.remove(server, absent_player)
     assert [^player] = PlayerServer.read(server)
+  end
+
+  test "update player updates player", %{server: server} do
+    assert PlayerServer.read(server) == []
+
+    c1 = %Criteria{positions: [:marksman]}
+    c2 = %Criteria{positions: [:jungle]}
+    player = %Player{id: "0", name: "bar", criteria: c1}
+    updated_player = %{player | criteria: c2}
+
+    # player is added
+    PlayerServer.add(server, player)
+    assert [^player] = PlayerServer.read(server)
+
+    # player is removed
+    PlayerServer.update(server, updated_player)
+    assert [^updated_player] = PlayerServer.read(server)
+  end
+
+  test "updating a player that isn't in server has no effect", %{server: server} do
+    assert PlayerServer.read(server) == []
+
+    c1 = %Criteria{positions: [:marksman]}
+    player = %Player{id: "0", name: "bar", criteria: c1}
+
+    # player should not get added because not already present
+    PlayerServer.update(server, player)
+    assert [] = PlayerServer.read(server)
   end
 end

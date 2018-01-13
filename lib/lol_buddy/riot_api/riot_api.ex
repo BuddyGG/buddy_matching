@@ -10,7 +10,6 @@ defmodule LolBuddy.RiotApi.Api do
   alias LolBuddy.RiotApi.Champions
   alias Poison.Parser
   import OK, only: ["~>>": 2]
-
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
     {:ok, Parser.parse!(body)}
   end
@@ -78,10 +77,13 @@ defmodule LolBuddy.RiotApi.Api do
       {:ok, [{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}]}
   """
   def leagues(id, region) do
-    extract = fn(x) -> %{type: x["queueType"], tier: x["tier"],
-       rank: deromanize(x["rank"])} end
+    # TODO - this should not need to be wrapped in a list, but currently is
+    # for frontend compatability
+    extract = fn(x) -> [%{type: x["queueType"], tier: x["tier"],
+       rank: deromanize(x["rank"])}] end
     fetch_leagues(id, region)
-    ~>> Enum.map(extract)
+    ~>> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
+    |>  extract.()
     |>  OK.success
   end
 

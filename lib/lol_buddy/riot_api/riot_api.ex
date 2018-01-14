@@ -53,7 +53,6 @@ defmodule LolBuddy.RiotApi.Api do
   def fetch_leagues(id, region) do
     key = Application.fetch_env!(:lol_buddy, :riot_api_key)
     Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
-    |> IO.inspect
     |> parse_json
   end
 
@@ -83,12 +82,13 @@ defmodule LolBuddy.RiotApi.Api do
     OK.for do
       leagues <- fetch_leagues(id, region)
     after
-      Enum.find(leagues, fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
+      leagues
+      |> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
       |> case do
-        nil -> last_seasons_rank(account_id, region)
+        nil -> [last_seasons_rank(account_id, region)]
         # TODO - this should not need to be wrapped in a list, but currently is
         # for frontend compatability
-        x -> %{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}
+        x -> [%{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}]
       end
     end
   end

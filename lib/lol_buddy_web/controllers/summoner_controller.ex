@@ -9,7 +9,7 @@ defmodule LolBuddyWeb.SummonerController do
   """
   def show(conn, %{"region" => region, "name" => name}) do
     name
-    |> Api.fetch_summoner_info(String.to_atom(region))
+    |> Api.fetch_summoner_info(String.to_existing_atom(region))
     |> case do
         {:ok, summoner} -> render(conn, "show.json", summoner: summoner)
         {:error, error} -> render(conn, LolBuddyWeb.ErrorView, "error.json", error: error)

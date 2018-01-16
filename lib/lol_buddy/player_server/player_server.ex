@@ -88,6 +88,7 @@ defmodule LolBuddy.PlayerServer do
   # remove him from the state. In a separate process alert all the matches
   # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
+    task = Task.async( fn ->
     [topic|_] = Map.keys(leaves)
     [name|_] = leaves
                   |> Map.values()
@@ -95,7 +96,6 @@ defmodule LolBuddy.PlayerServer do
     Endpoint.unsubscribe("players:" <> topic)
 
     # spawn a process to handle unmatching so GenServer can continue
-    spawn fn ->
       player = state[name]
       player
       |> Players.get_matches(Map.values(state))
@@ -103,7 +103,11 @@ defmodule LolBuddy.PlayerServer do
          Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
          Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
       end)
-    end
+
+      name
+    end)
+
+    name = task.await()
     {:noreply, Map.delete(state, name)}
   end
 

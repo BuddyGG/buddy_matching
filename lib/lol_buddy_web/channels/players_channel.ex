@@ -48,23 +48,25 @@ defmodule LolBuddyWeb.PlayersChannel do
   If the given player is already signed up we return a @already_signed_up_event instead.
   """
   def handle_info({:on_join, _msg}, socket) do
-    region_players = RegionMapper.get_players(socket.assigns.user.region)
-    matches = Players.get_matches(socket.assigns.user, region_players)
-    case RegionMapper.add_player(socket.assigns.user) do
-      :ok ->
-        #Send all matching players
-        Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
-        push socket, @initial_matches_event, %{players: matches}
+    Task.start( fn -> 
+      matches = Players.get_matches(socket.assigns.user, RegionMapper.get_players(socket.assigns.user.region))
+      case RegionMapper.add_player(socket.assigns.user) do
+        :ok ->
+          #Send all matching players
+          Logger.debug fn -> "Pushing new players: "  end
+          #Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
+          push socket, @initial_matches_event, %{players: matches}
+          #Send the newly joined user to all matching players
+          matches
+          |> Enum.each(fn player ->
+            Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns.user
+          end)
+          send socket.transport_pid, :garbage_collect
 
-        #Send the newly joined user to all matching players
-        matches
-        |> Enum.each(fn player ->
-           Endpoint.broadcast! "players:#{player.id}", @new_match_event, socket.assigns.user
-        end)
-
-      :error ->
-        push socket, @already_signed_up_event, %{reason: "The given summoner is already signed up"}
-    end
+        :error ->
+          push socket, @already_signed_up_event, %{reason: "The given summoner is already signed up"}
+      end
+    end)
     {:noreply, socket}
   end
 
@@ -119,33 +121,36 @@ defmodule LolBuddyWeb.PlayersChannel do
   we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
-    region_players = RegionMapper.get_players(socket.assigns.user.region)
-    current_matches = Players.get_matches(socket.assigns.user, region_players)
+    Task.start( fn -> 
+      region_players = RegionMapper.get_players(socket.assigns.user.region)
+      current_matches = Players.get_matches(socket.assigns.user, region_players)
 
-    updated_criteria = Criteria.from_json(criteria)
-    updated_player = %{socket.assigns.user | criteria: updated_criteria}
-    socket = assign(socket, :user, updated_player)
+      updated_criteria = Criteria.from_json(criteria)
+      updated_player = %{socket.assigns.user | criteria: updated_criteria}
+      socket = assign(socket, :user, updated_player)
 
-    RegionMapper.update_player(updated_player)
-    updated_matches = Players.get_matches(updated_player, region_players)
+      RegionMapper.update_player(updated_player)
+      updated_matches = Players.get_matches(updated_player, region_players)
 
-    # broadcast new_player to newly matched players
-    updated_matches -- current_matches
-    |> Enum.each(fn player ->
-        Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect updated_player}" end
-        Endpoint.broadcast! "players:#{player.id}", @new_match_event, updated_player
-      end)
+      # broadcast new_player to newly matched players
+      updated_matches -- current_matches
+      |> Enum.each(fn player ->
+          Logger.debug fn -> "Broadcast new player to #{player.id}: #{inspect updated_player}" end
+          Endpoint.broadcast! "players:#{player.id}", @new_match_event, updated_player
+        end)
 
-    # broadcast remove_player to players who are no longer matched
-    current_matches -- updated_matches
-    |> Enum.each(fn player ->
-        Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect updated_player}" end
-        Endpoint.broadcast! "players:#{player.id}", @unmatch_event, updated_player
-      end)
+      # broadcast remove_player to players who are no longer matched
+      current_matches -- updated_matches
+      |> Enum.each(fn player ->
+          Logger.debug fn -> "Broadcast remove player to #{player.id}: #{inspect updated_player}" end
+          Endpoint.broadcast! "players:#{player.id}", @unmatch_event, updated_player
+        end)
 
-    # send the full list of updated matches on the socket
-    Logger.debug fn -> "Pushing new players: #{inspect updated_matches}" end
-    push socket, @initial_matches_event, %{players: updated_matches}
+      # send the full list of updated matches on the socket
+      Logger.debug fn -> "Pushing new players: #{inspect updated_matches}" end
+      push socket, @initial_matches_event, %{players: updated_matches}
+      send socket.transport_pid, :garbage_collect
+    end)
     {:noreply, socket}
   end
 

@@ -6,7 +6,7 @@ defmodule LolBuddyWeb.PlayerSocket do
   channel "players:*", LolBuddyWeb.PlayersChannel
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
+  transport :websocket, Phoenix.Transports.WebSocket, timeout: 100_000
 
   #O n connect verify that the session and session token match
   def connect(%{"session_id" => session_id, "session_token" => session_token}, socket) do
@@ -35,5 +35,5 @@ defmodule LolBuddyWeb.PlayerSocket do
   #                                    "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "user_socket:#{socket.assigns.session_id}"
 end

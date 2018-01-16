@@ -50,6 +50,54 @@ defmodule LolBuddy.RiotApi.Api do
     end
   end
 
+  def fetch_leagues(id, region) do
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
+    Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
+    |> parse_json
+  end
+
+  defp deromanize(rank) do
+    case rank do
+      "I"   -> 1
+      "II"  -> 2
+      "III" -> 3
+      "IV"  -> 4
+      "V"   -> 5
+    end
+  end
+
+  @doc """
+  Returns a list of maps, with each map containing info for each league.
+  If a summoner is placed in multiple queues, the list will hold multiple maps.
+
+  Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
+
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.leagues(22267137, 26102926, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
+      iex> LolBuddy.RiotApi.Api.leagues(27866981, 31690752, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}}
+  """
+  def leagues(id, account_id, region) do
+    OK.for do
+      leagues <- fetch_leagues(id, region)
+    after
+      leagues
+      |> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
+      |> case do
+        nil -> 
+          OK.for do
+            league <- last_seasons_rank(account_id, region)
+          after
+            [league]
+          end
+        # TODO - this should not need to be wrapped in a list, but currently is
+        # for frontend compatability
+        x -> [%{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}]
+      end
+    end
+  end
+
   defp name_from_id(id), do: Champions.find_by_id(id).name
 
   defp fetch_champions(id, region) do

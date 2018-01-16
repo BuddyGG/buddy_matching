@@ -50,49 +50,6 @@ defmodule LolBuddy.RiotApi.Api do
     end
   end
 
-  def fetch_leagues(id, region) do
-    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
-    Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
-    |> parse_json
-  end
-
-  defp deromanize(rank) do
-    case rank do
-      "I"   -> 1
-      "II"  -> 2
-      "III" -> 3
-      "IV"  -> 4
-      "V"   -> 5
-    end
-  end
-
-  @doc """
-  Returns a list of maps, with each map containing info for each league.
-  If a summoner is placed in multiple queues, the list will hold multiple maps.
-
-  Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
-
-  ## Examples
-      iex> LolBuddy.RiotApi.Api.leagues(22267137, 26102926, :euw)
-      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
-      iex> LolBuddy.RiotApi.Api.leagues(27866981, 31690752, :euw)
-      {:ok, {type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}}
-  """
-  def leagues(id, account_id, region) do
-    OK.for do
-      leagues <- fetch_leagues(id, region)
-    after
-      leagues
-      |> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
-      |> case do
-        nil -> [last_seasons_rank(account_id, region)]
-        # TODO - this should not need to be wrapped in a list, but currently is
-        # for frontend compatability
-        x -> [%{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}]
-      end
-    end
-  end
-
   defp name_from_id(id), do: Champions.find_by_id(id).name
 
   defp fetch_champions(id, region) do
@@ -207,6 +164,42 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
+  Returns the three most played champions and two most played roles based
+  on the last 20 maches played for the given account_id on the given region.
+
+  Returns {:ok, {["champion1", "champion2", "champion3"], [:marksman, :support]}}
+
+  ## Examples
+      iex> LolBuddy.RiotApi.Api.recent_champions(26102926, :euw)
+        {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
+  """
+  def recent_champions_and_roles(account_id, region) do
+    OK.for do
+      %{"matches" => matches} <- fetch_recent_matches(account_id, region)
+    after
+      champions = extract_most_played_champions(matches)
+      roles = extract_most_played_roles(matches)
+      {champions, roles}
+    end
+  end
+
+  def fetch_leagues(id, region) do
+    key = Application.fetch_env!(:lol_buddy, :riot_api_key)
+    Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}"
+    |> parse_json
+  end
+
+  defp deromanize(rank) do
+    case rank do
+      "I"   -> 1
+      "II"  -> 2
+      "III" -> 3
+      "IV"  -> 4
+      "V"   -> 5
+    end
+  end
+
+  @doc """
   Returns the last played solo queue match for the given
   account_id, if they have played one.
 
@@ -269,7 +262,8 @@ defmodule LolBuddy.RiotApi.Api do
     OK.for do
       match <- fetch_last_solo_match(account_id, region)
     after
-      last_season_tier_from_match(account_id, match)
+      account_id
+      |> last_season_tier_from_match(match)
       |> case do
         nil  -> %{rank: 5, tier: "SILVER", type: "RANKED_SOLO_5x5"}
         tier -> %{rank: 5, tier: tier, type: "RANKED_SOLO_5x5"}
@@ -278,24 +272,33 @@ defmodule LolBuddy.RiotApi.Api do
   end
 
   @doc """
-  Returns the three most played champions and two most played roles based
-  on the last 20 maches played for the given account_id on the given region.
+  Returns a list of maps, with each map containing info for each league.
+  If a summoner is placed in multiple queues, the list will hold multiple maps.
 
-  Returns {:ok, {["champion1", "champion2", "champion3"], [:marksman, :support]}}
+  Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
 
   ## Examples
-      iex> LolBuddy.RiotApi.Api.recent_champions(26102926, :euw)
-        {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
+      iex> LolBuddy.RiotApi.Api.leagues(22267137, 26102926, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
+      iex> LolBuddy.RiotApi.Api.leagues(27866981, 31690752, :euw)
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}}
   """
-  def recent_champions_and_roles(account_id, region) do
+  def leagues(id, account_id, region) do
     OK.for do
-      %{"matches" => matches} <- fetch_recent_matches(account_id, region)
+      leagues <- fetch_leagues(id, region)
     after
-      champions = extract_most_played_champions(matches)
-      roles = extract_most_played_roles(matches)
-      {champions, roles}
+      leagues
+      |> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
+      |> case do
+        nil -> last_seasons_rank(account_id, region)
+        # TODO - this should not need to be wrapped in a list, but currently is
+        # for frontend compatability
+        x -> [%{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}]
+      end
     end
   end
+
+
 
   @doc """
   Return a map containing the given summoner's

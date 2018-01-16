@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/opt/local/share/tsung/tsung-1.0.dtd" []>
+<tsung loglevel="notice" version="1.0" dumptraffic="true">
+
+  <!-- Each client that will be running Tsung during the test -->
+  <clients>
+    <client host="localhost" use_controller_vm="true" maxusers="10000" />
+  </clients>
+
+  <!-- Each remote server that Tsung should performance test against. Only one would be needed if you have a load balancer. -->
+  <servers>
+    <server host="192.168.0.102" port="4000" type="tcp" />
+  </servers>
+
+  <!-- Describe how load will be ramped up to your application over time -->
+  <load>
+    <arrivalphase phase="1" duration="100" unit="second">
+      <users arrivalrate="100" unit="second" />
+    </arrivalphase>
+  </load>
+
+  <!-- Additional testing options -->
+  <options>
+    <option name="websocket_path" value="/socket.io/1/websocket"/>
+
+    <!-- How to distribute user-agents among Tsung sessions -->
+    <option type="ts_http" name="user_agent">
+      <user_agent probability="80">Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Galeon/1.3.21</user_agent>
+      <user_agent probability="20">Mozilla/5.0 (Windows; U; Windows NT 5.2; fr-FR; rv:1.7.8) Gecko/20050511 Firefox/1.0.4</user_agent>
+    </option>
+  </options>
+
+  <sessions>
+    <session name="activity_browse" probability="25" type="ts_http">
+
+      <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
+        <var name="id1" />
+      </setdynvars>
+
+        <!--
+           Perform a handshake with Socket.IO.
+           This will return an ID which will uniquely identify this socket with Socket.IO
+         -->
+        <request>
+            <dyn_variable name="session_id" jsonpath="$.session_id" />
+                        <dyn_variable name="session_token" jsonpath="$.session_token" />
+            <http url="/api/auth/request" method="GET" version="1.1" contents=""></http>
+        </request>
+
+        <!-- We need to change the session type to websocket -->
+        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+
+        <!-- Try to connect on a websocket -->
+        <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
+        <request subst="true">
+             <websocket type="connect" path="/socket/websocket?session_token=%%_session_token%%&amp;session_id=%%_session_id%%"></websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+
+        <request subst="true">
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+        <for var="i" from="1" to="1000" incr="1">
+		<thinktime value="30"/>
+		</for>
+
+        <!-- Close the socket -->
+        <request>
+            <websocket type="close"></websocket>
+        </request>
+    </session>
+	
+	    <session name="activity_browse" probability="25" type="ts_http">
+
+      <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
+        <var name="id1" />
+      </setdynvars>
+
+        <!--
+           Perform a handshake with Socket.IO.
+           This will return an ID which will uniquely identify this socket with Socket.IO
+         -->
+        <request>
+            <dyn_variable name="session_id" jsonpath="$.session_id" />
+                        <dyn_variable name="session_token" jsonpath="$.session_token" />
+            <http url="/api/auth/request" method="GET" version="1.1" contents=""></http>
+        </request>
+
+        <!-- We need to change the session type to websocket -->
+        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+
+        <!-- Try to connect on a websocket -->
+        <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
+        <request subst="true">
+             <websocket type="connect" path="/socket/websocket?session_token=%%_session_token%%&amp;session_id=%%_session_id%%"></websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+
+        <request subst="true">
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+        <for var="i" from="1" to="1000" incr="1">
+		<thinktime value="30"/>
+		</for>
+
+        <!-- Close the socket -->
+        <request>
+            <websocket type="close"></websocket>
+        </request>
+    </session>
+	
+	 <session name="activity_browse" probability="25" type="ts_http">
+
+      <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
+        <var name="id1" />
+      </setdynvars>
+
+        <!--
+           Perform a handshake with Socket.IO.
+           This will return an ID which will uniquely identify this socket with Socket.IO
+         -->
+        <request>
+            <dyn_variable name="session_id" jsonpath="$.session_id" />
+                        <dyn_variable name="session_token" jsonpath="$.session_token" />
+            <http url="/api/auth/request" method="GET" version="1.1" contents=""></http>
+        </request>
+
+        <!-- We need to change the session type to websocket -->
+        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+
+        <!-- Try to connect on a websocket -->
+        <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
+        <request subst="true">
+             <websocket type="connect" path="/socket/websocket?session_token=%%_session_token%%&amp;session_id=%%_session_id%%"></websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+
+        <request subst="true">
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+        <for var="i" from="1" to="1000" incr="1">
+		<thinktime value="30"/>
+		</for>
+
+        <!-- Close the socket -->
+        <request>
+            <websocket type="close"></websocket>
+        </request>
+    </session>
+	
+	 <session name="activity_browse" probability="25" type="ts_http">
+
+      <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
+        <var name="id1" />
+      </setdynvars>
+
+        <!--
+           Perform a handshake with Socket.IO.
+           This will return an ID which will uniquely identify this socket with Socket.IO
+         -->
+        <request>
+            <dyn_variable name="session_id" jsonpath="$.session_id" />
+                        <dyn_variable name="session_token" jsonpath="$.session_token" />
+            <http url="/api/auth/request" method="GET" version="1.1" contents=""></http>
+        </request>
+
+        <!-- We need to change the session type to websocket -->
+        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+
+        <!-- Try to connect on a websocket -->
+        <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
+        <request subst="true">
+             <websocket type="connect" path="/socket/websocket?session_token=%%_session_token%%&amp;session_id=%%_session_id%%"></websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+
+        <request subst="true">
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
+        </request>
+
+        <!-- Do nothing for up to 5 seconds -->
+        <for var="i" from="1" to="1000" incr="1">
+		<thinktime value="30"/>
+		</for>
+
+        <!-- Close the socket -->
+        <request>
+            <websocket type="close"></websocket>
+        </request>
+    </session>
+	
+  </sessions>
+</tsung>

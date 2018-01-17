@@ -259,8 +259,8 @@ defmodule LolBuddy.RiotApi.Api do
       account_id
       |> last_season_tier_from_match(match)
       |> case do
-        nil  -> %{rank: 5, tier: "SILVER", type: "RANKED_SOLO_5x5"}
-        tier -> %{rank: 5, tier: tier, type: "RANKED_SOLO_5x5"}
+        nil  -> [%{rank: 5, tier: "SILVER", type: "RANKED_SOLO_5x5"}]
+        tier -> [%{rank: 5, tier: tier, type: "RANKED_SOLO_5x5"}]
       end
     end
   end

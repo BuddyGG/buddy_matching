@@ -17,8 +17,8 @@ defmodule LolBuddy.PlayerServer do
   @doc """
   Starts the PlayerServer.
   ## Examples
-    iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
-    {:ok, #PID<0.246.0>}
+  iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
+  {:ok, #PID<0.246.0>}
   """
   def start_link do
     GenServer.start_link(__MODULE__, :ok, [])
@@ -31,7 +31,7 @@ defmodule LolBuddy.PlayerServer do
   These are described here:
   https://hexdocs.pm/elixir/GenServer.html#start_link/3
   ## Examples
-    iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
+  iex> {:ok, pid} = LolBuddy.PlayerServer.start_link
   """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
@@ -88,26 +88,21 @@ defmodule LolBuddy.PlayerServer do
   # remove him from the state. In a separate process alert all the matches
   # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    task = Task.async( fn ->
     [topic|_] = Map.keys(leaves)
     [name|_] = leaves
-                  |> Map.values()
-                  |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
+               |> Map.values()
+               |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
     Endpoint.unsubscribe("players:" <> topic)
 
-    # spawn a process to handle unmatching so GenServer can continue
-      player = state[name]
-      player
-      |> Players.get_matches(Map.values(state))
-      |> Enum.each(fn match ->
-         Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
+    Task.start(fn ->
+     player = state[name]
+     player
+     |> Players.get_matches(Map.values(state))
+     |> Enum.each(fn match ->
          Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
-      end)
-
-      name
+     end)
     end)
 
-    name = Task.await(task)
     {:noreply, Map.delete(state, name)}
   end
 
@@ -121,59 +116,59 @@ defmodule LolBuddy.PlayerServer do
   Since this method uses GenServer.call it will be handled synchronously.
   #
   ## Examples
-      iex> LolBuddy.PlayerServer.read(:euw)
-        [%{%Player{id: 1, name: "Lethly", region: :euw, voice: false,
-        languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
-        criteria: criteria, comment: "Fantastic player"}]
-  """
-  def read(pid) do
-    GenServer.call(pid, {:read})
-  end
+  iex> LolBuddy.PlayerServer.read(:euw)
+  [%{%Player{id: 1, name: "Lethly", region: :euw, voice: false,
+    languages: ["danish"], age_group: 1, positions: [:marksman],
+    leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
+    criteria: criteria, comment: "Fantastic player"}]
+   """
+   def read(pid) do
+     GenServer.call(pid, {:read})
+   end
 
-  @doc """
-  Adds the given player to the specified server
-  Returns :ok if Player was not already in MapSet.
-  Otherwise returns :error.
-  Method will run synchronously.
+   @doc """
+   Adds the given player to the specified server
+   Returns :ok if Player was not already in MapSet.
+   Otherwise returns :error.
+   Method will run synchronously.
 
-  ## Examples
-      iex> p1 = %Player{}
-      iex> LolBuddy.PlayerServer.add(p1)
-        :ok
-      iex> LolBuddy.PlayerServer.add(p1)
-        :error
-  """
-  def add(pid, player) do
-    GenServer.call(pid, {:add, player})
-  end
+   ## Examples
+   iex> p1 = %Player{}
+   iex> LolBuddy.PlayerServer.add(p1)
+   :ok
+   iex> LolBuddy.PlayerServer.add(p1)
+   :error
+   """
+   def add(pid, player) do
+     GenServer.call(pid, {:add, player})
+   end
 
-  @doc """
-  Deletes the given player from the specified server
-  Always returns :ok if server exists.
-  Method will run asynchronously.
+   @doc """
+   Deletes the given player from the specified server
+   Always returns :ok if server exists.
+   Method will run asynchronously.
 
-  ## Examples
-      iex> LolBuddy.PlayerServer.remove(%Player{})
-        :ok
-  """
-  def remove(pid, %Player{} = player) do
-    GenServer.cast(pid, {:remove, player})
-  end
+   ## Examples
+   iex> LolBuddy.PlayerServer.remove(%Player{})
+   :ok
+   """
+   def remove(pid, %Player{} = player) do
+     GenServer.cast(pid, {:remove, player})
+   end
 
-  @doc """
-  Updates the given player from the specified server
-  if he exists in the server's state. That is, if his key
-  currently exists in the state.
-  Always returns :ok if server exists.
-  Method will run asynchronously.
+   @doc """
+   Updates the given player from the specified server
+   if he exists in the server's state. That is, if his key
+   currently exists in the state.
+   Always returns :ok if server exists.
+   Method will run asynchronously.
 
-  ## Examples
-      iex> LolBuddy.PlayerServer.update(%Player{name = "Lethly"})
-        :ok
-  """
-  def update(pid, %Player{} = player) do
-    GenServer.cast(pid, {:update, player})
-  end
+   ## Examples
+   iex> LolBuddy.PlayerServer.update(%Player{name = "Lethly"})
+   :ok
+   """
+   def update(pid, %Player{} = player) do
+     GenServer.cast(pid, {:update, player})
+   end
 
 end

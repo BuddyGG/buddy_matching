@@ -48,10 +48,11 @@ defmodule LolBuddyWeb.PlayersChannel do
   If the given player is already signed up we return a @already_signed_up_event instead.
   """
   def handle_info({:on_join, _msg}, socket) do
-    Task.start( fn -> 
-      matches = Players.get_matches(socket.assigns.user, RegionMapper.get_players(socket.assigns.user.region))
+    Task.start(fn ->
       case RegionMapper.add_player(socket.assigns.user) do
         :ok ->
+          players = RegionMapper.get_players(socket.assigns.user.region)
+          matches = Players.get_matches(socket.assigns.user, players)
           #Send all matching players
           Logger.debug fn -> "Pushing new players: "  end
           #Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
@@ -121,7 +122,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
-    Task.start( fn -> 
+    Task.start(fn ->
       region_players = RegionMapper.get_players(socket.assigns.user.region)
       current_matches = Players.get_matches(socket.assigns.user, region_players)
 

@@ -107,7 +107,7 @@ defmodule LolBuddy.PlayerServer do
       name
     end)
 
-    name = task.await()
+    name = Task.await(task)
     {:noreply, Map.delete(state, name)}
   end
 

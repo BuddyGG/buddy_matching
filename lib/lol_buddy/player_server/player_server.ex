@@ -88,21 +88,21 @@ defmodule LolBuddy.PlayerServer do
   # remove him from the state. In a separate process alert all the matches
   # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    [topic|_] = Map.keys(leaves)
     [name|_] = leaves
-               |> Map.values()
-               |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
-    Endpoint.unsubscribe("players:" <> topic)
+                  |> Map.values()
+                  |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
+    Task.start( fn ->
+      [topic|_] = Map.keys(leaves)
+      Endpoint.unsubscribe("players:" <> topic)
 
-    Task.start(fn ->
-     player = state[name]
-     player
-     |> Players.get_matches(Map.values(state))
-     |> Enum.each(fn match ->
+      player = state[name]
+      player
+      |> Players.get_matches(Map.values(state))
+      |> Enum.each(fn match ->
+         Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
          Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
-     end)
+      end)
     end)
-
     {:noreply, Map.delete(state, name)}
   end
 

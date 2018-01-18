@@ -9,8 +9,8 @@ defmodule LolBuddy.PlayerServer.RegionMapperTest do
     # Prepare two servers for our region mapper to use
     region1 = :region1
     region2 = :region2
-    {:ok, _} = PlayerServer.start_link(name: region1)
-    {:ok, _} = PlayerServer.start_link(name: region2)
+    {:ok, _} = PlayerServer.start_link(name: {:global, region1})
+    {:ok, _} = PlayerServer.start_link(name: {:global, region2})
     %{region1: region1, region2: region2}
   end
 

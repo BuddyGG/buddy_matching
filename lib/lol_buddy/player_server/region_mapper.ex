@@ -18,7 +18,9 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
          %{id: 2, name: "hansp", region: :euw}]
   """
   def get_players(region) do
-    PlayerServer.read(region)
+    region
+    |> :global.whereis_name()
+    |> PlayerServer.read()
   end
 
   @doc """
@@ -31,7 +33,9 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
         :ok
   """
   def add_player(%Player{} = player) do
-    PlayerServer.add(player.region, player)
+    player.region
+    |> :global.whereis_name()
+    |> PlayerServer.add(player)
   end
 
   @doc """
@@ -45,7 +49,9 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
         :ok
   """
   def remove_player(%Player{} = player) do
-    PlayerServer.remove(player.region, player)
+    player.region
+    |> :global.whereis_name()
+    |> PlayerServer.remove(player)
   end
 
   @doc """
@@ -64,6 +70,8 @@ defmodule LolBuddy.PlayerServer.RegionMapper do
         :ok
   """
   def update_player(%Player{} = player) do
-    PlayerServer.update(player.region, player)
+    player.region
+    |> :global.whereis_name()
+    |> PlayerServer.update(player)
   end
 end

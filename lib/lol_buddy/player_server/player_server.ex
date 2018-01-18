@@ -91,7 +91,7 @@ defmodule LolBuddy.PlayerServer do
     [name|_] = leaves
                   |> Map.values()
                   |> Enum.map(fn(%{metas: [%{name: name}]}) -> name end)
-    Task.start( fn ->
+    Task.start(fn ->
       [topic|_] = Map.keys(leaves)
       Endpoint.unsubscribe("players:" <> topic)
 

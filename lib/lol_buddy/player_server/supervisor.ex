@@ -29,18 +29,18 @@ defmodule LolBuddy.PlayerServer.Supervisor do
     """
   def init(:ok) do
     children = [
-      Supervisor.child_spec({PlayerServer, name: :br}, id: :worker_br),
-      Supervisor.child_spec({PlayerServer, name: :eune}, id: :worker_eune),
-      Supervisor.child_spec({PlayerServer, name: :euw}, id: :worker_euw),
-      Supervisor.child_spec({PlayerServer, name: :jp}, id: :worker_jp),
-      Supervisor.child_spec({PlayerServer, name: :kr}, id: :worker_kr),
-      Supervisor.child_spec({PlayerServer, name: :lan}, id: :worker_lan),
-      Supervisor.child_spec({PlayerServer, name: :las}, id: :worker_las),
-      Supervisor.child_spec({PlayerServer, name: :na}, id: :worker_na),
-      Supervisor.child_spec({PlayerServer, name: :oce}, id: :worker_oce),
-      Supervisor.child_spec({PlayerServer, name: :tr}, id: :worker_tr),
-      Supervisor.child_spec({PlayerServer, name: :ru}, id: :worker_ru),
-      Supervisor.child_spec({PlayerServer, name: :pbe}, id: :worker_pbe)
+      Supervisor.child_spec({PlayerServer, name: {:global, :br}}, id: :worker_br),
+      Supervisor.child_spec({PlayerServer, name: {:global, :eune}}, id: :worker_eune),
+      Supervisor.child_spec({PlayerServer, name: {:global, :euw}}, id: :worker_euw),
+      Supervisor.child_spec({PlayerServer, name: {:global, :jp}}, id: :worker_jp),
+      Supervisor.child_spec({PlayerServer, name: {:global, :kr}}, id: :worker_kr),
+      Supervisor.child_spec({PlayerServer, name: {:global, :lan}}, id: :worker_lan),
+      Supervisor.child_spec({PlayerServer, name: {:global, :las}}, id: :worker_las),
+      Supervisor.child_spec({PlayerServer, name: {:global, :na}}, id: :worker_na),
+      Supervisor.child_spec({PlayerServer, name: {:global, :oce}}, id: :worker_oce),
+      Supervisor.child_spec({PlayerServer, name: {:global, :tr}}, id: :worker_tr),
+      Supervisor.child_spec({PlayerServer, name: {:global, :ru}}, id: :worker_ru),
+      Supervisor.child_spec({PlayerServer, name: {:global, :pbe}}, id: :worker_pbe)
     ]
 
     # only restart the the single broken processor

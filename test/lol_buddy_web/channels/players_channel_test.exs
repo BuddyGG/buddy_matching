@@ -294,16 +294,16 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     #assert player 1 got no one else
-    assert_receive %Phoenix.Socket.Message{
+    assert_receive(%Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
-      payload: %{players: []}}
+      payload: %{players: []}}, 1000)
 
     #assert player 2 got no one else
-    assert_receive %Phoenix.Socket.Message{
+    assert_receive(%Phoenix.Socket.Message{
       topic: ^topic2,
       event: @initial_matches_event,
-      payload: %{players: [^player1]}}
+      payload: %{players: [^player1]}}, 1000)
 
     narrow_criteria =
       %{"positions" => %{"top" => true, "jungle" => true, "mid" => true,
@@ -315,17 +315,17 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     push(channel1, "update_criteria", narrow_criteria)
 
 
-    assert_receive %Phoenix.Socket.Message{
+    assert_receive(%Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
-      payload: %{players: []}}
+      payload: %{players: []}}, 1000)
 
     narrow_criteria_parsed = Criteria.from_json(narrow_criteria)
     narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
-    assert_receive %Phoenix.Socket.Message{
+    assert_receive(%Phoenix.Socket.Message{
       topic: ^topic2,
       event: @unmatch_event,
-      payload: ^narrow_player1}
+      payload: ^narrow_player1}, 1000)
 
     :ok = close(channel1)
     :ok = close(channel2)

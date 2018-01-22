@@ -95,13 +95,15 @@ defmodule LolBuddy.PlayerServer do
       [topic|_] = Map.keys(leaves)
       Endpoint.unsubscribe("players:" <> topic)
 
-      player = state[name]
-      player
-      |> Players.get_matches(Map.values(state))
-      |> Enum.each(fn match ->
-         Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
-         Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
-      end)
+      if Map.has_key?(state, name) do
+        player = state[name]
+        player
+        |> Players.get_matches(Map.values(state))
+        |> Enum.each(fn match ->
+           Logger.debug fn -> "Broadcast remove player to #{match.id}: #{inspect player}" end
+           Endpoint.broadcast! "players:#{match.id}", @unmatch_event, player
+           end)
+      end
     end)
     {:noreply, Map.delete(state, name)}
   end

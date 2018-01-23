@@ -185,14 +185,30 @@ defmodule LolBuddy.Players.Matching do
 
   defp tier_to_int(tier) do
     case tier do
-      "BRONZE"     -> 1
-      "UNRANKED"   -> 2 # Riot treats unrankeds like silvers
-      "SILVER"     -> 2
-      "GOLD"       -> 3
-      "PLATINUM"   -> 4
-      "DIAMOND"    -> 5
-      "MASTER"     -> 6
-      "CHALLENGER" -> 7
+      "BRONZE" ->
+        1
+
+      # Riot treats unrankeds like silvers
+      "UNRANKED" ->
+        2
+
+      "SILVER" ->
+        2
+
+      "GOLD" ->
+        3
+
+      "PLATINUM" ->
+        4
+
+      "DIAMOND" ->
+        5
+
+      "MASTER" ->
+        6
+
+      "CHALLENGER" ->
+        7
     end
   end
 end

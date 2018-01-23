@@ -172,6 +172,22 @@ defmodule LolBuddy.MatchingTest do
     assert Matching.tier_compatible?(platinum1, gold5)
   end
 
+  test "plat and unranked are compatible" do
+    platinum1 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}
+    unranked = %{type: "RANKED_SOLO_5x5", tier: "UNRANKED", rank: 5}
+    refute Matching.tier_compatible?(platinum1, unranked)
+  end
+
+  test "unranked is compatible with bronze, silver and gold" do
+    bronze = %{type: "RANKED_SOLO_5x5", tier: "BRONZE", rank: 1}
+    silver = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}
+    gold = %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}
+    unranked = %{type: "RANKED_SOLO_5x5", tier: "UNRANKED", rank: 5}
+    assert Matching.tier_compatible?(unranked, bronze)
+    assert Matching.tier_compatible?(unranked, silver)
+    assert Matching.tier_compatible?(unranked, gold)
+  end
+
   test "diamond5 and plat3 are compatible" do
     platinum3 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 3}
     diamond5 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 5}

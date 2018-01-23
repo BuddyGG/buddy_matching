@@ -9,7 +9,7 @@ defmodule LolBuddy.Players.Matching do
   alias LolBuddy.Players.Player
   alias LolBuddy.Players.Criteria
 
-  @loose_tiers ["BRONZE", "SILVER", "GOLD", "PLATINUM"]
+  @loose_tiers ["UNRANKED", "BRONZE", "SILVER", "GOLD", "PLATINUM"]
 
   @doc """
   Returns a boolean representing whether Player 'player' and Player 'candidate'
@@ -185,12 +185,13 @@ defmodule LolBuddy.Players.Matching do
 
   defp tier_to_int(tier) do
     case tier do
-      "BRONZE" -> 1
-      "SILVER" -> 2
-      "GOLD" -> 3
-      "PLATINUM" -> 4
-      "DIAMOND" -> 5
-      "MASTER" -> 6
+      "BRONZE"     -> 1
+      "UNRANKED"   -> 2 # Riot treats unrankeds like silvers
+      "SILVER"     -> 2
+      "GOLD"       -> 3
+      "PLATINUM"   -> 4
+      "DIAMOND"    -> 5
+      "MASTER"     -> 6
       "CHALLENGER" -> 7
     end
   end

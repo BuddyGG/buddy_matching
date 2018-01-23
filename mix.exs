@@ -11,7 +11,8 @@ defmodule LolBuddy.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       build_embedded: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -45,6 +46,7 @@ defmodule LolBuddy.Mixfile do
       {:uuid, "~> 1.1"},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:pre_commit, "~> 0.2.4", only: :dev},
+      {:excoveralls, "~> 0.8", only: :test},
       {:edeliver, "~> 1.4.3"},
       {:distillery, "~> 1.4"},
       {:conform, "~> 2.2"}

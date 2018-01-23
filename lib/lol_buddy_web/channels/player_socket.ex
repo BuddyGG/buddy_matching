@@ -3,18 +3,18 @@ defmodule LolBuddyWeb.PlayerSocket do
   alias LolBuddy.Auth
 
   ## Channels
-  channel "players:*", LolBuddyWeb.PlayersChannel
+  channel("players:*", LolBuddyWeb.PlayersChannel)
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket, timeout: 100_000
+  transport(:websocket, Phoenix.Transports.WebSocket, timeout: 100_000)
 
-  #O n connect verify that the session and session token match
+  # O n connect verify that the session and session token match
   def connect(%{"session_id" => session_id, "session_token" => session_token}, socket) do
     if Auth.verify_session(session_id, session_token) do
-        socket = assign(socket, :session_id, session_id)
-        {:ok, socket}
+      socket = assign(socket, :session_id, session_id)
+      {:ok, socket}
     else
-        :error
+      :error
     end
   end
 

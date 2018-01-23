@@ -12,6 +12,7 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: []
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

@@ -5,9 +5,17 @@ defmodule LolBuddy.Players.Player do
 
   alias LolBuddy.Players.Criteria
 
-  defstruct id: nil, name: nil, region: nil, voice: false, languages: [],
-    age_group: nil, positions: [], leagues: [], champions: [],
-    criteria: nil, comment: nil
+  defstruct id: nil,
+            name: nil,
+            region: nil,
+            voice: false,
+            languages: [],
+            age_group: nil,
+            positions: [],
+            leagues: [],
+            champions: [],
+            criteria: nil,
+            comment: nil
 
   @doc """
   Parses an entire player from json into the Player struct used in the backend,
@@ -25,7 +33,8 @@ defmodule LolBuddy.Players.Player do
       leagues: leagues_from_json(data["leagues"]),
       champions: data["champions"],
       criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-      comment: data["userInfo"]["comment"]}
+      comment: data["userInfo"]["comment"]
+    }
   end
 
   # Parses a json leagues specification of format:
@@ -33,11 +42,11 @@ defmodule LolBuddy.Players.Player do
   # to [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}]
   defp leagues_from_json(leagues) do
     leagues
-    |>  Enum.map(
-        fn elem -> elem
-                   |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
-                   |> Enum.into(%{})
-        end)
+    |> Enum.map(fn elem ->
+      elem
+      |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+      |> Enum.into(%{})
+    end)
   end
 
   @doc """
@@ -50,7 +59,7 @@ defmodule LolBuddy.Players.Player do
     iex> positions_from_json(positions)
     [:jungle, :mid]
   """
-  def positions_from_json(positions), do: for {val, true} <- positions, do: String.to_atom(val)
+  def positions_from_json(positions), do: for({val, true} <- positions, do: String.to_atom(val))
 
   # Sort the languages alphabetically, but ensure that english is first
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
@@ -58,5 +67,4 @@ defmodule LolBuddy.Players.Player do
   defp sorter(_, "EN"), do: false
   defp sorter("EN", _), do: true
   defp sorter(left, right), do: left < right
-
 end

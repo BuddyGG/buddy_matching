@@ -11,9 +11,11 @@ defmodule LolBuddy.Players.Criteria do
   into the criteria struct used in the backend.
   """
   def from_json(data) do
-    %LolBuddy.Players.Criteria{positions: Player.positions_from_json(data["positions"]),
+    %LolBuddy.Players.Criteria{
+      positions: Player.positions_from_json(data["positions"]),
       voice: voice_from_json(data["voiceChat"]),
-      age_groups: age_groups_from_json(data["ageGroups"])}
+      age_groups: age_groups_from_json(data["ageGroups"])
+    }
   end
 
   defp voice_parse("YES"), do: true
@@ -29,7 +31,7 @@ defmodule LolBuddy.Players.Criteria do
     iex> voice_from_json(voice)
     [true, false]
   """
-  def voice_from_json(voice), do: for {val, true} <- voice, do: voice_parse(val)
+  def voice_from_json(voice), do: for({val, true} <- voice, do: voice_parse(val))
 
   @doc """
   Parses the checkbox format the frontend uses for age_groups.
@@ -41,5 +43,5 @@ defmodule LolBuddy.Players.Criteria do
   iex> age_groups_from_json(age_groups)
   ["interval1", "interval2"]
   """
-  def age_groups_from_json(age_groups), do: for {val, true} <- age_groups, do: val
+  def age_groups_from_json(age_groups), do: for({val, true} <- age_groups, do: val)
 end

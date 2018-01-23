@@ -17,7 +17,7 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
   http: [port: System.get_env("PORT")],
   url: [scheme: "https", host: System.get_env("HOST"), port: 443],
 
-  #TODO remember to reenable check_origin
+  # TODO remember to reenable check_origin
   check_origin: false,
   server: true,
   code_reloader: false,
@@ -68,4 +68,4 @@ config :phoenix, :serve_endpoints, true
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
-#import_config "prod.secret.exs"
+# import_config "prod.secret.exs"

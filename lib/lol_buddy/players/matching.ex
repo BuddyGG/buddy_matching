@@ -31,11 +31,10 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def match?(%Player{} = player, %Player{} = candidate) do
-    player.id != candidate.id
-    && can_queue?(player, candidate)
-    && lists_intersect?(player.languages, candidate.languages)
-    && criteria_compatible?(player.criteria, candidate)
-    && criteria_compatible?(candidate.criteria, player)
+    player.id != candidate.id && can_queue?(player, candidate) &&
+      lists_intersect?(player.languages, candidate.languages) &&
+      criteria_compatible?(player.criteria, candidate) &&
+      criteria_compatible?(candidate.criteria, player)
   end
 
   # convert two lists to MapSets and see if they intersect?
@@ -47,11 +46,14 @@ defmodule LolBuddy.Players.Matching do
   # two players to queue together
   defp can_queue?(%Player{} = player, %Player{} = candidate) do
     case player.region == candidate.region do
-      false -> false
-      _     -> is_solo? = &(&1.type == "RANKED_SOLO_5x5")
-               player_solo = Enum.find(player.leagues, is_solo?)
-               candidate_solo = Enum.find(candidate.leagues, is_solo?)
-               tier_compatible?(player_solo, candidate_solo)
+      false ->
+        false
+
+      _ ->
+        is_solo? = &(&1.type == "RANKED_SOLO_5x5")
+        player_solo = Enum.find(player.leagues, is_solo?)
+        candidate_solo = Enum.find(candidate.leagues, is_solo?)
+        tier_compatible?(player_solo, candidate_solo)
     end
   end
 
@@ -70,9 +72,9 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
-      Enum.member?(criteria.voice, player.voice)
-      && lists_intersect?(criteria.positions, player.positions)
-      && Enum.member?(criteria.age_groups, player.age_group)
+    Enum.member?(criteria.voice, player.voice) &&
+      lists_intersect?(criteria.positions, player.positions) &&
+      Enum.member?(criteria.age_groups, player.age_group)
   end
 
   # Defined according to below
@@ -81,17 +83,36 @@ defmodule LolBuddy.Players.Matching do
   # when the players queuing have a tier discrepancy of 1
   defp rank_compatible?(%{tier: ht, rank: hr}, %{tier: lt, rank: lr}) do
     cond do
-      ht in @loose_tiers -> true
-      ht == "CHALLENGER" -> false # always reject
-      ht == "MASTER" -> lr in 1..3
+      ht in @loose_tiers ->
+        true
+
+      # always reject
+      ht == "CHALLENGER" ->
+        false
+
+      ht == "MASTER" ->
+        lr in 1..3
 
       # now we may can assume ht is diamond
       # we also know if hr is diamond, lt has to be platinum
-      hr == 1 -> ht == lt && lr in 1..4
-      hr == 2 -> false      # d2 can't queue with plat (should'nt happen tho)
-      hr == 3 -> lr == 1    # d3 can queue with plat 1
-      hr == 4 -> lr in 1..2 # d4 can queue with plat 1/2
-      hr == 5 -> lr in 1..3 # d5 can queue with plat 1..3
+      hr == 1 ->
+        ht == lt && lr in 1..4
+
+      # d2 can't queue with plat (should'nt happen tho)
+      hr == 2 ->
+        false
+
+      # d3 can queue with plat 1
+      hr == 3 ->
+        lr == 1
+
+      # d4 can queue with plat 1/2
+      hr == 4 ->
+        lr in 1..2
+
+      # d5 can queue with plat 1..3
+      hr == 5 ->
+        lr in 1..3
     end
   end
 
@@ -116,12 +137,21 @@ defmodule LolBuddy.Players.Matching do
 
     # challenger's may only walk alone
     cond do
-      h.tier == "CHALLENGER" -> false
+      h.tier == "CHALLENGER" ->
+        false
+
       # special handling for d1 as it cannot queue with its entire league
-      h.tier == "DIAMOND" && h.rank == 1 -> rank_compatible?(h, l)
-      ht - lt == 0 -> true
-      ht - lt == 1 -> rank_compatible?(h, l)
-      true -> false
+      h.tier == "DIAMOND" && h.rank == 1 ->
+        rank_compatible?(h, l)
+
+      ht - lt == 0 ->
+        true
+
+      ht - lt == 1 ->
+        rank_compatible?(h, l)
+
+      true ->
+        false
     end
   end
 
@@ -138,23 +168,29 @@ defmodule LolBuddy.Players.Matching do
   def sort_leagues(league1, league2) do
     tier1 = tier_to_int(league1.tier)
     tier2 = tier_to_int(league2.tier)
+
     cond do
-      tier1 > tier2 -> {league1, league2}
-      tier2 > tier1 -> {league2, league1}
-      true -> if league1.rank <= league2.rank,
-              do: {league1, league2},
-              else: {league2, league1}
+      tier1 > tier2 ->
+        {league1, league2}
+
+      tier2 > tier1 ->
+        {league2, league1}
+
+      true ->
+        if league1.rank <= league2.rank,
+          do: {league1, league2},
+          else: {league2, league1}
     end
   end
 
   defp tier_to_int(tier) do
     case tier do
-      "BRONZE"     -> 1
-      "SILVER"     -> 2
-      "GOLD"       -> 3
-      "PLATINUM"   -> 4
-      "DIAMOND"    -> 5
-      "MASTER"     -> 6
+      "BRONZE" -> 1
+      "SILVER" -> 2
+      "GOLD" -> 3
+      "PLATINUM" -> 4
+      "DIAMOND" -> 5
+      "MASTER" -> 6
       "CHALLENGER" -> 7
     end
   end

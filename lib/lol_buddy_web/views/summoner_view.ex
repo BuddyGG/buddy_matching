@@ -9,5 +9,4 @@ defmodule LolBuddyWeb.SummonerView do
   def render("summoner.json", %{summoner: summoner}) do
     summoner
   end
-
 end

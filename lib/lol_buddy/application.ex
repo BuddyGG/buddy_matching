@@ -12,6 +12,7 @@ defmodule LolBuddy.Application do
     import Supervisor.Spec
 
     api_key = System.get_env("RIOT_API_KEY")
+
     if api_key do
       Application.put_env(:lol_buddy, :riot_api_key, api_key)
     end

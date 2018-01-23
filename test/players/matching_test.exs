@@ -7,26 +7,51 @@ defmodule LolBuddy.MatchingTest do
   # setup some bases for criteria and players that can be used in relation
   # to custom definitions for testing
   setup_all do
-    broad_criteria = %Criteria{positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: [true, false], age_groups: ["interval1", "interval2", "interval3"]}
+    broad_criteria = %Criteria{
+      positions: [:top, :jungle, :mid, :marksman, :support],
+      voice: [true, false],
+      age_groups: ["interval1", "interval2", "interval3"]
+    }
 
-    narrow_criteria = %Criteria{positions: [:marksman], voice: [false], 
-      age_groups: ["interval1"]}
+    narrow_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
 
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
-    base_player1 = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
-      languages: ["danish"], age_group: "interval1", positions: [:marksman],
-      leagues: [diamond1], champions: ["Vayne", "Ezreal", "Caitlyn"],
-      criteria: broad_criteria, comment: "Never dies on Vayne"}
+    base_player1 = %Player{
+      id: 1,
+      name: "Lethly",
+      region: :euw,
+      voice: false,
+      languages: ["danish"],
+      age_group: "interval1",
+      positions: [:marksman],
+      leagues: [diamond1],
+      champions: ["Vayne", "Ezreal", "Caitlyn"],
+      criteria: broad_criteria,
+      comment: "Never dies on Vayne"
+    }
 
-    base_player2 = %Player{id: 2, name: "hansp", region: :euw, voice: false,
-      languages: ["danish", "english"], age_group: "interval3", positions: [:top],
-      leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
-      criteria: narrow_criteria, comment: "Apparently I play Riven"}
+    base_player2 = %Player{
+      id: 2,
+      name: "hansp",
+      region: :euw,
+      voice: false,
+      languages: ["danish", "english"],
+      age_group: "interval3",
+      positions: [:top],
+      leagues: [diamond1],
+      champions: ["Cho'Gath", "Renekton", "Riven"],
+      criteria: narrow_criteria,
+      comment: "Apparently I play Riven"
+    }
 
-    [player1: base_player1, broad_criteria: broad_criteria, diamond1: diamond1,
-     player2: base_player2, narrow_criteria: narrow_criteria]
+    [
+      player1: base_player1,
+      broad_criteria: broad_criteria,
+      diamond1: diamond1,
+      player2: base_player2,
+      narrow_criteria: narrow_criteria
+    ]
   end
 
   ### --- Player matching tests --- ###
@@ -51,29 +76,47 @@ defmodule LolBuddy.MatchingTest do
 
   ### --- Criteria compatibility tests --- ###
   test "test that 1:1 criteria/player fit is compatible", context do
-    perfect_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
+    perfect_criteria = %Criteria{
+      positions: [:marksman],
+      voice: [false],
+      age_groups: ["interval1"]
+    }
+
     assert Matching.criteria_compatible?(perfect_criteria, context[:player1])
   end
 
-   test "test that voice criteria, for no voice player is incompatible", context do
+  test "test that voice criteria, for no voice player is incompatible", context do
     voice_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: ["interval1"]}
     refute Matching.criteria_compatible?(voice_criteria, context[:player1])
   end
 
   test "test that age_group criteria doesn't match with bad age groups for player", context do
-    age_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: ["interval2", "interval3"]}
+    age_criteria = %Criteria{
+      positions: [:marksman],
+      voice: [true],
+      age_groups: ["interval2", "interval3"]
+    }
+
     refute Matching.criteria_compatible?(age_criteria, context[:player1])
   end
 
   test "test that positions criteria doesn't match with other positions", context do
-    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top],
-      voice: [true, false], age_groups: ["interval1", "interval2", "interval3"]}
+    positions_criteria = %Criteria{
+      positions: [:jungle, :mid, :support, :top],
+      voice: [true, false],
+      age_groups: ["interval1", "interval2", "interval3"]
+    }
+
     refute Matching.criteria_compatible?(positions_criteria, context[:player1])
   end
 
   test "test that compatible positions criteria matches", context do
-    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top, :marksman],
-      voice: [true, false], age_groups: ["interval1", "interval2", "interval3"]}
+    positions_criteria = %Criteria{
+      positions: [:jungle, :mid, :support, :top, :marksman],
+      voice: [true, false],
+      age_groups: ["interval1", "interval2", "interval3"]
+    }
+
     assert Matching.criteria_compatible?(positions_criteria, context[:player1])
   end
 

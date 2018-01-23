@@ -11,14 +11,16 @@ defmodule LolBuddy.PlayerServer.Supervisor do
   @doc """
   Default constructor for PlayerServer, in which case
   we name the PlayerServer based on the module
-    """
+  """
+
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   @doc """
   Starts a PlayerServer with potential options.
-    """
+  """
+
   def start_link(opts) do
     Supervisor.start_link(__MODULE__, :ok, opts)
   end
@@ -26,7 +28,8 @@ defmodule LolBuddy.PlayerServer.Supervisor do
   @doc """
   Define all the child specs for the various regions
   and start them all with one_for_one strategy.
-    """
+  """
+
   def init(:ok) do
     children = [
       Supervisor.child_spec({PlayerServer, name: {:global, :br}}, id: :worker_br),

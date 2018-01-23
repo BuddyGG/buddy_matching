@@ -16,5 +16,4 @@ defmodule LolBuddyRiotApi.RegionsTest do
     response = LolBuddy.RiotApi.Regions.endpoint(:na)
     assert response == "https://na1.api.riotgames.com"
   end
-
 end

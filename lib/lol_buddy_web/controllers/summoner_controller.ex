@@ -1,6 +1,6 @@
 defmodule LolBuddyWeb.SummonerController do
   use LolBuddyWeb, :controller
-  action_fallback CarExtractorWeb.FallbackController
+  action_fallback(CarExtractorWeb.FallbackController)
 
   alias LolBuddy.RiotApi.Api
 
@@ -11,8 +11,8 @@ defmodule LolBuddyWeb.SummonerController do
     name
     |> Api.fetch_summoner_info(String.to_existing_atom(region))
     |> case do
-        {:ok, summoner} -> render(conn, "show.json", summoner: summoner)
-        {:error, error} -> render(conn, LolBuddyWeb.ErrorView, "error.json", error: error)
+      {:ok, summoner} -> render(conn, "show.json", summoner: summoner)
+      {:error, error} -> render(conn, LolBuddyWeb.ErrorView, "error.json", error: error)
     end
   end
 end

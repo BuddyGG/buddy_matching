@@ -5,7 +5,7 @@ defmodule LolBuddy.PlayerServerTest do
   alias LolBuddy.Players.Criteria
 
   setup do
-    {:ok, server} = start_supervised PlayerServer
+    {:ok, server} = start_supervised(PlayerServer)
     %{server: server}
   end
 

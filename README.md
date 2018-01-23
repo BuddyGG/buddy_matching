@@ -1,18 +1,13 @@
-# LolBuddy
+# Backend service for Buddy.gg
+Somewhat generic player matching service built with phoenix, utilizing genservers and sockets to avoid having an underlying database.
+Currently build only support matching players from League of Legends, but can quite easily be expanded to other games
 
-To start your Phoenix server:
+## Run local
+To start the server:
+  - Install dependencies with mix deps.get
+  - Start Phoenix endpoint with mix phx.server
+Now you can visit localhost:4000 from your browser.
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server`
+## Deploy to production
+Deployment is handled with [edeliver](https://github.com/edeliver/edeliver) and [conform](https://github.com/bitwalker/conform). See the respected repos for more information. 
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix

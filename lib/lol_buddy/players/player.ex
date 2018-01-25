@@ -5,6 +5,12 @@ defmodule LolBuddy.Players.Player do
 
   alias LolBuddy.Players.Criteria
 
+  @comment_char_limit 100
+  @riot_name_length_limit 16
+  @role_limit 5
+  @champion_limit 3
+  @age_group_limit 3
+
   defstruct id: nil,
             name: nil,
             region: nil,
@@ -25,7 +31,7 @@ defmodule LolBuddy.Players.Player do
     %LolBuddy.Players.Player{
       id: data["userInfo"]["id"],
       name: data["name"],
-      region: String.to_atom(data["region"]),
+      region: String.to_existing_atom(data["region"]),
       voice: data["userInfo"]["voicechat"],
       languages: languages_from_json(data["userInfo"]["languages"]),
       age_group: data["userInfo"]["agegroup"],
@@ -35,6 +41,28 @@ defmodule LolBuddy.Players.Player do
       criteria: Criteria.from_json(data["userInfo"]["criteria"]),
       comment: data["userInfo"]["comment"]
     }
+  end
+
+  @doc """
+  Validates that the given player adheres to the desired structure
+  as well as uses limited lengths for most strings. This is solely
+  to avoid potential adversarial player submissions that could damage
+  the system.
+
+  We do not care if empty lists are submitted, although this should
+  generally be avoided in the frontend.
+  We additionally don't bother checking things that will be caught
+  by crashes in from_json/1.
+
+  Names should adhere to Riot's guidelines:
+  https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
+  """
+  def validate_player_json(data) do
+    String.length(data["name"]) <= @riot_name_length_limit
+    && length(data["userInfo"]["agegroup"]) <= @age_group_limit
+    && length(data["userInfo"]["selectedRoles"]) <= @role_limit
+    && length(data["champions"]) <= @champion_limit
+    && String.length(data["userInfo"]["comment"]) < @comment_char_limit
   end
 
   # Parses a json leagues specification of format:

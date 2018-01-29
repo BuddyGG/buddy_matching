@@ -9,7 +9,6 @@ defmodule LolBuddy.Players.Player do
   @riot_name_length_limit 16
   @role_limit 5
   @champion_limit 3
-  @age_group_limit 3
 
   defstruct id: nil,
             name: nil,
@@ -58,11 +57,11 @@ defmodule LolBuddy.Players.Player do
   https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
   """
   def validate_player_json(data) do
-    String.length(data["name"]) <= @riot_name_length_limit
-    && length(data["userInfo"]["agegroup"]) <= @age_group_limit
-    && length(data["userInfo"]["selectedRoles"]) <= @role_limit
-    && length(data["champions"]) <= @champion_limit
-    && String.length(data["userInfo"]["comment"]) < @comment_char_limit
+    String.length(data["name"]) <= @riot_name_length_limit &&
+      map_size(data["userInfo"]["selectedRoles"]) <= @role_limit &&
+      length(data["champions"]) <= @champion_limit &&
+      String.length(data["userInfo"]["comment"]) <= @comment_char_limit &&
+      Criteria.validate_criteria_json(data["userInfo"]["criteria"])
   end
 
   # Parses a json leagues specification of format:
@@ -87,7 +86,8 @@ defmodule LolBuddy.Players.Player do
     iex> positions_from_json(positions)
     [:jungle, :mid]
   """
-  def positions_from_json(positions), do: for({val, true} <- positions, do: String.to_atom(val))
+  def positions_from_json(positions),
+    do: for({val, true} <- positions, do: String.to_existing_atom(val))
 
   # Sort the languages alphabetically, but ensure that english is first
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)

@@ -52,17 +52,17 @@ defmodule LolBuddy.PlayerTest do
           "DA",
           "KO",
           "EN"
-          
+
        ],
        "voicechat":true,
-       "agegroup":"20-29",
+       "agegroup":"interval2",
        "comment":"test"
     }
  })
 
   test "entire player is correctly parsed from json" do
     expected_player = %Player{
-      age_group: "20-29",
+      age_group: "interval2",
       champions: ["Vayne", "Caitlyn", "Ezreal"],
       criteria: %LolBuddy.Players.Criteria{
         age_groups: ["interval1", "interval2", "interval3"],
@@ -106,5 +106,41 @@ defmodule LolBuddy.PlayerTest do
     input = ["DK", "KR", "GR", "FR"]
     expected_languages = ["DK", "FR", "GR", "KR"]
     assert expected_languages == Player.languages_from_json(input)
+  end
+
+  test "valid player json validates to true" do
+    data = Poison.Parser.parse!(@player)
+    assert Player.validate_player_json(data)
+  end
+
+  test "too long comment in player json is invalid" do
+    data = Poison.Parser.parse!(@player)
+    long_comment = String.duplicate("a", 101)
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.replace!("comment", long_comment)
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  test "too many selected roles is invalid" do
+    data = Poison.Parser.parse!(@player)
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.update!("selectedRoles", &Map.put(&1, "a", "b"))
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  @tag :wip
+  test "too long player name is invalid" do
+    data = Poison.Parser.parse!(@player)
+    long_name = String.duplicate("a", 17)
+    bad_data = Map.replace!(data, "name", long_name)
+    refute Player.validate_player_json(bad_data)
   end
 end

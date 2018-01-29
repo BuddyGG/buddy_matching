@@ -58,15 +58,10 @@ defmodule LolBuddyWeb.PlayersChannel do
           players = RegionMapper.get_players(socket.assigns.user.region)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
-          Logger.debug(fn -> "Pushing new players: " end)
-          # Logger.debug fn -> "Pushing new players: #{inspect matches}"  end
+          Logger.debug(fn -> "Pushing new players: #{inspect(matches)}" end)
           push(socket, @initial_matches_event, %{players: matches})
           # Send the newly joined user to all matching players
-          matches
-          |> Enum.each(fn player ->
-            Endpoint.broadcast!("players:#{player.id}", @new_match_event, socket.assigns.user)
-          end)
-
+          broadcast_matches(matches, socket.assigns.user, @new_match_event)
           send(socket.transport_pid, :garbage_collect)
 
         :error ->
@@ -142,20 +137,11 @@ defmodule LolBuddyWeb.PlayersChannel do
 
       # broadcast new_player to newly matched players
       (updated_matches -- current_matches)
-      |> Enum.each(fn player ->
-        Logger.debug(fn -> "Broadcast new player to #{player.id}: #{inspect(updated_player)}" end)
-        Endpoint.broadcast!("players:#{player.id}", @new_match_event, updated_player)
-      end)
+      |> broadcast_matches(updated_player, @new_match_event)
 
       # broadcast remove_player to players who are no longer matched
       (current_matches -- updated_matches)
-      |> Enum.each(fn player ->
-        Logger.debug(fn ->
-          "Broadcast remove player to #{player.id}: #{inspect(updated_player)}"
-        end)
-
-        Endpoint.broadcast!("players:#{player.id}", @unmatch_event, updated_player)
-      end)
+      |> broadcast_matches(updated_player, @unmatch_event)
 
       # send the full list of updated matches on the socket
       Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
@@ -164,6 +150,15 @@ defmodule LolBuddyWeb.PlayersChannel do
     end)
 
     {:noreply, socket}
+  end
+
+  # Utility method for broadcasting the given player as given event
+  # to all players in the given list of matches.
+  defp broadcast_matches(matches, player, event) do
+    matches
+    |> Enum.each(fn match ->
+      Endpoint.broadcast!("players:#{match.id}", event, player)
+    end)
   end
 
   # HACK - to correctly get id for various types. Mostly to make tests work.

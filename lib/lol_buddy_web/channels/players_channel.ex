@@ -26,15 +26,18 @@ defmodule LolBuddyWeb.PlayersChannel do
   """
   def join("players:" <> session_id, %{} = player, socket) do
     if socket.assigns.session_id == session_id do
-      parsed_player = parse_player_payload(player)
+      case parse_player_payload(player) do
+        {:error, reason} ->
+          {:error, %{reason: reason}}
 
-      if parsed_player.id == session_id do
-        socket = assign(socket, :user, parse_player_payload(player))
-        send(self(), {:on_join, {}})
-        send(self(), :after_join)
-        {:ok, socket}
-      else
-        {:error, %{reason: "session id mismatch"}}
+        {:ok, %Player{id: id} = player} when id == session_id ->
+          socket = assign(socket, :user, player)
+          send(self(), {:on_join, {}})
+          send(self(), :after_join)
+          {:ok, socket}
+
+        _ ->
+          {:error, %{reason: "session id mismatch"}}
       end
     else
       {:error, %{reason: "unauthorized"}}
@@ -174,7 +177,7 @@ defmodule LolBuddyWeb.PlayersChannel do
   Parse player from the payload, if we get a player struct, we just return it,
   else we parse the payload as json
   """
-  def parse_player_payload(%Player{} = player), do: player
+  def parse_player_payload(%Player{} = player), do: {:ok, player}
   def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
   def parse_player_payload(%{} = player), do: Player.from_json(player)
 end

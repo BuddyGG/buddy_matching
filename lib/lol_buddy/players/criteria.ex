@@ -4,6 +4,11 @@ defmodule LolBuddy.Players.Criteria do
   filter their matches.
   """
   alias LolBuddy.Players.Player
+
+  @position_limit 5
+  @voice_limit 2
+  @age_group_limit 3
+
   defstruct positions: [], voice: false, age_groups: []
 
   @doc """
@@ -18,12 +23,22 @@ defmodule LolBuddy.Players.Criteria do
     }
   end
 
+  @doc """
+  Validates that the given criteria json adheres to some reasonable bounds.
+  Doesn't attempt to catch errors that may be apparent from merely
+  parsing the json map.
+  """
+  def validate_criteria_json(data) do
+    map_size(data["positions"]) <= @position_limit && map_size(data["voiceChat"]) <= @voice_limit &&
+      map_size(data["ageGroups"]) <= @age_group_limit
+  end
+
   defp voice_parse("YES"), do: true
   defp voice_parse("NO"), do: false
 
   @doc """
   Parses the checkbox format the frontend uses for voice criteria,
-  into a list of only booleans indicating whether true/false are 
+  into a list of only booleans indicating whether true/false are
   accepted values for a player's voice field.
 
   ## Examples

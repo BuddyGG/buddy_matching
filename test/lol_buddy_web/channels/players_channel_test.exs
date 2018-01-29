@@ -150,10 +150,10 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     "id" : "#{auth_player.id}",
        "selectedRoles":{
           "top":true,
-          "jun":true,
+          "jungle":true,
           "mid":false,
-          "adc":false,
-          "sup":false
+          "marksman":false,
+          "support":false
        },
        "languages":[
           "DA"
@@ -341,7 +341,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         event: @initial_matches_event,
         payload: %{players: []}
       },
-      1000
+      2000
     )
 
     # assert player 2 got no one else
@@ -351,7 +351,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         event: @initial_matches_event,
         payload: %{players: [^player1]}
       },
-      1000
+      2000
     )
 
     narrow_criteria = %{
@@ -375,7 +375,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         event: @initial_matches_event,
         payload: %{players: []}
       },
-      1000
+      2000
     )
 
     narrow_criteria_parsed = Criteria.from_json(narrow_criteria)
@@ -383,7 +383,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
     assert_receive(
       %Phoenix.Socket.Message{topic: ^topic2, event: @unmatch_event, payload: ^narrow_player1},
-      1000
+      2000
     )
 
     :ok = close(channel1)

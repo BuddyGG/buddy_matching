@@ -61,23 +61,25 @@ defmodule LolBuddy.PlayerTest do
  })
 
   test "entire player is correctly parsed from json" do
-    expected_player = %Player{
-      age_group: "interval2",
-      champions: ["Vayne", "Caitlyn", "Ezreal"],
-      criteria: %LolBuddy.Players.Criteria{
-        age_groups: ["interval1", "interval2", "interval3"],
-        positions: [:jungle, :marksman, :mid, :support, :top],
-        voice: [false, true]
-      },
-      id: 1,
-      languages: ["EN", "DA", "KO"],
-      leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
-      name: "Lethly",
-      positions: [:jungle, :top],
-      region: :euw,
-      voice: true,
-      comment: "test"
-    }
+    expected_player =
+      {:ok,
+       %Player{
+         age_group: "interval2",
+         champions: ["Vayne", "Caitlyn", "Ezreal"],
+         criteria: %LolBuddy.Players.Criteria{
+           age_groups: ["interval1", "interval2", "interval3"],
+           positions: [:jungle, :marksman, :mid, :support, :top],
+           voice: [false, true]
+         },
+         id: 1,
+         languages: ["EN", "DA", "KO"],
+         leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+         name: "Lethly",
+         positions: [:jungle, :top],
+         region: :euw,
+         voice: true,
+         comment: "test"
+       }}
 
     data = Poison.Parser.parse!(@player)
     assert Player.from_json(data) == expected_player

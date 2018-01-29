@@ -66,6 +66,63 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     comment: "Apparently I play Riven"
   }
 
+  def generate_player(id) do
+    ~s({
+      "champions":[
+        "Vayne",
+        "Caitlyn",
+        "Ezreal"
+      ],
+      "icon_id":512,
+      "leagues":[
+        {
+          "type":"RANKED_SOLO_5x5",
+          "tier":"GOLD",
+          "rank":"I"
+        }
+      ],
+      "positions":[
+        "marksman"
+      ],
+      "name":"Lethly",
+      "region":"euw",
+      "userInfo":{
+        "criteria": {
+          "positions":{
+            "top":true,
+            "jungle":true,
+            "mid":true,
+            "marksman":true,
+            "support":true
+          },
+          "ageGroups":{
+            "interval1":true,
+            "interval2":true,
+            "interval3":true
+          },
+          "voiceChat":{
+            "YES":true,
+            "NO":true
+          }
+        },
+        "id" : "#{id}",
+        "selectedRoles":{
+          "top":true,
+          "jungle":true,
+          "mid":false,
+          "marksman":false,
+          "support":false
+        },
+        "languages":[
+          "DA"
+        ],
+        "voicechat":true,
+        "agegroup":"interval2",
+        "comment":"test"
+      }
+    })
+  end
+
   # Setup a socket with an authorized player, returns the socket, the player and the proposed topic to join on
   def setup_socket(player) do
     session_id = Auth.generate_session_id()
@@ -108,62 +165,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
 
   test "can join channel with valid json payload" do
     {socket, auth_player, topic} = setup_socket(%{id: 1})
-
-    player = ~s({
-    "champions":[
-       "Vayne",
-       "Caitlyn",
-       "Ezreal"
-    ],
-    "icon_id":512,
-    "leagues":[
-       {
-          "type":"RANKED_SOLO_5x5",
-          "tier":"GOLD",
-          "rank":"I"
-       }
-    ],
-    "positions":[
-       "marksman"
-    ],
-    "name":"Lethly",
-    "region":"euw",
-    "userInfo":{
-      "criteria": {
-        "positions":{
-            "top":true,
-            "jungle":true,
-            "mid":true,
-            "marksman":true,
-            "support":true
-         },
-         "ageGroups":{
-            "interval1":true,
-            "interval2":true,
-            "interval3":true
-         },
-         "voiceChat":{
-            "YES":true,
-            "NO":true
-         }
-      },
-    "id" : "#{auth_player.id}",
-       "selectedRoles":{
-          "top":true,
-          "jungle":true,
-          "mid":false,
-          "marksman":false,
-          "support":false
-       },
-       "languages":[
-          "DA"
-       ],
-       "voicechat":true,
-       "agegroup":"20-29",
-       "comment":"test"
-    }
- })
-
+    player = generate_player(auth_player.id)
     data = Poison.Parser.parse!(player)
 
     {:ok, _, channel} = socket |> subscribe_and_join(PlayersChannel, topic, data)
@@ -174,6 +176,15 @@ defmodule LolBuddyWeb.PlayersChannelTest do
       event: @initial_matches_event,
       payload: %{players: []}
     }
+  end
+
+  test "can't join channel with invalid json payload" do
+    {socket, auth_player, topic} = setup_socket(%{id: 1})
+    player = generate_player(auth_player.id)
+    data = Poison.Parser.parse!(player)
+    data = Map.put(data, "name", "a_too_god_damn_long_name_for_riot")
+
+    {:error, _} = socket |> subscribe_and_join(PlayersChannel, topic, data)
   end
 
   test "player can request to match with an other player" do

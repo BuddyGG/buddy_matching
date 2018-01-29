@@ -27,19 +27,25 @@ defmodule LolBuddy.Players.Player do
   including parsing for Criteria into its struct
   """
   def from_json(data) do
-    %LolBuddy.Players.Player{
-      id: data["userInfo"]["id"],
-      name: data["name"],
-      region: String.to_existing_atom(data["region"]),
-      voice: data["userInfo"]["voicechat"],
-      languages: languages_from_json(data["userInfo"]["languages"]),
-      age_group: data["userInfo"]["agegroup"],
-      positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-      leagues: leagues_from_json(data["leagues"]),
-      champions: data["champions"],
-      criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-      comment: data["userInfo"]["comment"]
-    }
+    if validate_player_json(data) do
+      player = %LolBuddy.Players.Player{
+        id: data["userInfo"]["id"],
+        name: data["name"],
+        region: String.to_existing_atom(data["region"]),
+        voice: data["userInfo"]["voicechat"],
+        languages: languages_from_json(data["userInfo"]["languages"]),
+        age_group: data["userInfo"]["agegroup"],
+        positions: positions_from_json(data["userInfo"]["selectedRoles"]),
+        leagues: leagues_from_json(data["leagues"]),
+        champions: data["champions"],
+        criteria: Criteria.from_json(data["userInfo"]["criteria"]),
+        comment: data["userInfo"]["comment"]
+      }
+
+      {:ok, player}
+    else
+      {:error, "bad player json"}
+    end
   end
 
   @doc """

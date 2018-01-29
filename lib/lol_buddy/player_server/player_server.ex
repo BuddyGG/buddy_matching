@@ -74,8 +74,11 @@ defmodule LolBuddy.PlayerServer do
   # the key, to match a player in the state. - If the key does not exist,
   # nothing is done.
   # Returns {:noreply, <state>}
-  def handle_cast({:update, player}, list) do
-    {:noreply, Map.replace(list, player.name, player)}
+  def handle_cast({:update, player}, state) do
+    case Map.fetch(state, player.name) do
+      {:ok, _} -> {:noreply, Map.put(state, player.name, player)}
+      _ -> {:noreply, state}
+    end
   end
 
   # When we get a 'presence_diff' with no leaves, we do nothing.

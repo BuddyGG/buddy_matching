@@ -9,7 +9,6 @@ defmodule LolBuddy.RiotApi.Api do
   alias LolBuddy.RiotApi.Regions
   alias LolBuddy.RiotApi.Champions
   alias Poison.Parser
-  import OK, only: [~>>: 2]
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do
     {:ok, Parser.parse!(body)}
@@ -81,11 +80,14 @@ defmodule LolBuddy.RiotApi.Api do
       {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
   """
   def champions(id, region) do
-    fetch_champions(id, region)
-    ~>> Enum.take(3)
-    |> Enum.map(fn map -> Map.get(map, "championId") end)
-    |> Enum.map(fn id -> name_from_id(id) end)
-    |> OK.success()
+    OK.for do
+      champions <- fetch_champions(id, region)
+    after
+      champions
+      |> Enum.take(3)
+      |> Enum.map(fn map -> Map.get(map, "championId") end)
+      |> Enum.map(fn id -> name_from_id(id) end)
+    end
   end
 
   @doc """

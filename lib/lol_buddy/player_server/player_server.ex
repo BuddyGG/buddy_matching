@@ -10,9 +10,8 @@ defmodule LolBuddy.PlayerServer do
   alias LolBuddy.Players
   alias LolBuddy.Players.Player
   alias LolBuddyWeb.Endpoint
+  alias LolBuddyWeb.PlayersChannel
   alias Phoenix.Socket.Broadcast
-
-  @unmatch_event "remove_player"
 
   @doc """
   Starts the PlayerServer.
@@ -96,22 +95,18 @@ defmodule LolBuddy.PlayerServer do
       |> Map.values()
       |> Enum.map(fn %{metas: [%{name: name}]} -> name end)
 
+    # local function for broadcasting player leaves
     Task.start(fn ->
       [topic | _] = Map.keys(leaves)
       Endpoint.unsubscribe("players:" <> topic)
-
       if Map.has_key?(state, name) do
         player = state[name]
-
+        Logger.debug(fn -> "Player #{player} has left" end)
         player
         |> Players.get_matches(Map.values(state))
-        |> Enum.each(fn match ->
-          Logger.debug(fn -> "Broadcast remove player to #{match.id}: #{inspect(player)}" end)
-          Endpoint.broadcast!("players:#{match.id}", @unmatch_event, player)
-        end)
+        |> PlayersChannel.broadcast_unmatches(player)
       end
     end)
-
     {:noreply, Map.delete(state, name)}
   end
 

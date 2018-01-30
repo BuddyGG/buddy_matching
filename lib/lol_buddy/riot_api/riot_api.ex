@@ -256,7 +256,7 @@ defmodule LolBuddy.RiotApi.Api do
   Estimates last season's highest tier in "RANKED_SOLO_5x5" for a given
   account ID.
 
-  Returns {:ok, %{rank: 4, tier: "PLATINUM", type: "RANKED_SOLO_5x5"}}
+  Returns {:ok, %{rank: nil, tier: "PLATINUM", type: "RANKED_SOLO_5x5"}}
 
   ## Examples
       iex> LolBuddy.RiotApi.Api.last_seasons_rank(26102926, :euw)
@@ -269,8 +269,8 @@ defmodule LolBuddy.RiotApi.Api do
       account_id
       |> last_season_tier_from_match(match)
       |> case do
-        nil -> [%{rank: 5, tier: "SILVER", type: "RANKED_SOLO_5x5"}]
-        tier -> [%{rank: 5, tier: tier, type: "RANKED_SOLO_5x5"}]
+        nil -> [%{rank: nil, tier: "UNRANKED", type: "RANKED_SOLO_5x5"}]
+        tier -> [%{rank: nil, tier: tier, type: "RANKED_SOLO_5x5"}]
       end
     end
   end

@@ -222,4 +222,26 @@ defmodule LolBuddy.MatchingTest do
     challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
     refute Matching.tier_compatible?(challenger, challenger)
   end
+
+  test "gold with no rank is compatible with plat/gold/silver" do
+    platinum1 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}
+    silver5 = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 5}
+    gold3 = %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 3}
+    gold = %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: nil}
+    assert Matching.tier_compatible?(gold, platinum1)
+    assert Matching.tier_compatible?(gold, gold3)
+    assert Matching.tier_compatible?(gold, silver5)
+  end
+
+  test "diamond with no rank is compatible with diamond/plat" do
+    diamond = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: nil}
+    platinum1 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}
+    assert Matching.tier_compatible?(diamond, platinum1)
+  end
+
+  test "diamond1 can't queue with diamond with no rank" do
+    diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
+    diamond = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: nil}
+    refute Matching.tier_compatible?(diamond, diamond1)
+  end
 end

@@ -61,16 +61,14 @@ defmodule LolBuddyWeb.PlayersChannel do
           Logger.debug(fn -> "Pushing new players: #{inspect(matches)}" end)
           push(socket, @initial_matches_event, %{players: matches})
           # Send the newly joined user to all matching players
-          broadcast_matches(matches, socket.assigns.user, @new_match_event)
+          broadcast_matches(matches, socket.assigns.user)
           send(socket.transport_pid, :garbage_collect)
-
         :error ->
           push(socket, @already_signed_up_event, %{
             reason: "The given summoner is already signed up"
           })
       end
     end)
-
     {:noreply, socket}
   end
 
@@ -137,11 +135,11 @@ defmodule LolBuddyWeb.PlayersChannel do
 
       # broadcast new_player to newly matched players
       (updated_matches -- current_matches)
-      |> broadcast_matches(updated_player, @new_match_event)
+      |> broadcast_matches(updated_player)
 
       # broadcast remove_player to players who are no longer matched
       (current_matches -- updated_matches)
-      |> broadcast_matches(updated_player, @unmatch_event)
+      |> broadcast_unmatches(updated_player)
 
       # send the full list of updated matches on the socket
       Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
@@ -152,9 +150,25 @@ defmodule LolBuddyWeb.PlayersChannel do
     {:noreply, socket}
   end
 
+  @doc """
+  Broadcasts a @new_match_event of the given player to the given list
+  of matches for that player.
+  """
+  def broadcast_matches(matches, player) do
+    broadcast_event(matches, player, @new_match_event)
+  end
+
+  @doc """
+  Broadcasts a @unmatch_event of the given player to the given list
+  of matches for that player.
+  """
+  def broadcast_unmatches(matches, player) do
+    broadcast_event(matches, player, @unmatch_event)
+  end
+
   # Utility method for broadcasting the given player as given event
   # to all players in the given list of matches.
-  defp broadcast_matches(matches, player, event) do
+  defp broadcast_event(matches, player, event) do
     matches
     |> Enum.each(fn match ->
       Endpoint.broadcast!("players:#{match.id}", event, player)

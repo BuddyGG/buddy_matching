@@ -138,11 +138,42 @@ defmodule LolBuddy.PlayerTest do
     refute Player.validate_player_json(bad_data)
   end
 
-  @tag :wip
   test "too long player name is invalid" do
     data = Poison.Parser.parse!(@player)
     long_name = String.duplicate("a", 17)
     bad_data = Map.replace!(data, "name", long_name)
     refute Player.validate_player_json(bad_data)
+  end
+
+  test "player with null rank is valid json" do
+    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    data = Poison.Parser.parse!(player)
+    assert Player.validate_player_json(data)
+  end
+
+  test "player with null rank is parsed correctly" do
+    expected_player =
+      {:ok,
+       %Player{
+         age_group: "interval2",
+         champions: ["Vayne", "Caitlyn", "Ezreal"],
+         criteria: %LolBuddy.Players.Criteria{
+           age_groups: ["interval1", "interval2", "interval3"],
+           positions: [:jungle, :marksman, :mid, :support, :top],
+           voice: [false, true]
+         },
+         id: 1,
+         languages: ["EN", "DA", "KO"],
+         leagues: [%{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+         name: "Lethly",
+         positions: [:jungle, :top],
+         region: :euw,
+         voice: true,
+         comment: "test"
+       }}
+
+    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    data = Poison.Parser.parse!(player)
+    assert expected_player == Player.from_json(data)
   end
 end

@@ -185,4 +185,14 @@ defmodule LolBuddy.PlayersTest do
     matches = Players.get_matches(narrow_s4, context[:all_players])
     assert Enum.empty?(matches)
   end
+
+  test "silver with no rank can still match with gold/bronze/unranked", context do
+    silver = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: nil}
+    silver_no_rank = %Player{context[:s4_player] | leagues: [silver]}
+    matches = Players.get_matches(silver_no_rank, context[:all_players])
+    assert length(matches) == 3
+    assert Enum.member?(matches, context[:g3_player])
+    assert Enum.member?(matches, context[:b5_player])
+    assert Enum.member?(matches, context[:unranked_player])
+  end
 end

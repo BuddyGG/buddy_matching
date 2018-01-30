@@ -77,16 +77,19 @@ defmodule LolBuddy.Players.Matching do
       Enum.member?(criteria.age_groups, player.age_group)
   end
 
+  # This function assumes high isn't in @loose_tiers and that
+  # high and low are at most 1 league apart. This should be and is handled
+  # in tier_compatible?/2.
+  #
   # Defined according to below
   # https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
   # Helper for handling special restrictions for cases
   # when the players queuing have a tier discrepancy of 1
-  defp rank_compatible?(%{tier: ht, rank: hr}, %{tier: lt, rank: lr}) do
-    cond do
-      ht in @loose_tiers ->
-        true
+  defp rank_compatible?(%{tier: ht} = high, %{tier: lt} = low) do
+    hr = get_rank(high)
+    lr = get_rank(low)
 
-      # always reject
+    cond do
       ht == "CHALLENGER" ->
         false
 
@@ -98,7 +101,7 @@ defmodule LolBuddy.Players.Matching do
       hr == 1 ->
         ht == lt && lr in 1..4
 
-      # d2 can't queue with plat (should'nt happen tho)
+      # d2 can't queue with plat (shouldn't happen tho)
       hr == 2 ->
         false
 
@@ -132,23 +135,21 @@ defmodule LolBuddy.Players.Matching do
   """
   def tier_compatible?(league1, league2) do
     {h, l} = sort_leagues(league1, league2)
-    ht = tier_to_int(h.tier)
-    lt = tier_to_int(l.tier)
-
+    tier_diff = tier_to_int(h.tier) - tier_to_int(l.tier)
     # challenger's may only walk alone
     cond do
       h.tier == "CHALLENGER" ->
         false
 
       # special handling for d1 as it cannot queue with its entire league
-      h.tier == "DIAMOND" && h.rank == 1 ->
+      h.tier == "DIAMOND" && get_rank(h) == 1 ->
         rank_compatible?(h, l)
 
-      ht - lt == 0 ->
+      tier_diff == 0 ->
         true
 
-      ht - lt == 1 ->
-        rank_compatible?(h, l)
+      tier_diff == 1 ->
+        if h.tier in @loose_tiers, do: true, else: rank_compatible?(h, l)
 
       true ->
         false
@@ -211,4 +212,9 @@ defmodule LolBuddy.Players.Matching do
         7
     end
   end
+
+  # handle players where we don't know their rank
+  # but only their league as rank 5
+  defp get_rank(%{rank: nil}), do: 5
+  defp get_rank(%{rank: rank}), do: rank
 end

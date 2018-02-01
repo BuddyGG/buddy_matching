@@ -59,6 +59,12 @@ defmodule LolBuddy.MatchingTest do
     assert Matching.match?(context[:player1], context[:player2])
   end
 
+  @tag :pending
+  test "players with matching criteria but no language intersection don't match", context do
+    gibberishian = %Player{context[:player2] | languages: ["gibberish"]}
+    refute Matching.match?(context[:player1], gibberishian)
+  end
+
   test "player does not match himself", context do
     refute Matching.match?(context[:player1], context[:player1])
   end

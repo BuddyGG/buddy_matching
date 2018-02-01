@@ -32,7 +32,8 @@ defmodule LolBuddy.Players.Matching do
   """
   def match?(%Player{} = player, %Player{} = candidate) do
     player.id != candidate.id && can_queue?(player, candidate) &&
-      lists_intersect?(player.languages, candidate.languages) &&
+      # HACK - temporarily disable language matching until we find other solution
+      #lists_intersect?(player.languages, candidate.languages) &&
       criteria_compatible?(player.criteria, candidate) &&
       criteria_compatible?(candidate.criteria, player)
   end

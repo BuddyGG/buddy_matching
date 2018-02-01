@@ -47,14 +47,8 @@ defmodule LolBuddy.Players.Matching do
   # two players to queue together
   defp can_queue?(%Player{} = player, %Player{} = candidate) do
     case player.region == candidate.region do
-      false ->
-        false
-
-      _ ->
-        is_solo? = &(&1.type == "RANKED_SOLO_5x5")
-        player_solo = Enum.find(player.leagues, is_solo?)
-        candidate_solo = Enum.find(candidate.leagues, is_solo?)
-        tier_compatible?(player_solo, candidate_solo)
+      false -> false
+      _ -> tier_compatible?(player.leagues, candidate.leagues)
     end
   end
 

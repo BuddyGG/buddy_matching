@@ -303,6 +303,7 @@ defmodule LolBuddy.RiotApi.Api do
       |> case do
         nil ->
           last_seasons_rank(account_id, region)
+
         x ->
           %{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}
       end
@@ -319,7 +320,7 @@ defmodule LolBuddy.RiotApi.Api do
     iex> LolBuddy.RiotApi.Api.fetch_summoner_info("Lethly", :euw)
     {:ok,
       %{champions: ["Vayne", "Caitlyn", "Ezreal"], icon_id: 512,
-      leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+      leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
       name: "Lethly", positions: [:marksman], region: :euw}}
   """
   def fetch_summoner_info(name, region) do

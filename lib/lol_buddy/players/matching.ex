@@ -21,19 +21,19 @@ defmodule LolBuddy.Players.Matching do
       iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
+        leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria1, comment: "Great player, promise"}
       iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: false,
         languages: ["danish", "english"], age_group: 1, positions: [:top],
-        leagues: [diamond1], champions: ["Cho'Gath", "Renekton", "Riven"],
+        leagues: diamond1, champions: ["Cho'Gath", "Renekton", "Riven"],
         criteria: criteria2, comment: "Ok player, promise"}
       iex> LolBuddy.Players.Matching.match?(player, candidate)
       true
   """
   def match?(%Player{} = player, %Player{} = candidate) do
+    # HACK - temporarily disable language matching until we find other solution
+    # lists_intersect?(player.languages, candidate.languages) &&
     player.id != candidate.id && can_queue?(player, candidate) &&
-      # HACK - temporarily disable language matching until we find other solution
-      #lists_intersect?(player.languages, candidate.languages) &&
       criteria_compatible?(player.criteria, candidate) &&
       criteria_compatible?(candidate.criteria, player)
   end
@@ -61,7 +61,7 @@ defmodule LolBuddy.Players.Matching do
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
       iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
         languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
+        leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria, comment: "Fantastic player"}
       iex> LolBuddy.Players.Matching.criteria_compatible?(criteria, player)
       true

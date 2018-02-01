@@ -99,14 +99,17 @@ defmodule LolBuddy.PlayerServer do
     Task.start(fn ->
       [topic | _] = Map.keys(leaves)
       Endpoint.unsubscribe("players:" <> topic)
+
       if Map.has_key?(state, name) do
         player = state[name]
         Logger.debug(fn -> "Player #{player} has left" end)
+
         player
         |> Players.get_matches(Map.values(state))
         |> PlayersChannel.broadcast_unmatches(player)
       end
     end)
+
     {:noreply, Map.delete(state, name)}
   end
 

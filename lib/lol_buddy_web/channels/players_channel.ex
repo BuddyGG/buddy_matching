@@ -63,12 +63,14 @@ defmodule LolBuddyWeb.PlayersChannel do
           # Send the newly joined user to all matching players
           broadcast_matches(matches, socket.assigns.user)
           send(socket.transport_pid, :garbage_collect)
+
         :error ->
           push(socket, @already_signed_up_event, %{
             reason: "The given summoner is already signed up"
           })
       end
     end)
+
     {:noreply, socket}
   end
 

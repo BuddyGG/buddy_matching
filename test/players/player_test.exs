@@ -9,13 +9,11 @@ defmodule LolBuddy.PlayerTest do
        "Ezreal"
     ],
     "icon_id":512,
-    "leagues":[
-       {
+    "leagues":{
           "type":"RANKED_SOLO_5x5",
           "tier":"GOLD",
           "rank":1
-       }
-    ],
+     },
     "positions":[
        "marksman"
     ],
@@ -73,7 +71,7 @@ defmodule LolBuddy.PlayerTest do
          },
          id: 1,
          languages: ["EN", "DA", "KO"],
-         leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+         leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
          name: "Lethly",
          positions: [:jungle, :top],
          region: :euw,
@@ -164,7 +162,7 @@ defmodule LolBuddy.PlayerTest do
          },
          id: 1,
          languages: ["EN", "DA", "KO"],
-         leagues: [%{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"}],
+         leagues: %{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"},
          name: "Lethly",
          positions: [:jungle, :top],
          region: :euw,

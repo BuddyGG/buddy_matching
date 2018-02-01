@@ -269,8 +269,8 @@ defmodule LolBuddy.RiotApi.Api do
       account_id
       |> last_season_tier_from_match(match)
       |> case do
-        nil -> [%{rank: nil, tier: "UNRANKED", type: "RANKED_SOLO_5x5"}]
-        tier -> [%{rank: nil, tier: tier, type: "RANKED_SOLO_5x5"}]
+        nil -> %{rank: nil, tier: "UNRANKED", type: "RANKED_SOLO_5x5"}
+        tier -> %{rank: nil, tier: tier, type: "RANKED_SOLO_5x5"}
       end
     end
   end
@@ -303,11 +303,8 @@ defmodule LolBuddy.RiotApi.Api do
       |> case do
         nil ->
           last_seasons_rank(account_id, region)
-
-        # TODO - this should not need to be wrapped in a list, but currently is
-        # for frontend compatability
         x ->
-          [%{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}]
+          %{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}
       end
     end
   end

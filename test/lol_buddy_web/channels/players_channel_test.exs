@@ -32,7 +32,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     languages: ["danish"],
     age_group: "interval1",
     positions: [:marksman],
-    leagues: [@diamond1],
+    leagues: @diamond1,
     champions: ["Vayne", "Ezreal", "Caitlyn"],
     criteria: @broad_criteria,
     comment: "Never dies on Vayne"
@@ -46,7 +46,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     languages: ["danish"],
     age_group: "interval1",
     positions: [:marksman],
-    leagues: [@diamond1],
+    leagues: @diamond1,
     champions: ["Vayne", "Ezreal", "Caitlyn"],
     criteria: @narrow_criteria,
     comment: "Never dies on Vayne"
@@ -60,7 +60,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
     languages: ["danish", "english"],
     age_group: "interval3",
     positions: [:top],
-    leagues: [@diamond1],
+    leagues: @diamond1,
     champions: ["Cho'Gath", "Renekton", "Riven"],
     criteria: @narrow_criteria,
     comment: "Apparently I play Riven"
@@ -74,13 +74,11 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "Ezreal"
       ],
       "icon_id":512,
-      "leagues":[
-        {
+      "leagues": {
           "type":"RANKED_SOLO_5x5",
           "tier":"GOLD",
           "rank":"I"
-        }
-      ],
+      },
       "positions":[
         "marksman"
       ],

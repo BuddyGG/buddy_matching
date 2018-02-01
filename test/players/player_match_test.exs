@@ -30,7 +30,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish"],
       age_group: 1,
       positions: [:mid],
-      leagues: [master],
+      leagues: master,
       champions: ["LeBlanc", "Syndra", "Fizz"],
       criteria: broad_criteria,
       comment: "Haha DDOS Frogger"
@@ -44,7 +44,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:marksman],
-      leagues: [diamond1],
+      leagues: diamond1,
       champions: ["Vayne", "Ezreal", "Caitlyn"],
       criteria: broad_criteria,
       comment: "Never dies on Vayne"
@@ -58,7 +58,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:top],
-      leagues: [platinum2],
+      leagues: platinum2,
       champions: ["Cho'Gath", "Renekton", "Riven"],
       criteria: broad_criteria,
       comment: "Apparently plays Riven"
@@ -72,7 +72,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:jungle],
-      leagues: [gold3],
+      leagues: gold3,
       champions: ["Lee'Sin", "Ekko", "Vayne"],
       criteria: broad_criteria,
       comment: "Lul, I'm only Platinum 4"
@@ -86,7 +86,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:support],
-      leagues: [silver4],
+      leagues: silver4,
       champions: ["Braum", "Leona", "Blitzcrank"],
       criteria: broad_criteria,
       comment: "That's okay guys, I'll hit the next one"
@@ -100,7 +100,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:mid, :marksman],
-      leagues: [bronze5],
+      leagues: bronze5,
       champions: ["Yasuo", "Riven", "Vayne"],
       criteria: broad_criteria,
       comment: "Am in elo hell, but am good"
@@ -114,7 +114,7 @@ defmodule LolBuddy.PlayersTest do
       languages: ["danish", "english"],
       age_group: 1,
       positions: [:jungle],
-      leagues: [unranked],
+      leagues: unranked,
       champions: ["Yasuo", "Riven", "Vayne"],
       criteria: broad_criteria,
       comment: "I don't play very much"
@@ -188,7 +188,7 @@ defmodule LolBuddy.PlayersTest do
 
   test "silver with no rank can still match with gold/bronze/unranked", context do
     silver = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: nil}
-    silver_no_rank = %Player{context[:s4_player] | leagues: [silver]}
+    silver_no_rank = %Player{context[:s4_player] | leagues: silver}
     matches = Players.get_matches(silver_no_rank, context[:all_players])
     assert length(matches) == 3
     assert Enum.member?(matches, context[:g3_player])

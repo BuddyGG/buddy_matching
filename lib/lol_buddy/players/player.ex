@@ -17,7 +17,7 @@ defmodule LolBuddy.Players.Player do
             languages: [],
             age_group: nil,
             positions: [],
-            leagues: [],
+            leagues: nil,
             champions: [],
             criteria: nil,
             comment: nil
@@ -71,15 +71,12 @@ defmodule LolBuddy.Players.Player do
   end
 
   # Parses a json leagues specification of format:
-  # "leagues" => [%{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}]
-  # to [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}]
+  # "leagues" => %{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}
+  # to %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}
   defp leagues_from_json(leagues) do
     leagues
-    |> Enum.map(fn elem ->
-      elem
-      |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
-      |> Enum.into(%{})
-    end)
+    |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+    |> Enum.into(%{})
   end
 
   @doc """

@@ -25,7 +25,7 @@ defmodule LolBuddy.MatchingTest do
       languages: ["danish"],
       age_group: "interval1",
       positions: [:marksman],
-      leagues: [diamond1],
+      leagues: diamond1,
       champions: ["Vayne", "Ezreal", "Caitlyn"],
       criteria: broad_criteria,
       comment: "Never dies on Vayne"
@@ -39,7 +39,7 @@ defmodule LolBuddy.MatchingTest do
       languages: ["danish", "english"],
       age_group: "interval3",
       positions: [:top],
-      leagues: [diamond1],
+      leagues: diamond1,
       champions: ["Cho'Gath", "Renekton", "Riven"],
       criteria: narrow_criteria,
       comment: "Apparently I play Riven"
@@ -76,7 +76,7 @@ defmodule LolBuddy.MatchingTest do
 
   test "player with compatible criteria but unable to queue are not matching", context do
     diamond5 = Map.put(context[:diamond1], :rank, 5)
-    player2 = Map.put(context[:player2], :leagues, [diamond5])
+    player2 = Map.put(context[:player2], :leagues, diamond5)
     refute Matching.match?(context[:player1], player2)
   end
 

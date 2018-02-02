@@ -19,11 +19,11 @@ defmodule LolBuddy.Players.Matching do
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria1 = %Criteria{positions: [:top, :support], voice: [false, true], age_groups: [1]}
       iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
+      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria1, comment: "Great player, promise"}
-      iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: false,
+      iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: [false],
         languages: ["danish", "english"], age_group: 1, positions: [:top],
         leagues: diamond1, champions: ["Cho'Gath", "Renekton", "Riven"],
         criteria: criteria2, comment: "Ok player, promise"}
@@ -59,7 +59,7 @@ defmodule LolBuddy.Players.Matching do
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: false,
+      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria, comment: "Fantastic player"}
@@ -67,7 +67,7 @@ defmodule LolBuddy.Players.Matching do
       true
   """
   def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
-    Enum.member?(criteria.voice, player.voice) &&
+    lists_intersect?(criteria.voice, player.voice) &&
       lists_intersect?(criteria.positions, player.positions) &&
       Enum.member?(criteria.age_groups, player.age_group)
   end

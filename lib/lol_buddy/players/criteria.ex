@@ -9,7 +9,7 @@ defmodule LolBuddy.Players.Criteria do
   @voice_limit 2
   @age_group_limit 3
 
-  defstruct positions: [], voice: false, age_groups: []
+  defstruct positions: [], voice: [], age_groups: []
 
   @doc """
   Parses the checkbox format the frontend uses for criteria

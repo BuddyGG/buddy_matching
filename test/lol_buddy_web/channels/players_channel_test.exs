@@ -27,7 +27,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   @base_player1 %Player{
     name: "Lethly",
     region: :euw,
-    voice: false,
+    voice: [false],
     id: "1",
     languages: ["danish"],
     age_group: "interval1",
@@ -41,7 +41,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   @narrow_player1 %Player{
     name: "Trolleren",
     region: :euw,
-    voice: false,
+    voice: [false],
     id: "2",
     languages: ["danish"],
     age_group: "interval1",
@@ -55,7 +55,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
   @base_player2 %Player{
     name: "hansp",
     region: :euw,
-    voice: false,
+    voice: [false],
     id: "3",
     languages: ["danish", "english"],
     age_group: "interval3",
@@ -114,7 +114,7 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "languages":[
           "DA"
         ],
-        "voicechat":true,
+        "voicechat":[true],
         "agegroup":"interval2",
         "comment":"test"
       }

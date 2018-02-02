@@ -10,10 +10,21 @@ defmodule LolBuddy.Players.Player do
   @role_limit 5
   @champion_limit 3
 
+  @doc """
+  id => A unique identifier for the player
+  name => The player's name
+  region => The player's region
+  voice =>  [true] -> use voice, [false] -> don't use, [true, false] -> don't care
+  age_group =>  The player's age group
+  leagues =>  A map with the player's queue type, tier and rank
+  champions => A list of the player's played champions
+  criteria => The given player's %Critera{}
+  comment => Potential remarks from the player
+  """
   defstruct id: nil,
             name: nil,
             region: nil,
-            voice: false,
+            voice: [],
             languages: [],
             age_group: nil,
             positions: [],

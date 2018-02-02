@@ -124,7 +124,7 @@ defmodule LolBuddy.PlayerServer do
   #
   ## Examples
   iex> LolBuddy.PlayerServer.read(:euw)
-  [%{%Player{id: 1, name: "Lethly", region: :euw, voice: false,
+  [%{%Player{id: 1, name: "Lethly", region: :euw, voice: [false],
    languages: ["danish"], age_group: 1, positions: [:marksman],
    leagues: [diamond1], champions: ["Vayne", "Caitlyn", "Ezreal"],
    criteria: criteria, comment: "Fantastic player"}]

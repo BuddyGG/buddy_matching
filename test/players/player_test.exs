@@ -52,7 +52,7 @@ defmodule LolBuddy.PlayerTest do
           "EN"
 
        ],
-       "voicechat":true,
+       "voicechat":[true],
        "agegroup":"interval2",
        "comment":"test"
     }
@@ -75,7 +75,7 @@ defmodule LolBuddy.PlayerTest do
          name: "Lethly",
          positions: [:jungle, :top],
          region: :euw,
-         voice: true,
+         voice: [true],
          comment: "test"
        }}
 
@@ -166,7 +166,7 @@ defmodule LolBuddy.PlayerTest do
          name: "Lethly",
          positions: [:jungle, :top],
          region: :euw,
-         voice: true,
+         voice: [true],
          comment: "test"
        }}
 

@@ -124,6 +124,18 @@ defmodule LolBuddy.PlayerTest do
     bad_data = Map.replace!(data, "userInfo", bad_user_info)
     refute Player.validate_player_json(bad_data)
   end
+  
+  test "comment can be nil" do
+    data = Poison.Parser.parse!(@player)
+    no_comment = nil
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.replace!("comment", no_comment)
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    assert Player.validate_player_json(bad_data)
+  end
 
   test "too many selected roles is invalid" do
     data = Poison.Parser.parse!(@player)

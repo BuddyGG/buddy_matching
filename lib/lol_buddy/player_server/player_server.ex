@@ -102,7 +102,7 @@ defmodule LolBuddy.PlayerServer do
 
       if Map.has_key?(state, name) do
         player = state[name]
-        Logger.debug(fn -> "Player #{player} has left" end)
+        Logger.debug(fn -> "Player #{inspect(player)} has left" end)
 
         player
         |> Players.get_matches(Map.values(state))

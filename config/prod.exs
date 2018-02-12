@@ -25,7 +25,7 @@ config :lol_buddy, LolBuddyWeb.Endpoint,
 
 config :lol_buddy, riot_api_key: System.get_env("RIOT_API_KEY")
 
-config :logger, level: System.get_env("LOG_LEVEL")
+config :logger, level: :debug
 # Do not print debug messages in production
 # config :logger, level: :debug
 # ## SSL Support

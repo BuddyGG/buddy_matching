@@ -99,7 +99,13 @@ defmodule LolBuddy.MatchingTest do
   test "test that don't care voice option, matches both false and true voice criteria", context do
     dont_care_player = %Player{context[:player1] | voice: [true, false]}
     voice_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: ["interval1"]}
-    no_voice_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
+
+    no_voice_criteria = %Criteria{
+      positions: [:marksman],
+      voice: [false],
+      age_groups: ["interval1"]
+    }
+
     assert Matching.criteria_compatible?(voice_criteria, dont_care_player)
     assert Matching.criteria_compatible?(no_voice_criteria, dont_care_player)
   end

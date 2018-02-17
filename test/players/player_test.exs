@@ -124,7 +124,7 @@ defmodule LolBuddy.PlayerTest do
     bad_data = Map.replace!(data, "userInfo", bad_user_info)
     refute Player.validate_player_json(bad_data)
   end
-  
+
   test "comment can be nil" do
     data = Poison.Parser.parse!(@player)
     no_comment = nil

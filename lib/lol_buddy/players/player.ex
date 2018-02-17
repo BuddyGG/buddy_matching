@@ -77,7 +77,8 @@ defmodule LolBuddy.Players.Player do
     String.length(data["name"]) <= @riot_name_length_limit &&
       map_size(data["userInfo"]["selectedRoles"]) <= @role_limit &&
       length(data["champions"]) <= @champion_limit &&
-      (data["userInfo"]["comment"] == nil || String.length(data["userInfo"]["comment"]) <= @comment_char_limit) &&
+      (data["userInfo"]["comment"] == nil ||
+         String.length(data["userInfo"]["comment"]) <= @comment_char_limit) &&
       Criteria.validate_criteria_json(data["userInfo"]["criteria"])
   end
 

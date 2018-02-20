@@ -18,7 +18,8 @@ defmodule LolBuddy.CriteriaTest do
      "voiceChat":{
         "YES":true,
         "NO":true
-     }
+     },
+     "ignoreLanguage": false
   })
 
   test "entire criteria is correctly parsed from json" do

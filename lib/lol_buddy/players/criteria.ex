@@ -9,7 +9,7 @@ defmodule LolBuddy.Players.Criteria do
   @voice_limit 2
   @age_group_limit 3
 
-  defstruct positions: [], voice: [], age_groups: []
+  defstruct positions: [], voice: [], age_groups: [], ignore_language: false
 
   @doc """
   Parses the checkbox format the frontend uses for criteria
@@ -19,7 +19,8 @@ defmodule LolBuddy.Players.Criteria do
     %LolBuddy.Players.Criteria{
       positions: Player.positions_from_json(data["positions"]),
       voice: voice_from_json(data["voiceChat"]),
-      age_groups: age_groups_from_json(data["ageGroups"])
+      age_groups: age_groups_from_json(data["ageGroups"]),
+      ignore_language: data["ignoreLanguage"]
     }
   end
 

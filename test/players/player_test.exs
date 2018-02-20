@@ -36,7 +36,8 @@ defmodule LolBuddy.PlayerTest do
          "voiceChat":{
             "YES":true,
             "NO":true
-         }
+         },
+         "ignoreLanguage": false
       },
       "id" : 1,
        "selectedRoles":{
@@ -67,7 +68,8 @@ defmodule LolBuddy.PlayerTest do
          criteria: %LolBuddy.Players.Criteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
-           voice: [false, true]
+           voice: [false, true],
+           ignore_language: false
          },
          id: 1,
          languages: ["EN", "DA", "KO"],

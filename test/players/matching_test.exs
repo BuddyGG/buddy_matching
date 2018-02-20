@@ -79,6 +79,34 @@ defmodule LolBuddy.MatchingTest do
     refute Matching.match?(context[:player1], player2)
   end
 
+  test "player with incompatible languages match if they ignore languages", context do
+    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
+    swe_player = %Player{context[:player1] |  languages: ["swe"], criteria: ignore_lang}
+    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
+    assert Matching.match?(swe_player, dk_player)
+  end
+
+  test "player with incompatible languages match don't match if they don't ignore languages", context do
+    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
+    swe_player = %Player{context[:player1] |  languages: ["swe"], criteria: ignore_lang}
+    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
+    refute Matching.match?(swe_player, dk_player)
+  end
+
+  test "player with compatible languages match still match if they ignore_language", context do
+    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
+    swe_player = %Player{context[:player1] |  languages: ["dk"], criteria: ignore_lang}
+    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
+    assert Matching.match?(swe_player, dk_player)
+  end
+
+  test "player with compatible languages match still match if they don't ignore_language", context do
+    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
+    swe_player = %Player{context[:player1] |  languages: ["dk"], criteria: ignore_lang}
+    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
+    assert Matching.match?(swe_player, dk_player)
+  end
+
   ### --- Criteria compatibility tests --- ###
   test "test that 1:1 criteria/player fit is compatible", context do
     perfect_criteria = %Criteria{

@@ -11,7 +11,8 @@ defmodule LolBuddy.PlayersTest do
     broad_criteria = %Criteria{
       positions: [:top, :jungle, :mid, :marksman, :support],
       voice: [false],
-      age_groups: [1, 2, 3]
+      age_groups: [1, 2, 3],
+      ignore_language: false
     }
 
     master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}

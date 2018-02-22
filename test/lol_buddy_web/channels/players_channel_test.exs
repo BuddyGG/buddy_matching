@@ -101,7 +101,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
           "voiceChat":{
             "YES":true,
             "NO":true
-          }
+          },
+          "ignoreLanguage": false
         },
         "id" : "#{id}",
         "selectedRoles":{
@@ -311,7 +312,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "support" => true
       },
       "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
-      "voiceChat" => %{"YES" => true, "NO" => true}
+      "voiceChat" => %{"YES" => true, "NO" => true},
+      "ignoreLanguage" => true
     }
 
     # update player 1's criteria to a less strict one
@@ -372,7 +374,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "support" => true
       },
       "ageGroups" => %{"interval1" => true, "interval2" => false, "interval3" => false},
-      "voiceChat" => %{"YES" => false, "NO" => true}
+      "voiceChat" => %{"YES" => false, "NO" => true},
+      "ignoreLanguage" => false
     }
 
     # update player 1's criteria to a stricter version
@@ -437,7 +440,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "support" => false
       },
       "ageGroups" => %{"interval1" => false, "interval2" => false, "interval3" => false},
-      "voiceChat" => %{"YES" => false, "NO" => true}
+      "voiceChat" => %{"YES" => false, "NO" => true},
+      "ignoreLanguage" => false
     }
 
     # update player 1's criteria to a stricter version
@@ -469,7 +473,8 @@ defmodule LolBuddyWeb.PlayersChannelTest do
         "support" => true
       },
       "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
-      "voiceChat" => %{"YES" => true, "NO" => true}
+      "voiceChat" => %{"YES" => true, "NO" => true},
+      "ignoreLanguage" => true
     }
 
     # update player 1's criteria to a stricter version

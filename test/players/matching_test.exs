@@ -10,10 +10,16 @@ defmodule LolBuddy.MatchingTest do
     broad_criteria = %Criteria{
       positions: [:top, :jungle, :mid, :marksman, :support],
       voice: [true, false],
-      age_groups: ["interval1", "interval2", "interval3"]
+      age_groups: ["interval1", "interval2", "interval3"],
+      ignore_language: false
     }
 
-    narrow_criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
+    narrow_criteria = %Criteria{
+      positions: [:marksman],
+      voice: [false],
+      age_groups: ["interval1"],
+      ignore_language: false
+    }
 
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
@@ -81,28 +87,30 @@ defmodule LolBuddy.MatchingTest do
 
   test "player with incompatible languages match if they ignore languages", context do
     ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
-    swe_player = %Player{context[:player1] |  languages: ["swe"], criteria: ignore_lang}
+    swe_player = %Player{context[:player1] | languages: ["swe"], criteria: ignore_lang}
     dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
     assert Matching.match?(swe_player, dk_player)
   end
 
-  test "player with incompatible languages match don't match if they don't ignore languages", context do
+  test "player with incompatible languages match don't match if they don't ignore languages",
+       context do
     ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
-    swe_player = %Player{context[:player1] |  languages: ["swe"], criteria: ignore_lang}
+    swe_player = %Player{context[:player1] | languages: ["swe"], criteria: ignore_lang}
     dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
     refute Matching.match?(swe_player, dk_player)
   end
 
   test "player with compatible languages match still match if they ignore_language", context do
     ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
-    swe_player = %Player{context[:player1] |  languages: ["dk"], criteria: ignore_lang}
+    swe_player = %Player{context[:player1] | languages: ["dk"], criteria: ignore_lang}
     dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
     assert Matching.match?(swe_player, dk_player)
   end
 
-  test "player with compatible languages match still match if they don't ignore_language", context do
+  test "player with compatible languages match still match if they don't ignore_language",
+       context do
     ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
-    swe_player = %Player{context[:player1] |  languages: ["dk"], criteria: ignore_lang}
+    swe_player = %Player{context[:player1] | languages: ["dk"], criteria: ignore_lang}
     dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
     assert Matching.match?(swe_player, dk_player)
   end

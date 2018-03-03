@@ -1,7 +1,7 @@
 defmodule LolBuddy.PlayerTest do
   use ExUnit.Case, async: true
   alias LolBuddy.Players.Player
-  
+
   @player ~s({
     "champions":[
        "Vayne",
@@ -9,13 +9,11 @@ defmodule LolBuddy.PlayerTest do
        "Ezreal"
     ],
     "icon_id":512,
-    "leagues":[
-       {
+    "leagues":{
           "type":"RANKED_SOLO_5x5",
           "tier":"GOLD",
           "rank":1
-       }
-    ],
+     },
     "positions":[
        "marksman"
     ],
@@ -38,7 +36,8 @@ defmodule LolBuddy.PlayerTest do
          "voiceChat":{
             "YES":true,
             "NO":true
-         }
+         },
+         "ignoreLanguage": false
       },
       "id" : 1,
        "selectedRoles":{
@@ -52,32 +51,49 @@ defmodule LolBuddy.PlayerTest do
           "DA",
           "KO",
           "EN"
-          
+
        ],
-       "voicechat":true,
-       "agegroup":"20-29",
+       "voicechat":[true],
+       "agegroup":"interval2",
        "comment":"test"
     }
  })
 
   test "entire player is correctly parsed from json" do
-    expected_player = 
-      %Player{
-        age_group: "20-29", champions: ["Vayne", "Caitlyn", "Ezreal"], 
-        criteria: %LolBuddy.Players.Criteria{
-          age_groups: ["interval1", "interval2", "interval3"], 
-          positions: [:jungle, :marksman, :mid, :support, :top], 
-          voice: [false, true]
-        }, 
-        id: 1,
-        languages: ["EN", "DA", "KO"], leagues: [%{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}], 
-        name: "Lethly", positions: [:jungle, :top], region: :euw, voice: true, comment: "test"}
+    expected_player =
+      {:ok,
+       %Player{
+         age_group: "interval2",
+         champions: ["Vayne", "Caitlyn", "Ezreal"],
+         criteria: %LolBuddy.Players.Criteria{
+           age_groups: ["interval1", "interval2", "interval3"],
+           positions: [:jungle, :marksman, :mid, :support, :top],
+           voice: [false, true],
+           ignore_language: false
+         },
+         id: 1,
+         languages: ["EN", "DA", "KO"],
+         leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+         name: "Lethly",
+         positions: [:jungle, :top],
+         region: :euw,
+         voice: [true],
+         comment: "test"
+       }}
+
     data = Poison.Parser.parse!(@player)
     assert Player.from_json(data) == expected_player
   end
 
   test "test two positions are correctly parsed from json" do
-    input = %{"jungle" => true, "marksman" => false, "mid" => true, "support" => false, "top" => false}
+    input = %{
+      "jungle" => true,
+      "marksman" => false,
+      "mid" => true,
+      "support" => false,
+      "top" => false
+    }
+
     expected_positions = [:jungle, :mid]
     assert expected_positions == Player.positions_from_json(input)
   end
@@ -92,5 +108,84 @@ defmodule LolBuddy.PlayerTest do
     input = ["DK", "KR", "GR", "FR"]
     expected_languages = ["DK", "FR", "GR", "KR"]
     assert expected_languages == Player.languages_from_json(input)
+  end
+
+  test "valid player json validates to true" do
+    data = Poison.Parser.parse!(@player)
+    assert Player.validate_player_json(data)
+  end
+
+  test "too long comment in player json is invalid" do
+    data = Poison.Parser.parse!(@player)
+    long_comment = String.duplicate("a", 101)
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.replace!("comment", long_comment)
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  test "comment can be nil" do
+    data = Poison.Parser.parse!(@player)
+    no_comment = nil
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.replace!("comment", no_comment)
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    assert Player.validate_player_json(bad_data)
+  end
+
+  test "too many selected roles is invalid" do
+    data = Poison.Parser.parse!(@player)
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.update!("selectedRoles", &Map.put(&1, "a", "b"))
+
+    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  test "too long player name is invalid" do
+    data = Poison.Parser.parse!(@player)
+    long_name = String.duplicate("a", 17)
+    bad_data = Map.replace!(data, "name", long_name)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  test "player with null rank is valid json" do
+    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    data = Poison.Parser.parse!(player)
+    assert Player.validate_player_json(data)
+  end
+
+  test "player with null rank is parsed correctly" do
+    expected_player =
+      {:ok,
+       %Player{
+         age_group: "interval2",
+         champions: ["Vayne", "Caitlyn", "Ezreal"],
+         criteria: %LolBuddy.Players.Criteria{
+           age_groups: ["interval1", "interval2", "interval3"],
+           positions: [:jungle, :marksman, :mid, :support, :top],
+           voice: [false, true]
+         },
+         id: 1,
+         languages: ["EN", "DA", "KO"],
+         leagues: %{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+         name: "Lethly",
+         positions: [:jungle, :top],
+         region: :euw,
+         voice: [true],
+         comment: "test"
+       }}
+
+    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    data = Poison.Parser.parse!(player)
+    assert expected_player == Player.from_json(data)
   end
 end

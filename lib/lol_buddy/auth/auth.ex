@@ -8,7 +8,7 @@ defmodule LolBuddy.Auth do
 
   @salt "session"
 
-  #Tokens are valid for 30 days
+  # Tokens are valid for 30 days
   @max_age 86_400 * 30
 
   @doc """
@@ -18,7 +18,7 @@ defmodule LolBuddy.Auth do
       "fe8d2ecb-38d3-4b17-a745-b455ce78183b"
   """
   def generate_session_id do
-      UUID.uuid4()
+    UUID.uuid4()
   end
 
   @doc """
@@ -28,7 +28,7 @@ defmodule LolBuddy.Auth do
       "SFMyNTY.g3QAAAACZAAEZGF0YW0AAAAkZmU4ZDJlY2ItMzhkMy00YjE3LWE3NDUtYjQ1NWNlNzgxODNiZAAGc2lnbmVkbgYAa_yf218B.a4U-ibqtnyFogL_LN9EmkDruXUuT4S_r--U6twFZSqo"
   """
   def generate_session_token(session_id) do
-      Token.sign(Endpoint, @salt, session_id, max_age: @max_age)
+    Token.sign(Endpoint, @salt, session_id, max_age: @max_age)
   end
 
   @doc """
@@ -39,10 +39,9 @@ defmodule LolBuddy.Auth do
       true
   """
   def verify_session(session_id, session_token) do
-      case Token.verify(Endpoint, @salt, session_token, max_age: @max_age) do
-          {:ok, id_from_token} -> id_from_token == session_id
-          {:error, _error} -> false
-      end
+    case Token.verify(Endpoint, @salt, session_token, max_age: @max_age) do
+      {:ok, id_from_token} -> id_from_token == session_id
+      {:error, _error} -> false
+    end
   end
-
 end

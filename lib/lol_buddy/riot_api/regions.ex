@@ -4,8 +4,19 @@ defmodule LolBuddy.RiotApi.Regions do
   These can be found here:
   https://developer.riotgames.com/regional-endpoints.html
   """
-  @type region :: :br | :eune | :euw | :jp | :kr | :lan |
-                  :las | :na | :oce | :tr | :ru | :pbe
+  @type region ::
+          :br
+          | :eune
+          | :euw
+          | :jp
+          | :kr
+          | :lan
+          | :las
+          | :na
+          | :oce
+          | :tr
+          | :ru
+          | :pbe
   @regions %{
     br: "https://br1.api.riotgames.com",
     eune: "https://eun1.api.riotgames.com",
@@ -18,8 +29,8 @@ defmodule LolBuddy.RiotApi.Regions do
     oce: "https://oc1.api.riotgames.com",
     tr: "https://tr1.api.riotgames.com",
     ru: "https://ru.api.riotgames.com",
-    pbe: "https://pbe1.api.riotgames.com"}
+    pbe: "https://pbe1.api.riotgames.com"
+  }
 
   def endpoint(region), do: @regions[region]
-
 end

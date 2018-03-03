@@ -1,4 +1,3 @@
-
 defmodule LolBuddy.Mixfile do
   use Mix.Project
 
@@ -7,11 +6,12 @@ defmodule LolBuddy.Mixfile do
       app: :lol_buddy,
       version: "0.0.1",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
-      build_embedded: Mix.env == :prod,
-      deps: deps()
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
+      build_embedded: Mix.env() == :prod,
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -27,7 +27,7 @@ defmodule LolBuddy.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -45,10 +45,10 @@ defmodule LolBuddy.Mixfile do
       {:uuid, "~> 1.1"},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:pre_commit, "~> 0.2.4", only: :dev},
+      {:excoveralls, "~> 0.8", only: :test},
       {:edeliver, "~> 1.4.3"},
       {:distillery, "~> 1.4"},
       {:conform, "~> 2.2"}
     ]
   end
 end
-

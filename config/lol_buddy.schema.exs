@@ -96,7 +96,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "Provide documentation for logger.level here.",
       hidden: false,
       to: "logger.level"
-    ],
+    ]
   ],
   transforms: [],
   validators: []

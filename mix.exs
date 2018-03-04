@@ -4,7 +4,7 @@ defmodule LolBuddy.Mixfile do
   def project do
     [
       app: :lol_buddy,
-      version: "0.0.1",
+      version: "1.1.1",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),

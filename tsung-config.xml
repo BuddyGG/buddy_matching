@@ -9,7 +9,7 @@
 
   <!-- Each remote server that Tsung should performance test against. Only one would be needed if you have a load balancer. -->
   <servers>
-    <server host="192.168.0.102" port="4000" type="tcp" />
+    <server host="buddy.gg" port="80" type="tcp" />
   </servers>
 
   <!-- Describe how load will be ramped up to your application over time -->
@@ -48,7 +48,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -59,7 +59,7 @@
         <!-- Do nothing for up to 5 seconds -->
 
         <request subst="true">
-            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false, "ignoreLanguage": false}, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
         </request>
 
         <!-- Do nothing for up to 5 seconds -->
@@ -72,7 +72,7 @@
             <websocket type="close"></websocket>
         </request>
     </session>
-	
+
 	    <session name="activity_browse" probability="25" type="ts_http">
 
       <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
@@ -90,7 +90,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -101,7 +101,7 @@
         <!-- Do nothing for up to 5 seconds -->
 
         <request subst="true">
-            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false, "ignoreLanguage": false}, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : false}}} }</websocket>
         </request>
 
         <!-- Do nothing for up to 5 seconds -->
@@ -114,7 +114,7 @@
             <websocket type="close"></websocket>
         </request>
     </session>
-	
+
 	 <session name="activity_browse" probability="25" type="ts_http">
 
       <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
@@ -132,7 +132,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -143,7 +143,7 @@
         <!-- Do nothing for up to 5 seconds -->
 
         <request subst="true">
-            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "SILVER", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false, "ignoreLanguage": false}, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
         </request>
 
         <!-- Do nothing for up to 5 seconds -->
@@ -156,7 +156,7 @@
             <websocket type="close"></websocket>
         </request>
     </session>
-	
+
 	 <session name="activity_browse" probability="25" type="ts_http">
 
       <setdynvars sourcetype="erlang" callback="ts_user_server:get_unique_id">
@@ -174,7 +174,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="192.168.0.102" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -185,7 +185,7 @@
         <!-- Do nothing for up to 5 seconds -->
 
         <request subst="true">
-            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "autoRefresh" : false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
+            <websocket type="message" >{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : [{"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, {"rank" : 1, "tier" : "GOLD", "type" : "RANKED_FLEX_SR"}], "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false, "ignoreLanguage": false}, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : false, "YES" : true}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : true}}} }</websocket>
         </request>
 
         <!-- Do nothing for up to 5 seconds -->
@@ -198,6 +198,6 @@
             <websocket type="close"></websocket>
         </request>
     </session>
-	
+
   </sessions>
 </tsung>

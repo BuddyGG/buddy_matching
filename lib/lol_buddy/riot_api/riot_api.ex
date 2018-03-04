@@ -236,7 +236,7 @@ defmodule LolBuddy.RiotApi.Api do
   defp last_season_tier_from_match(account_id, match) do
     participant_id =
       match["participantIdentities"]
-      |> Enum.find(fn %{"player" => %{"accountId" => id}} -> account_id == id end)
+      |> Enum.find(fn %{"player" => %{"currentAccountId" => id}} -> account_id == id end)
       |> Map.get("participantId")
 
     match["participants"]

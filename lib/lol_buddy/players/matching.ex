@@ -85,10 +85,8 @@ defmodule LolBuddy.Players.Matching do
     lr = get_rank(low)
 
     cond do
-      ht == "CHALLENGER" ->
-        false
-
-      ht == "MASTER" ->
+      # master and challenger have equal restrictions
+      ht == "MASTER" || ht == "CHALLENGER" ->
         lr in 1..3
 
       # now we may can assume ht is diamond
@@ -131,11 +129,8 @@ defmodule LolBuddy.Players.Matching do
   def tier_compatible?(league1, league2) do
     {h, l} = sort_leagues(league1, league2)
     tier_diff = tier_to_int(h.tier) - tier_to_int(l.tier)
-    # challenger's may only walk alone
-    cond do
-      h.tier == "CHALLENGER" ->
-        false
 
+    cond do
       # special handling for d1 as it cannot queue with its entire league
       h.tier == "DIAMOND" && get_rank(h) == 1 ->
         rank_compatible?(h, l)
@@ -204,7 +199,7 @@ defmodule LolBuddy.Players.Matching do
         6
 
       "CHALLENGER" ->
-        7
+        6
     end
   end
 

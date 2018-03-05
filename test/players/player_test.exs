@@ -121,9 +121,9 @@ defmodule LolBuddy.PlayerTest do
 
     bad_user_info =
       data["userInfo"]
-      |> Map.replace!("comment", long_comment)
+      |> Map.put("comment", long_comment)
 
-    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    bad_data = Map.put(data, "userInfo", bad_user_info)
     refute Player.validate_player_json(bad_data)
   end
 
@@ -133,9 +133,9 @@ defmodule LolBuddy.PlayerTest do
 
     bad_user_info =
       data["userInfo"]
-      |> Map.replace!("comment", no_comment)
+      |> Map.put("comment", no_comment)
 
-    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    bad_data = Map.put(data, "userInfo", bad_user_info)
     assert Player.validate_player_json(bad_data)
   end
 
@@ -146,14 +146,27 @@ defmodule LolBuddy.PlayerTest do
       data["userInfo"]
       |> Map.update!("selectedRoles", &Map.put(&1, "a", "b"))
 
-    bad_data = Map.replace!(data, "userInfo", bad_user_info)
+    bad_data = Map.put(data, "userInfo", bad_user_info)
+    refute Player.validate_player_json(bad_data)
+  end
+
+  test "too many selected languages is invalid" do
+    data = Poison.Parser.parse!(@player)
+
+    too_many_languages = ["DK", "ENG", "SWE", "NO", "BR", "SP"]
+
+    bad_user_info =
+      data["userInfo"]
+      |> Map.put("languages", too_many_languages)
+
+    bad_data = Map.put(data, "userInfo", bad_user_info)
     refute Player.validate_player_json(bad_data)
   end
 
   test "too long player name is invalid" do
     data = Poison.Parser.parse!(@player)
     long_name = String.duplicate("a", 17)
-    bad_data = Map.replace!(data, "name", long_name)
+    bad_data = Map.put(data, "name", long_name)
     refute Player.validate_player_json(bad_data)
   end
 

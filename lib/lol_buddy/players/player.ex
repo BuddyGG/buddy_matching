@@ -8,6 +8,7 @@ defmodule LolBuddy.Players.Player do
   @comment_char_limit 100
   @riot_name_length_limit 16
   @role_limit 5
+  @language_limit 5
   @champion_limit 3
 
   @doc """
@@ -61,9 +62,9 @@ defmodule LolBuddy.Players.Player do
 
   @doc """
   Validates that the given player adheres to the desired structure
-  as well as uses limited lengths for most strings. This is solely
-  to avoid potential adversarial player submissions that could damage
-  the system.
+  as well as uses limited lengths for most strings and lists. This is
+  solely to avoid potential adversarial player submissions that could
+  damage the system.
 
   We do not care if empty lists are submitted, although this should
   generally be avoided in the frontend.
@@ -77,6 +78,7 @@ defmodule LolBuddy.Players.Player do
     String.length(data["name"]) <= @riot_name_length_limit &&
       map_size(data["userInfo"]["selectedRoles"]) <= @role_limit &&
       length(data["champions"]) <= @champion_limit &&
+      length(data["userInfo"]["languages"]) <= @language_limit &&
       (data["userInfo"]["comment"] == nil ||
          String.length(data["userInfo"]["comment"]) <= @comment_char_limit) &&
       Criteria.validate_criteria_json(data["userInfo"]["criteria"])

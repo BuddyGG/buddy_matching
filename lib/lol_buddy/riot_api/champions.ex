@@ -838,6 +838,12 @@ defmodule LolBuddy.RiotApi.Champions do
       key: "Zoe",
       name: "Zoe",
       title: "the Aspect of Twilight"
+    },
+    %{
+      id: 145,
+      key: "Kaisa",
+      name: "Kai'Sa",
+      title: "Daughter of the Void"
     }
   ]
 

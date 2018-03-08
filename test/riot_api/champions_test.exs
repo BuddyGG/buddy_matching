@@ -31,4 +31,10 @@ defmodule LolBuddyRiotApi.ChampionsTest do
     name = LolBuddy.RiotApi.Champions.find_by_id(id).name
     assert name == "Kog'Maw"
   end
+
+  test "kai'sa id" do
+    id = 145
+    name = LolBuddy.RiotApi.Champions.find_by_id(id).name
+    assert name == "Kai'Sa"
+  end
 end

@@ -9,7 +9,7 @@
 
   <!-- Each remote server that Tsung should performance test against. Only one would be needed if you have a load balancer. -->
   <servers>
-    <server host="buddy.gg" port="80" type="tcp" />
+    <server host="localhost" port="4000" type="tcp" />
   </servers>
 
   <!-- Describe how load will be ramped up to your application over time -->
@@ -48,7 +48,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="localhost" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -90,7 +90,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="localhost" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -132,7 +132,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="localhost" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->
@@ -174,7 +174,7 @@
         </request>
 
         <!-- We need to change the session type to websocket -->
-        <change_type new_type="ts_websocket" host="buddy.gg" port="80" server_type="tcp" restore="true" store="true" bidi="true"/>
+        <change_type new_type="ts_websocket" host="localhost" port="4000" server_type="tcp" restore="true" store="true" bidi="true"/>
 
         <!-- Try to connect on a websocket -->
         <!-- See https://github.com/LearnBoost/socket.io-spec for more information -->

@@ -1,4 +1,6 @@
 # Backend service for buddy.gg
+[![Build Status](https://travis-ci.org/BuddyGG/buddy_matching.png)](https://travis-ci.org/BuddyGG/buddy_matching)
+
 Somewhat generic player matching service built with phoenix, utilizing genservers and sockets to avoid having an underlying database.
 Currently build only support matching players from League of Legends, but can quite easily be expanded to other games
 

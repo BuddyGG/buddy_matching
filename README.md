@@ -14,6 +14,7 @@ To test interactively in IEx:
 - Install depedencies with `mix.deps.get`
 - Star IEx with `iex -S mix phx.server`
 
+To test interactively with Riot's API in IEx, create a local dev.secret.exs from the [template](config/dev.secret.example.exs), and fill in your 24h API key generated at https://developer.riotgames.com/.
 ## Run tests
 `mix test`
 

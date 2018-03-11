@@ -34,19 +34,7 @@ defmodule BuddyMatching.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"},
-      {:httpoison, "~> 0.13"},
-      {:poison, "~> 3.1"},
-      {:cors_plug, "~> 1.3"},
-      {:ok, "~> 1.9"},
-      {:uuid, "~> 1.1"},
-      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
-      {:pre_commit, "~> 0.2.4", only: :dev},
-      {:excoveralls, "~> 0.8", only: :test},
-      {:edeliver, "~> 1.4.3"},
-      {:distillery, "~> 1.4"},
-      {:conform, "~> 2.2"}
+      {:poison, "~> 3.1"}
     ]
   end
 end

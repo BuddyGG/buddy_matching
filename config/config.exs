@@ -9,6 +9,10 @@ use Mix.Config
 # back to each application for organization purposes.
 import_config "../apps/*/config/config.exs"
 
+config :pre_commit,
+  commands: ["test", "format", "credo"],
+  verbose: true
+
 # Sample configuration (overrides the imported configuration above):
 #
 #     config :logger, :console,

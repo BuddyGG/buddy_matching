@@ -1,4 +1,4 @@
-defmodule BuddyMatching.RiotApi.Api do
+defmodule RiotApi do
   @moduledoc """
   This module handles all interaction with Riot's Developer Api.
   It is expected to be accessed through 'BuddyMatching.RiotApi.Api.fetch_summoner_info/2',
@@ -6,8 +6,8 @@ defmodule BuddyMatching.RiotApi.Api do
   """
 
   require OK
-  alias BuddyMatching.RiotApi.Regions
-  alias BuddyMatching.RiotApi.Champions
+  alias RiotApi.Regions
+  alias RiotApi.Champions
   alias Poison.Parser
 
   defp handle_json({:ok, %{status_code: 200, body: body}}) do

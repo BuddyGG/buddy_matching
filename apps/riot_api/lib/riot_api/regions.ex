@@ -1,4 +1,4 @@
-defmodule BuddyMatching.RiotApi.Regions do
+defmodule RiotApi.Regions do
   @moduledoc """
   Contains the the list of rigions as well as the addresses for all of their endpoints.
   These can be found here:

@@ -8,4 +8,4 @@ use Mix.Config
 # file or create a script for recreating it, since it's
 # kept out of version control and might be hard to recover
 # or recreate for your teammates (or yourself later on).
-config :buddy_matching, riot_api_key: "****-****-*****-*****"
+config :riot_api, riot_api_key: "****-****-*****-*****"

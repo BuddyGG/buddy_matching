@@ -34,12 +34,8 @@ defmodule RiotApi.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:httpoison, "~> 0.13"},
       {:poison, "~> 3.1"},
       {:ok, "~> 1.9"},
-      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
-      {:pre_commit, "~> 0.2.4", only: :dev},
-      {:conform, "~> 2.2"}
     ]
   end
 end

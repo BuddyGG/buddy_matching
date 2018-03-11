@@ -1,8 +1,8 @@
-defmodule LolBuddy.PlayersTest do
+defmodule BuddyMatching.PlayersTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Players
-  alias LolBuddy.Players.Player
-  alias LolBuddy.Players.Criteria
+  alias BuddyMatching.Players
+  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Criteria
 
   # The intrinsics of matchings are covered in matching specific tests,
   # as such these tests are aimed at tests on lists of players through the

@@ -1,4 +1,4 @@
-APP="lol_buddy"
+APP="buddy_matching"
 
 BUILD_HOST="buddy.gg"
 BUILD_USER="worker"
@@ -13,11 +13,11 @@ DELIVER_TO="/home/worker/app_release"
 
 pre_erlang_get_and_update_deps() {
   # copy it on the build host to the build directory when building
-  local _secret_config_file_on_build_host="~/secret/lol_buddy.conf"
+  local _secret_config_file_on_build_host="~/secret/buddy_matching.conf"
   if [ "$TARGET_MIX_ENV" = "prod" ]; then
     status "Copying '$_secret_config_file_on_build_host' file to build dir"
     __sync_remote " # execute on build host
-      cp $_secret_config_file_on_build_host $BUILD_AT/config/lol_buddy.conf
+      cp $_secret_config_file_on_build_host $BUILD_AT/config/buddy_matching.conf
     "
   fi
 }

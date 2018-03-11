@@ -1,6 +1,6 @@
-defmodule LolBuddy.CriteriaTest do
+defmodule BuddyMatching.CriteriaTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Players.Criteria
+  alias BuddyMatching.Players.Criteria
 
   @criteria ~s({
     "positions":{

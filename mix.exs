@@ -1,10 +1,10 @@
-defmodule LolBuddy.Mixfile do
+defmodule BuddyMatching.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :lol_buddy,
-      version: "1.1.3",
+      app: :buddy_matching,
+      version: "1.1.4",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -20,7 +20,7 @@ defmodule LolBuddy.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {LolBuddy.Application, []},
+      mod: {BuddyMatching.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

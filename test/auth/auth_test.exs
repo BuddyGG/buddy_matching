@@ -1,6 +1,6 @@
-defmodule LolBuddy.AuthTest do
+defmodule BuddyMatching.AuthTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Auth
+  alias BuddyMatching.Auth
 
   test "should generate session id" do
     assert is_binary(Auth.generate_session_id())

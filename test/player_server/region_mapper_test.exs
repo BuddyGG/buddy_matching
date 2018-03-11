@@ -1,9 +1,9 @@
-defmodule LolBuddy.PlayerServer.RegionMapperTest do
+defmodule BuddyMatching.PlayerServer.RegionMapperTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.PlayerServer
-  alias LolBuddy.PlayerServer.RegionMapper
-  alias LolBuddy.Players.Player
-  alias LolBuddy.Players.Criteria
+  alias BuddyMatching.PlayerServer
+  alias BuddyMatching.PlayerServer.RegionMapper
+  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Criteria
 
   setup do
     # Prepare two servers for our region mapper to use

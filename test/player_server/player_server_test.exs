@@ -1,8 +1,8 @@
-defmodule LolBuddy.PlayerServerTest do
+defmodule BuddyMatching.PlayerServerTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.PlayerServer
-  alias LolBuddy.Players.Player
-  alias LolBuddy.Players.Criteria
+  alias BuddyMatching.PlayerServer
+  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Criteria
 
   setup do
     {:ok, server} = start_supervised(PlayerServer)

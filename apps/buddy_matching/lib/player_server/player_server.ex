@@ -9,9 +9,6 @@ defmodule BuddyMatching.PlayerServer do
   require Logger
   alias BuddyMatching.Players
   alias BuddyMatching.Players.Player
-  alias BuddyMatchingWeb.Endpoint
-  alias BuddyMatchingWeb.PlayersChannel
-  alias Phoenix.Socket.Broadcast
 
   @doc """
   Starts the PlayerServer.
@@ -56,7 +53,6 @@ defmodule BuddyMatching.PlayerServer do
     if Map.has_key?(list, player.name) do
       {:reply, :error, list}
     else
-      :ok = Endpoint.subscribe("players:" <> player.id, [])
       {:reply, :ok, Map.put_new(list, player.name, player)}
     end
   end
@@ -78,39 +74,6 @@ defmodule BuddyMatching.PlayerServer do
       {:ok, _} -> {:noreply, Map.put(state, player.name, player)}
       _ -> {:noreply, state}
     end
-  end
-
-  # When we get a 'presence_diff' with no leaves, we do nothing.
-  def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: %{} = leaves}}, state)
-      when leaves == %{} do
-    {:noreply, state}
-  end
-
-  # When a player leaves the channel, we unsubscribe to his topic,
-  # remove him from the state. In a separate process alert all the matches
-  # he may have had, that he has left.
-  def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    [name | _] =
-      leaves
-      |> Map.values()
-      |> Enum.map(fn %{metas: [%{name: name}]} -> name end)
-
-    # local function for broadcasting player leaves
-    Task.start(fn ->
-      [topic | _] = Map.keys(leaves)
-      Endpoint.unsubscribe("players:" <> topic)
-
-      if Map.has_key?(state, name) do
-        player = state[name]
-        Logger.debug(fn -> "Player #{inspect(player)} has left" end)
-
-        player
-        |> Players.get_matches(Map.values(state))
-        |> PlayersChannel.broadcast_unmatches(player)
-      end
-    end)
-
-    {:noreply, Map.delete(state, name)}
   end
 
   # We ignore all other messages

@@ -23,7 +23,7 @@ config :buddy_matching, BuddyMatchingWeb.Endpoint,
   code_reloader: false,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
-config :buddy_matching, riot_api_key: System.get_env("RIOT_API_KEY")
+config :riot_api, riot_api_key: System.get_env("RIOT_API_KEY")
 
 config :logger, level: :debug
 # Do not print debug messages in production

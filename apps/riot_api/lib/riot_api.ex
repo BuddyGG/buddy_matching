@@ -25,7 +25,7 @@ defmodule RiotApi do
   end
 
   defp fetch_summoner(name, region) do
-    key = Application.fetch_env!(:buddy_matching, :riot_api_key)
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}")
     |> parse_json
@@ -62,7 +62,7 @@ defmodule RiotApi do
   defp name_from_id(id), do: Champions.find_by_id(id).name
 
   defp fetch_champions(id, region) do
-    key = Application.fetch_env!(:buddy_matching, :riot_api_key)
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <>
        "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}")
@@ -208,7 +208,7 @@ defmodule RiotApi do
     {:ok, %{"gameCreation" => 1515525992929, "gameDuration" => 1382...}}
   """
   def fetch_last_solo_match(account_id, region) do
-    key = Application.fetch_env!(:buddy_matching, :riot_api_key)
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     OK.for do
       %{"matches" => matches} <-
@@ -246,7 +246,7 @@ defmodule RiotApi do
 
   # Fetches the last 20 matches of any queue type for given account id
   defp fetch_recent_matches(id, region) do
-    key = Application.fetch_env!(:buddy_matching, :riot_api_key)
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}")
     |> parse_json
@@ -276,7 +276,7 @@ defmodule RiotApi do
   end
 
   def fetch_leagues(id, region) do
-    key = Application.fetch_env!(:buddy_matching, :riot_api_key)
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}")
     |> parse_json

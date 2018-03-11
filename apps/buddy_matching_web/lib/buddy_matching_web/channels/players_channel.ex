@@ -12,6 +12,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   alias BuddyMatching.PlayerServer.RegionMapper
   alias BuddyMatchingWeb.Endpoint
   alias BuddyMatchingWeb.Presence
+  alias BuddyMatchingWeb.Presence.LeaveTracker
   alias Phoenix.Socket.Broadcast
 
   @initial_matches_event "initial_matches"
@@ -58,7 +59,6 @@ defmodule BuddyMatchingWeb.PlayersChannel do
           players = RegionMapper.get_players(socket.assigns.user.region)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
-          Logger.debug(fn -> "Pushing new players: #{inspect(matches)}" end)
           push(socket, @initial_matches_event, %{players: matches})
           # Send the newly joined user to all matching players
           broadcast_matches(matches, socket.assigns.user)
@@ -80,8 +80,12 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   potential crashes.
   """
   def handle_info(:after_join, socket) do
-    # Presence has to track some metadata - so give it an empty map
-    {:ok, _} = Presence.track(socket, socket.assigns.user.id, %{name: socket.assigns.user.name})
+    # Presence has to track some metadata, and in our case we track the name and the
+    # region, as we need these to remove the Player from the correct PlayerServer
+    # when they leave.
+    tracked = %{name: socket.assigns.user.name, region: socket.assigns.user.region}
+    {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
+    track_player_id(socket.assigns.user)
     {:noreply, socket}
   end
 
@@ -176,6 +180,15 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     |> Enum.each(fn match ->
       Endpoint.broadcast!("players:#{match.id}", event, player)
     end)
+  end
+
+  # Private utility function for telling the LeaveTracker
+  # to keep track of this player, such that they may be removed
+  # from their PlayerServer at a later time.
+  defp track_player_id(player) do
+    :leave_tracker
+    |> :global.whereis_name()
+    |> LeaveTracker.track(player.id)
   end
 
   # HACK - to correctly get id for various types. Mostly to make tests work.

@@ -1,6 +1,6 @@
 defmodule BuddyMatching.AuthControllerTest do
   use BuddyMatchingWeb.ConnCase
-  alias BuddyMatching.Auth
+  alias BuddyMatchingWeb.Auth
 
   test "generate session id and token" do
     conn = build_conn()

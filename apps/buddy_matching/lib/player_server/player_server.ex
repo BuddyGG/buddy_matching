@@ -7,7 +7,6 @@ defmodule BuddyMatching.PlayerServer do
   """
   use GenServer
   require Logger
-  alias BuddyMatching.Players
   alias BuddyMatching.Players.Player
 
   @doc """
@@ -57,22 +56,35 @@ defmodule BuddyMatching.PlayerServer do
     end
   end
 
-  # Handle casts with remove - asynchronous
-  # Remove a player from the state
-  # Returns {:noreply, <state>}
-  def handle_cast({:remove, player}, list) do
-    {:noreply, Map.delete(list, player.name)}
+  # Handle call with remove - synchronous
+  # Remove a player from the state given their name
+  #
+  # If Player was in state and was removed, returns
+  # Returns {:reply, {:ok, player}, <updated_state>}
+  #
+  # If Player did not exist in state, returns:
+  # Returns {:reply, :error, <state>}
+  def handle_call({:remove, key}, _from, state) do
+    case Map.fetch(state, key) do
+      {:ok, player} -> {:reply, {:ok, player}, Map.delete(state, key)}
+      _ -> {:reply, :error, state}
+    end
   end
 
-  # Handle casts with update - asynchronous
+  # Handle call with update - synchronous
   # Updates a player from the state, hence expects at least
   # the key, to match a player in the state. - If the key does not exist,
   # nothing is done.
-  # Returns {:noreply, <state>}
-  def handle_cast({:update, player}, state) do
+  #
+  # If Player was in state returns:
+  # Returns {:reply, :ok, <updated_state>}
+  #
+  # Otherwise if Player wasn't in state, returns:
+  # Returns {:reply, :error, <state>}
+  def handle_call({:update, player}, _from, state) do
     case Map.fetch(state, player.name) do
-      {:ok, _} -> {:noreply, Map.put(state, player.name, player)}
-      _ -> {:noreply, state}
+      {:ok, _} -> {:reply, :ok, Map.put(state, player.name, player)}
+      _ -> {:reply, :error, state}
     end
   end
 
@@ -103,7 +115,7 @@ defmodule BuddyMatching.PlayerServer do
   Method will run synchronously.
 
   ## Examples
-  iex> p1 = %Player{}
+  iex> p1 = %Player{name: "Lethly"}
   iex> BuddyMatching.PlayerServer.add(p1)
   :ok
   iex> BuddyMatching.PlayerServer.add(p1)
@@ -115,29 +127,43 @@ defmodule BuddyMatching.PlayerServer do
 
   @doc """
   Deletes the given player from the specified server
-  Always returns :ok if server exists.
-  Method will run asynchronously.
+  Returns :ok if player was in state, otherwise :error.
+  Method will run synchronously.
 
   ## Examples
-  iex> BuddyMatching.PlayerServer.remove(%Player{})
+  iex> BuddyMatching.PlayerServer.remove(%Player{name: "Lethly"})
   :ok
   """
-  def remove(pid, %Player{} = player) do
-    GenServer.cast(pid, {:remove, player})
+  def remove(pid, %Player{name: name}) do
+    GenServer.call(pid, {:remove, name})
+  end
+
+  @doc """
+  Deletes the a player from the specified server, given their name.
+  Returns :ok if player was in state, otherwise :error.
+  Method will run synchronously.
+
+  ## Examples
+  iex> BuddyMatching.PlayerServer.remove("Lethly")
+  :ok
+  """
+  def remove(pid, name) do
+    GenServer.call(pid, {:remove, name})
   end
 
   @doc """
   Updates the given player from the specified server
   if he exists in the server's state. That is, if his key
   currently exists in the state.
-  Always returns :ok if server exists.
-  Method will run asynchronously.
+  Returns :ok if player was in state and is updated,
+  otherwise returns :error.
+  Method will run synchronously.
 
   ## Examples
   iex> BuddyMatching.PlayerServer.update(%Player{name = "Lethly"})
   :ok
   """
   def update(pid, %Player{} = player) do
-    GenServer.cast(pid, {:update, player})
+    GenServer.call(pid, {:update, player})
   end
 end

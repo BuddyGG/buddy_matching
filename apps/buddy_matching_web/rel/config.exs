@@ -2,7 +2,8 @@
 # They can then be used by adding `plugin MyPlugin` to
 # either an environment, or release definition, where
 # `MyPlugin` is the name of the plugin module.
-Path.join(["rel", "plugins", "*.exs"])
+["rel", "plugins", "*.exs"]
+|> Path.join()
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 

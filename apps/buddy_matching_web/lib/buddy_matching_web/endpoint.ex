@@ -1,5 +1,5 @@
 defmodule BuddyMatchingWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :buddy_matching
+  use Phoenix.Endpoint, otp_app: :buddy_matching_web
 
   socket("/socket", BuddyMatchingWeb.PlayerSocket)
 
@@ -10,7 +10,7 @@ defmodule BuddyMatchingWeb.Endpoint do
   plug(
     Plug.Static,
     at: "/",
-    from: :buddy_matching,
+    from: :buddy_matching_web,
     gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
   )

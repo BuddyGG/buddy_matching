@@ -54,6 +54,20 @@ defmodule BuddyMatching.PlayerServerTest do
     assert [] = PlayerServer.read(server)
   end
 
+  test "player is removed using name", %{server: server} do
+    assert PlayerServer.read(server) == []
+
+    player = %Player{id: "1", name: "foo"}
+
+    # player is added
+    PlayerServer.add(server, player)
+    assert [^player] = PlayerServer.read(server)
+
+    # player is removed
+    PlayerServer.remove(server, player.name)
+    assert [] = PlayerServer.read(server)
+  end
+
   test "absent player removal has no effect", %{server: server} do
     assert PlayerServer.read(server) == []
 
@@ -65,7 +79,7 @@ defmodule BuddyMatching.PlayerServerTest do
     assert [^player] = PlayerServer.read(server)
 
     # player is removed
-    PlayerServer.remove(server, absent_player)
+    :error = PlayerServer.remove(server, absent_player)
     assert [^player] = PlayerServer.read(server)
   end
 

@@ -1,6 +1,6 @@
 defmodule BuddyMatchingWeb.PlayerSocket do
   use Phoenix.Socket
-  alias BuddyMatching.Auth
+  alias BuddyMatchingWeb.Auth
 
   ## Channels
   channel("players:*", BuddyMatchingWeb.PlayersChannel)

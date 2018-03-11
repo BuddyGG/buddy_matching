@@ -2,7 +2,7 @@ defmodule BuddyMatchingWeb.AuthController do
   use BuddyMatchingWeb, :controller
   action_fallback(CarExtractorWeb.FallbackController)
 
-  alias BuddyMatching.Auth
+  alias BuddyMatchingWeb.Auth
 
   @doc """
   Get request to get a new session_id and matching token

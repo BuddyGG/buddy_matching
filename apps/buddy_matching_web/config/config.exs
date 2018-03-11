@@ -10,7 +10,7 @@ config :buddy_matching_web, BuddyMatchingWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "NXkm0vlBsJMoq0c5tOwIE7PoxtCRx6C9cvpbgdPE8wZc7Wej2BELkzWIN0Kd6+tw",
   render_errors: [view: BuddyMatchingWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: BuddyMatching.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: BuddyMatchingWeb.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,

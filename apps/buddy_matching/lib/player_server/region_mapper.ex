@@ -55,6 +55,22 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
   end
 
   @doc """
+  Removes a player given their region and their name.
+
+  ## Examples
+      iex> player = %{id: 1, name: "Lethly", region: :some_region}
+      iex> BuddyMatching.RegionMapper.add_player(player)
+        :ok
+      iex> BuddyMatching.RegionMapper.remove_player("Lethly", :some_region)
+        :ok
+  """
+  def remove_player(name, region) do
+    region
+    |> :global.whereis_name()
+    |> PlayerServer.remove(name)
+  end
+
+  @doc """
   Updates the given player from its region's PlayerServer
   This will have no effect if the player isn't already in the PlayerServer.
 

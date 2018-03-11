@@ -14,7 +14,7 @@ defmodule RiotApi.Mixfile do
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       build_embedded: Mix.env() == :prod,
-      deps: deps(),
+      deps: deps()
     ]
   end
 

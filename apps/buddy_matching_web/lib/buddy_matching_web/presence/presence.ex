@@ -69,6 +69,6 @@ defmodule BuddyMatchingWeb.Presence do
   original presence data.
   """
   use Phoenix.Presence,
-    otp_app: :buddy_matching,
-    pubsub_server: BuddyMatching.PubSub
+    otp_app: :buddy_matching_web,
+    pubsub_server: BuddyMatchingWeb.PubSub
 end

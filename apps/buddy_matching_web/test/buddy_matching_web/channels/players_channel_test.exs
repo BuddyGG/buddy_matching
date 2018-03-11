@@ -4,8 +4,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Criteria
   alias BuddyMatchingWeb.PlayerSocket
+  alias BuddyMatchingWeb.Auth
   alias Poison
-  alias BuddyMatching.Auth
 
   @initial_matches_event "initial_matches"
   @new_match_event "new_match"
@@ -402,7 +402,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
-  @tag :wip
   test "update criteria sends unmatch events when no longer matching, and match event
   when matching again" do
     {socket1, player1, topic1} = setup_socket(@base_player1)

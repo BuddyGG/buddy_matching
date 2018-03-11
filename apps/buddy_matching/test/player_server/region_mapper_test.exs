@@ -47,6 +47,16 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     assert [] = RegionMapper.get_players(player.region)
   end
 
+  test "players can be removed from server using name and region", %{region1: region} do
+    player = %Player{id: "1", name: "foo", region: region}
+
+    RegionMapper.add_player(player)
+    assert [^player] = RegionMapper.get_players(player.region)
+
+    RegionMapper.remove_player(player.name, region)
+    assert [] = RegionMapper.get_players(player.region)
+  end
+
   test "remove_player removes correct player", %{region1: region} do
     player1 = %Player{id: "1", name: "foo", region: region}
     player2 = %Player{id: "2", name: "bar", region: region}

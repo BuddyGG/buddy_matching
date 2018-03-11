@@ -23,7 +23,7 @@ defmodule BuddyMatchingWeb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {BuddyMatching.Application, []},
+      mod: {BuddyMatchingWeb.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

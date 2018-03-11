@@ -1,4 +1,4 @@
-defmodule BuddyMatching.Auth do
+defmodule BuddyMatchingWeb.Auth do
   @moduledoc """
   Authenticate module using Phoenix tokens
   Used to generate session ids, tokens and verifying these

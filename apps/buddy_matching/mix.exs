@@ -11,7 +11,7 @@ defmodule BuddyMatching.Mixfile do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       build_embedded: Mix.env() == :prod,
       deps: deps(),
@@ -22,10 +22,7 @@ defmodule BuddyMatching.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [
-      mod: {BuddyMatching.Application, []},
-      extra_applications: [:logger, :runtime_tools]
-    ]
+    [applications: [:logger]]
   end
 
   # Specifies which paths to compile per environment.
@@ -37,9 +34,7 @@ defmodule BuddyMatching.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:buddy_matching_web, in_umbrella: true},
-      {:phoenix, "~> 1.3.0"},
-      {:phoenix_pubsub, "~> 1.0"},
+      {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:httpoison, "~> 0.13"},
       {:poison, "~> 3.1"},

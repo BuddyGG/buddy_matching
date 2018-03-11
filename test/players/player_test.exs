@@ -1,6 +1,6 @@
-defmodule LolBuddy.PlayerTest do
+defmodule BuddyMatching.PlayerTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Players.Player
+  alias BuddyMatching.Players.Player
 
   @player ~s({
     "champions":[
@@ -65,7 +65,7 @@ defmodule LolBuddy.PlayerTest do
        %Player{
          age_group: "interval2",
          champions: ["Vayne", "Caitlyn", "Ezreal"],
-         criteria: %LolBuddy.Players.Criteria{
+         criteria: %BuddyMatching.Players.Criteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
            voice: [false, true],
@@ -182,7 +182,7 @@ defmodule LolBuddy.PlayerTest do
        %Player{
          age_group: "interval2",
          champions: ["Vayne", "Caitlyn", "Ezreal"],
-         criteria: %LolBuddy.Players.Criteria{
+         criteria: %BuddyMatching.Players.Criteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
            voice: [false, true]

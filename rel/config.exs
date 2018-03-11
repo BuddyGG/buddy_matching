@@ -37,7 +37,7 @@ environment :prod do
   set include_erts: true
   set include_src: false
   set cookie: :"uh}JO_:x%IW@w4|u{eB&Z1dWHPEzD@g}5S_n?a*|xRN{L.cSq5Pu%DR|.yZ=3Q_i"
-  set output_dir: "rel/lol_buddy"
+  set output_dir: "rel/buddy_matching"
 end
 
 # You may define one or more releases in this file.
@@ -45,8 +45,8 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :lol_buddy do
-  set version: current_version(:lol_buddy)
+release :buddy_matching do
+  set version: current_version(:buddy_matching)
   plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools

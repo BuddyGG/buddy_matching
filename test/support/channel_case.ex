@@ -1,4 +1,4 @@
-defmodule LolBuddyWeb.ChannelCase do
+defmodule BuddyMatchingWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -21,7 +21,7 @@ defmodule LolBuddyWeb.ChannelCase do
       use Phoenix.ChannelTest
 
       # The default endpoint for testing
-      @endpoint LolBuddyWeb.Endpoint
+      @endpoint BuddyMatchingWeb.Endpoint
     end
   end
 

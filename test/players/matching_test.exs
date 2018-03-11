@@ -1,8 +1,8 @@
-defmodule LolBuddy.MatchingTest do
+defmodule BuddyMatching.MatchingTest do
   use ExUnit.Case, async: true
-  alias LolBuddy.Players.Player
-  alias LolBuddy.Players.Matching
-  alias LolBuddy.Players.Criteria
+  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Matching
+  alias BuddyMatching.Players.Criteria
 
   # setup some bases for criteria and players that can be used in relation
   # to custom definitions for testing

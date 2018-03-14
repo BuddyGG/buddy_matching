@@ -50,7 +50,10 @@ release :buddy_matching do
   set version: current_version(:buddy_matching)
   plugin Conform.ReleasePlugin
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    buddy_matching: :permanent,
+    buddy_matching_web: :permanent,
+    riot_api: :permanent
   ]
 end
 

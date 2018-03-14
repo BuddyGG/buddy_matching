@@ -18,3 +18,4 @@ sudo: false
 
 script:
   - mix test  
+  - mix coveralls.travis

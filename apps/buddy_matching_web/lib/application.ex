@@ -21,7 +21,6 @@ defmodule BuddyMatchingWeb.Application do
       # Start the endpoint when the application starts
       supervisor(BuddyMatchingWeb.Endpoint, []),
       supervisor(BuddyMatchingWeb.Presence.Supervisor, []),
-      supervisor(BuddyMatching.PlayerServer.Supervisor, []),
       supervisor(BuddyMatchingWeb.Presence, [])
       # Start your own worker by calling:
       #   BuddyMatching.Worker.start_link(arg1, arg2, arg3)

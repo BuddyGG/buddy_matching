@@ -3,7 +3,7 @@
 use Mix.Config
 
 config :pre_commit,
-  commands: ["test", "format", "credo"],
+  commands: ["test", "format --check-formatted", "credo"],
   verbose: true
 
 # By default, the umbrella project as well as each child

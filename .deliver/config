@@ -1,15 +1,12 @@
 APP="buddy"
 
-BUILD_HOST="46.101.59.238"
+BUILD_HOST="buddy.gg"
 BUILD_USER="worker"
 BUILD_AT="/home/worker/app_build"
 
-PRODUCTION_HOSTS="46.101.59.238"
+PRODUCTION_HOSTS="buddy.gg"
 PRODUCTION_USER="worker"
 DELIVER_TO="/home/worker/app_release"
-# We manually increment versions in mix.exs
-# using semantic versioning instead.
-# AUTO_VERSION=revision
 
 pre_erlang_get_and_update_deps() {
   # copy it on the build host to the build directory when building

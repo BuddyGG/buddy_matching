@@ -52,54 +52,39 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   extends: [],
   import: [],
   mappings: [
-    "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base": [
+    "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.url.host": [
       commented: false,
       datatype: :binary,
       doc:
-        "Provide documentation for buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base here.",
+        "Provide documentation for buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.url.host here.",
       hidden: false,
-      to: "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base"
+      to: "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.url.host"
     ],
-    "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.http.port": [
+    "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base": [
+      commented: false,
+      datatype: :binary,
+      doc:
+        "Provide documentation for buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base here.",
+      hidden: false,
+      to: "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.secret_key_base"
+    ],
+    "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.http.port": [
       commented: false,
       datatype: :integer,
       default: 4000,
       doc:
-        "Provide documentation for buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.http.port here.",
+        "Provide documentation for buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.http.port here.",
       hidden: false,
-      to: "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.http.port"
+      to: "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.http.port"
     ],
-    "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.url.host": [
-      commented: false,
-      datatype: :binary,
-      doc:
-        "Provide documentation for buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.url.host here.",
-      hidden: false,
-      to: "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.url.host"
-    ],
-    "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.check_origin": [
+    "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.check_origin": [
       commented: false,
       datatype: :atom,
       default: false,
       doc:
-        "Provide documentation for buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.check_origin here.",
+        "Provide documentation for buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.check_origin here.",
       hidden: false,
-      to: "buddy_matching.Elixir.BuddyMatchingWeb.Endpoint.check_origin"
-    ],
-    "buddy_matching.riot_api_key": [
-      commented: false,
-      datatype: :binary,
-      doc: "Provide documentation for buddy_matching.riot_api_key here.",
-      hidden: false,
-      to: "buddy_matching.riot_api_key"
-    ],
-    "logger.level": [
-      commented: false,
-      datatype: :atom,
-      default: :info,
-      doc: "Provide documentation for logger.level here.",
-      hidden: false,
-      to: "logger.level"
+      to: "buddy_matching_web.Elixir.BuddyMatchingWeb.Endpoint.check_origin"
     ]
   ],
   transforms: [],

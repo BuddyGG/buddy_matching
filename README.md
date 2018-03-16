@@ -1,5 +1,6 @@
 # Backend service for buddy.gg
 [![Build Status](https://travis-ci.org/BuddyGG/buddy_matching.png)](https://travis-ci.org/BuddyGG/buddy_matching)
+[![Coverage Status](https://coveralls.io/repos/github/BuddyGG/buddy_matching/badge.svg?branch=add-coveralls)](https://coveralls.io/github/BuddyGG/buddy_matching?branch=add-coveralls)
 
 Somewhat Generic player matching service built with Phoenix, utilizing GenServers and sockets to avoid having an underlying database.
 Currently built only to support matching players from League of Legends, but can ideally be easily extended to support multiple games.

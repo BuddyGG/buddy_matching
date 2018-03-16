@@ -9,7 +9,7 @@
 
 use Mix.Releases.Config,
     # This sets the default release built by `mix release`
-    default_release: :default,
+    default_release: :buddy,
     # This sets the default environment used by `mix release`
     default_environment: Mix.env()
 
@@ -47,7 +47,7 @@ end
 # will be used by default
 
 release :buddy do
-  set version: "1.2.0"
+  set version: "1.2.2"
   plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools,

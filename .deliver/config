@@ -1,10 +1,10 @@
-APP="buddy_matching"
+APP="buddy"
 
-BUILD_HOST="buddy.gg"
+BUILD_HOST="46.101.59.238"
 BUILD_USER="worker"
 BUILD_AT="/home/worker/app_build"
 
-PRODUCTION_HOSTS="buddy.gg"
+PRODUCTION_HOSTS="46.101.59.238"
 PRODUCTION_USER="worker"
 DELIVER_TO="/home/worker/app_release"
 # We manually increment versions in mix.exs

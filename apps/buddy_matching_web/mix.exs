@@ -4,7 +4,7 @@ defmodule BuddyMatchingWeb.Mixfile do
   def project do
     [
       app: :buddy_matching_web,
-      version: "1.1.3",
+      version: auto_version(),
       elixir: "~> 1.6",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -15,7 +15,13 @@ defmodule BuddyMatchingWeb.Mixfile do
       start_permanent: Mix.env() == :prod,
       build_embedded: Mix.env() == :prod,
       deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
+  end
+
+  def auto_version() do
+    {rev, _} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
+    "1.0.0+#{String.trim_trailing(rev)}"
   end
 
   # Configuration for the OTP application.

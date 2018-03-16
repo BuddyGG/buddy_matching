@@ -7,6 +7,8 @@ defmodule BuddyUmbrella.Mixfile do
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/BuddyGG/buddy_matching",
       name: "Buddy Matching",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end

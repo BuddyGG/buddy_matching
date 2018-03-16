@@ -4,7 +4,7 @@ defmodule RiotApi.Mixfile do
   def project do
     [
       app: :riot_api,
-      version: "1.2.0",
+      version: auto_version(),
       elixir: "~> 1.6",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -14,8 +14,14 @@ defmodule RiotApi.Mixfile do
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       build_embedded: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
+  end
+
+  def auto_version() do
+    {rev, _} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
+    "1.0.0+#{String.trim_trailing(rev)}"
   end
 
   # Configuration for the OTP application.

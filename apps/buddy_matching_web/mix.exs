@@ -20,8 +20,14 @@ defmodule BuddyMatchingWeb.Mixfile do
   end
 
   def auto_version() do
-    {rev, _} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
-    "1.0.0+#{String.trim_trailing(rev)}"
+    {rev, _} = System.cmd("git", ["rev-parse", "--short", "HEAD"], stderr_to_stdout: true)
+    # HACK this is necessary for the command to result
+    # in valid SemVer versions even during pre_commit hooks.
+    if String.starts_with?(rev, "fatal") do
+      "1.0.0"
+    else
+      "1.0.0+#{String.trim_trailing(rev)}"
+    end
   end
 
   # Configuration for the OTP application.

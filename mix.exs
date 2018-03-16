@@ -2,7 +2,13 @@ defmodule BuddyUmbrella.Mixfile do
   use Mix.Project
 
   def project do
-    [apps_path: "apps", start_permanent: Mix.env() == :prod, deps: deps()]
+    [
+      apps_path: "apps",
+      start_permanent: Mix.env() == :prod,
+      source_url: "https://github.com/BuddyGG/buddy_matching",
+      name: "Buddy Matching",
+      deps: deps()
+    ]
   end
 
   defp deps do

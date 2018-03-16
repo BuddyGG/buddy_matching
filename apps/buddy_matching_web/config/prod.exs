@@ -16,14 +16,12 @@ use Mix.Config
 config :buddy_matching_web, BuddyMatchingWeb.Endpoint,
   http: [port: System.get_env("PORT")],
   url: [scheme: "https", host: System.get_env("HOST"), port: 443],
-
-  # TODO remember to reenable check_origin
-  check_origin: false,
+  check_origin: ["buddy.gg"],
   server: true,
   code_reloader: false,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
-config :logger, level: :debug
+config :logger, level: :info
 # Do not print debug messages in production
 # config :logger, level: :debug
 # ## SSL Support

@@ -22,7 +22,7 @@ defmodule RiotApi.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :runtime_tools]]
   end
 
   # Specifies which paths to compile per environment.

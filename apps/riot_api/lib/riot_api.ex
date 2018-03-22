@@ -1,7 +1,7 @@
 defmodule RiotApi do
   @moduledoc """
   This module handles all interaction with Riot's Developer Api.
-  It is expected to be accessed through 'BuddyMatching.RiotApi.Api.fetch_summoner_info/2',
+  It is expected to be accessed through 'RiotApi.fetch_summoner_info/2',
   although several other functions are public, primarily for the sake of testing.
   """
 
@@ -37,7 +37,7 @@ defmodule RiotApi do
   Returns {:ok, {name, id, account_id, icon_id}}
 
   ## Examples
-      iex> BuddyMatching.RiotApi.Api.summoner_info("lethly", :euw)
+      iex> RiotApi.summoner_info("lethly", :euw)
       {:ok, {"Lethly", 22267137, 26102926, 512}}
   """
   def summoner_info(name, region) do
@@ -76,7 +76,7 @@ defmodule RiotApi do
   Returns {:ok, ["champion1", "champion2", "champion3"]}
 
   ## Examples
-      iex> BuddyMatching.RiotApi.Api.champions(22267137, :euw)
+      iex> RiotApi.champions(22267137, :euw)
       {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
   """
   def champions(id, region) do
@@ -96,7 +96,7 @@ defmodule RiotApi do
   Returns it as a map of (key => occurences)
 
   ## Examples
-    iex> BuddyMatching.RiotApi.extract_most_frequent([3,3,3,2,2,1], 2)
+    iex> RiotApi.extract_most_frequent([3,3,3,2,2,1], 2)
     [3 => 3,2 => 2]
   """
   def extract_most_frequent(matches, amount) do
@@ -123,7 +123,7 @@ defmodule RiotApi do
        %{"champion" => 18},
        %{"champion" => 18},
        %{"champion" => 27}]
-    iex> BuddyMatching.RiotApi.Api.extract_most_played(matches)
+    iex> RiotApi.extract_most_played(matches)
     ["Jax", "Sona", "Tristana"]
   """
   def extract_most_played_champions(matches, amount \\ 3) do
@@ -169,7 +169,7 @@ defmodule RiotApi do
      %{"lane" => "JUNGLE", "role" => "NONE"},
      %{"lane" => "BOTTOM", "role" => "DUO_SUPPORT"},
      %{"lane" => "BOTTOM", "role" => "DUO_CARRY"}]
-  iex> BuddyMatching.RiotApi.Api.extract_most_played(matches)
+  iex> RiotApi.extract_most_played(matches)
   [:top, :mid]
   """
   def extract_most_played_roles(matches, amount \\ 2) do
@@ -186,7 +186,7 @@ defmodule RiotApi do
   Returns {:ok, {["champion1", "champion2", "champion3"], [:marksman, :support]}}
 
   ## Examples
-      iex> BuddyMatching.RiotApi.Api.recent_champions(26102926, :euw)
+      iex> RiotApi.recent_champions(26102926, :euw)
         {:ok, {["Vayne", "Varus", "Sona"], [:marksman, :support]}}
   """
   def recent_champions_and_roles(account_id, region) do
@@ -204,7 +204,7 @@ defmodule RiotApi do
   account_id, if they have played one.
 
   ### Examples
-  iex> BuddyMatching.RiotApi.Api.fetch_last_solo_match(26102926, :euw)
+  iex> RiotApi.fetch_last_solo_match(26102926, :euw)
     {:ok, %{"gameCreation" => 1515525992929, "gameDuration" => 1382...}}
   """
   def fetch_last_solo_match(account_id, region) do
@@ -259,7 +259,7 @@ defmodule RiotApi do
   Returns {:ok, %{rank: nil, tier: "PLATINUM", type: "RANKED_SOLO_5x5"}}
 
   ## Examples
-      iex> BuddyMatching.RiotApi.Api.last_seasons_rank(26102926, :euw)
+      iex> RiotApi.last_seasons_rank(26102926, :euw)
         {:ok, %{rank: 1, tier: "DIAMOND", type: "RANKED_SOLO_5x5"}}
   """
   def last_seasons_rank(account_id, region) do
@@ -282,6 +282,17 @@ defmodule RiotApi do
     |> parse_json
   end
 
+  # Utility function mostly to ensure that Challengers and Masters don't get
+  # rank 1, as Riot shows this internally despite there being no such thing.
+  defp parse_league(leagueInfo) do
+    tier = leagueInfo["tier"]
+
+    rank =
+      if tier == "CHALLENGER" || tier == "MASTER", do: nil, else: deromanize(leagueInfo["rank"])
+
+    %{type: leagueInfo["queueType"], tier: tier, rank: rank}
+  end
+
   @doc """
   Returns a list of maps, with each map containing info for each league.
   If a summoner is placed in multiple queues, the list will hold multiple maps.
@@ -289,10 +300,8 @@ defmodule RiotApi do
   Returns {:ok, [%{type: "queuetype", tier: "tier", rank: rank"}]}
 
   ## Examples
-      iex> BuddyMatching.RiotApi.Api.leagues(22267137, 26102926, :euw)
+      iex> RiotApi.leagues(22267137, 26102926, :euw)
       {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
-      iex> BuddyMatching.RiotApi.Api.leagues(27866981, 31690752, :euw)
-      {:ok, {type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 1}}
   """
   def leagues(id, account_id, region) do
     OK.for do
@@ -301,11 +310,8 @@ defmodule RiotApi do
       leagues
       |> Enum.find(fn %{"queueType" => type} -> type == "RANKED_SOLO_5x5" end)
       |> case do
-        nil ->
-          last_seasons_rank(account_id, region)
-
-        x ->
-          %{type: x["queueType"], tier: x["tier"], rank: deromanize(x["rank"])}
+        nil -> last_seasons_rank(account_id, region)
+        info -> parse_league(info)
       end
     end
   end
@@ -317,7 +323,7 @@ defmodule RiotApi do
   If summoner does not exist for region returns {:error, error}
 
   ## Examples
-    iex> BuddyMatching.RiotApi.Api.fetch_summoner_info("Lethly", :euw)
+    iex> RiotApi.fetch_summoner_info("Lethly", :euw)
     {:ok,
       %{champions: ["Vayne", "Caitlyn", "Ezreal"], icon_id: 512,
       leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},

@@ -15,13 +15,28 @@ defmodule BuddyMatching.PlayersTest do
       ignore_language: false
     }
 
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: nil}
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: nil}
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
     platinum2 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 2}
     gold3 = %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 3}
     silver4 = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: 4}
     bronze5 = %{type: "RANKED_SOLO_5x5", tier: "BRONZE", rank: 5}
     unranked = %{type: "RANKED_SOLO_5x5", tier: "UNRANKED", rank: 4}
+
+    base_player0 = %Player{
+      id: 0,
+      name: "Faker",
+      region: :euw,
+      voice: [false],
+      languages: ["danish"],
+      age_group: 1,
+      positions: [:mid],
+      leagues: challenger,
+      champions: ["LeBlanc", "Syndra", "Fizz"],
+      criteria: broad_criteria,
+      comment: "numero uno"
+    }
 
     base_player1 = %Player{
       id: 1,
@@ -122,6 +137,7 @@ defmodule BuddyMatching.PlayersTest do
     }
 
     all_players = [
+      base_player0,
       base_player1,
       base_player2,
       base_player3,
@@ -132,6 +148,7 @@ defmodule BuddyMatching.PlayersTest do
     ]
 
     [
+      challenger_player: base_player0,
       master_player: base_player1,
       d1_player: base_player2,
       p2_player: base_player3,
@@ -150,9 +167,17 @@ defmodule BuddyMatching.PlayersTest do
     assert ^other_players = Players.get_matches(player1, other_players)
   end
 
-  test "master player matches only d1 from players", context do
+  test "challenger player matches only master and d1 player", context do
+    matches = Players.get_matches(context[:challenger_player], context[:all_players])
+    assert length(matches) == 2
+    assert Enum.member?(matches, context[:master_player])
+    assert Enum.member?(matches, context[:d1_player])
+  end
+
+  test "master player matches only challenger and d1 player", context do
     matches = Players.get_matches(context[:master_player], context[:all_players])
-    assert length(matches) == 1
+    assert length(matches) == 2
+    assert Enum.member?(matches, context[:challenger_player])
     assert Enum.member?(matches, context[:d1_player])
   end
 

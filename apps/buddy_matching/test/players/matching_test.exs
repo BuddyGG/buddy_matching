@@ -262,36 +262,36 @@ defmodule BuddyMatching.MatchingTest do
   end
 
   test "master and diamond3 are compatible" do
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: nil}
     diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
     assert Matching.tier_compatible?(master, diamond3)
   end
 
   test "master and diamond4 are incompatible" do
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: nil}
     diamond4 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 4}
     refute Matching.tier_compatible?(master, diamond4)
   end
 
   test "challenger may queue with challenger" do
-    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: nil}
     assert Matching.tier_compatible?(challenger, challenger)
   end
 
   test "challenger may queue with master" do
-    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
-    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: 1}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: nil}
+    master = %{type: "RANKED_SOLO_5x5", tier: "MASTER", rank: nil}
     assert Matching.tier_compatible?(challenger, master)
   end
 
   test "challenger may queue with diamond 3" do
-    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: nil}
     diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
     assert Matching.tier_compatible?(challenger, diamond3)
   end
 
   test "challenger may not queue with diamond 3" do
-    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: 1}
+    challenger = %{type: "RANKED_SOLO_5x5", tier: "CHALLENGER", rank: nil}
     diamond4 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 4}
     refute Matching.tier_compatible?(challenger, diamond4)
   end

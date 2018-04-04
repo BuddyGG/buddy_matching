@@ -47,7 +47,7 @@ end
 # will be used by default
 
 release :buddy do
-  set version: "1.2.2"
+  set version: "1.2.0"
   plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools,

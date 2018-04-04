@@ -2,13 +2,14 @@
 # They can then be used by adding `plugin MyPlugin` to
 # either an environment, or release definition, where
 # `MyPlugin` is the name of the plugin module.
-Path.join(["rel", "plugins", "*.exs"])
+["rel", "plugins", "*.exs"]
+|> Path.join()
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 
 use Mix.Releases.Config,
     # This sets the default release built by `mix release`
-    default_release: :default,
+    default_release: :buddy,
     # This sets the default environment used by `mix release`
     default_environment: Mix.env()
 
@@ -37,7 +38,7 @@ environment :prod do
   set include_erts: true
   set include_src: false
   set cookie: :"uh}JO_:x%IW@w4|u{eB&Z1dWHPEzD@g}5S_n?a*|xRN{L.cSq5Pu%DR|.yZ=3Q_i"
-  set output_dir: "rel/buddy_matching"
+  set output_dir: "rel/buddy"
 end
 
 # You may define one or more releases in this file.
@@ -45,11 +46,13 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :buddy_matching do
-  set version: current_version(:buddy_matching)
+release :buddy do
+  set version: "1.2.0"
   plugin Conform.ReleasePlugin
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    buddy_matching: :permanent,
+    buddy_matching_web: :permanent,
+    riot_api: :permanent
   ]
 end
-

@@ -1,26 +1,21 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
 use Mix.Config
 
-# Configures the endpoint
-config :buddy_matching, BuddyMatchingWeb.Endpoint,
-  url: [host: "localhost"],
-  secret_key_base: "NXkm0vlBsJMoq0c5tOwIE7PoxtCRx6C9cvpbgdPE8wZc7Wej2BELkzWIN0Kd6+tw",
-  render_errors: [view: BuddyMatchingWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: BuddyMatching.PubSub, adapter: Phoenix.PubSub.PG2]
-
-# Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
 config :pre_commit,
-  commands: ["test", "format", "credo"],
+  commands: ["test", "format --check-formatted", "credo"],
   verbose: true
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+# By default, the umbrella project as well as each child
+# application will require this configuration file, ensuring
+# they all use the same configuration. While one could
+# configure all applications here, we prefer to delegate
+# back to each application for organization purposes.
+import_config "../apps/*/config/config.exs"
+
+# Sample configuration (overrides the imported configuration above):
+#
+#     config :logger, :console,
+#       level: :info,
+#       format: "$date $time [$level] $metadata$message\n",
+#       metadata: [:user_id]

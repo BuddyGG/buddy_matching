@@ -1,4 +1,4 @@
-APP="buddy_matching"
+APP="buddy"
 
 BUILD_HOST="buddy.gg"
 BUILD_USER="worker"
@@ -7,17 +7,16 @@ BUILD_AT="/home/worker/app_build"
 PRODUCTION_HOSTS="buddy.gg"
 PRODUCTION_USER="worker"
 DELIVER_TO="/home/worker/app_release"
-# We manually increment versions in mix.exs
-# using semantic versioning instead.
-# AUTO_VERSION=revision
 
 pre_erlang_get_and_update_deps() {
   # copy it on the build host to the build directory when building
-  local _secret_config_file_on_build_host="~/secret/buddy_matching.conf"
+  local _secret_config_buddy_matching_web="~/secret/buddy_matching_web.conf"
+  local _secret_config_riot_api="~/secret/riot_api.conf"
   if [ "$TARGET_MIX_ENV" = "prod" ]; then
-    status "Copying '$_secret_config_file_on_build_host' file to build dir"
+    status "Copying secret files to build dir"
     __sync_remote " # execute on build host
-      cp $_secret_config_file_on_build_host $BUILD_AT/config/buddy_matching.conf
+      cp $_secret_config_buddy_matching_web $BUILD_AT/apps/buddy_matching_web/config/buddy_matching_web.conf
+      cp $_secret_config_riot_api $BUILD_AT/apps/riot_api/config/riot_api.conf
     "
   fi
 }

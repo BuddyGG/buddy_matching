@@ -1,6 +1,6 @@
 defmodule BuddyMatchingWeb.SummonerController do
   use BuddyMatchingWeb, :controller
-  action_fallback(CarExtractorWeb.FallbackController)
+  action_fallback(BuddyMatchingWeb.FallbackController)
 
   alias RiotApi
 

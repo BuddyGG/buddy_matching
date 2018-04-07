@@ -47,7 +47,8 @@ defmodule FortniteApi.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:ok, "~> 1.9"},
+      {:httpoison, "~> 0.13"},
+      {:ok, "~> 1.9"}
     ]
   end
 end

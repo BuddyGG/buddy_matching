@@ -10,3 +10,5 @@ use Mix.Config
 # or recreate for your teammates (or yourself later on).
 config :fortnite_api, fortnite_api_key_launcher: "****-****-*****-*****"
 config :fortnite_api, fortnite_api_key_client: "****-****-*****-*****"
+config :fortnite_api, fortnite_api_email: "****-****-*****-*****"
+config :fortnite_api, fortnite_api_password: "****-****-*****-*****"

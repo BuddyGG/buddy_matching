@@ -53,6 +53,7 @@ release :buddy do
     :runtime_tools,
     buddy_matching: :permanent,
     buddy_matching_web: :permanent,
-    riot_api: :permanent
+    riot_api: :permanent,
+    fortnite_api: :permanent
   ]
 end

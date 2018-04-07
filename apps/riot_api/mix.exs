@@ -48,6 +48,7 @@ defmodule RiotApi.Mixfile do
     [
       {:poison, "~> 3.1"},
       {:ok, "~> 1.9"},
+      {:httpoison, "~> 0.13"},
     ]
   end
 end

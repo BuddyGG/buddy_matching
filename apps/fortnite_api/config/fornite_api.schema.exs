@@ -65,6 +65,20 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "Provide documentation for fortnite_api.fortnite_api_key_launcher.",
       hidden: false,
       to: "fortnite_api.fortnite_api_key_launcher"
+    ],
+    "fortnite_api.fortnite_api_email": [
+      commented: false,
+      datatype: :binary,
+      doc: "Provide documentation for fortnite_api.fortnite_api_email.",
+      hidden: false,
+      to: "fortnite_api.fortnite_api_email"
+    ],
+    "fortnite_api.fortnite_api_password": [
+      commented: false,
+      datatype: :binary,
+      doc: "Provide documentation for fortnite_api.fortnite_api_password.",
+      hidden: false,
+      to: "fortnite_api.fortnite_api_password"
     ]
   ],
   transforms: [],

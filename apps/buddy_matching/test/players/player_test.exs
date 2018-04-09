@@ -124,7 +124,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("comment", long_comment)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    refute Player.validate_player_json(bad_data)
+    assert Player.validate_player_json(bad_data) == {:error, "Comment too long"}
   end
 
   test "comment can be nil" do
@@ -147,7 +147,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.update!("selectedRoles", &Map.put(&1, "a", "b"))
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    refute Player.validate_player_json(bad_data)
+    assert Player.validate_player_json(bad_data) == {:error, "Too many roles selected"}
   end
 
   test "too many selected languages is invalid" do
@@ -160,14 +160,14 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("languages", too_many_languages)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    refute Player.validate_player_json(bad_data)
+    assert Player.validate_player_json(bad_data) == {:error, "Too many langauges"}
   end
 
   test "too long player name is invalid" do
     data = Poison.Parser.parse!(@player)
     long_name = String.duplicate("a", 17)
     bad_data = Map.put(data, "name", long_name)
-    refute Player.validate_player_json(bad_data)
+    assert Player.validate_player_json(bad_data) == {:error, "Name too long"}
   end
 
   test "player with null rank is valid json" do

@@ -39,24 +39,26 @@ defmodule BuddyMatching.Players.Player do
   including parsing for Criteria into its struct
   """
   def from_json(data) do
-    if validate_player_json(data) do
-      player = %BuddyMatching.Players.Player{
-        id: data["userInfo"]["id"],
-        name: data["name"],
-        region: String.to_existing_atom(data["region"]),
-        voice: data["userInfo"]["voicechat"],
-        languages: languages_from_json(data["userInfo"]["languages"]),
-        age_group: data["userInfo"]["agegroup"],
-        positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-        leagues: leagues_from_json(data["leagues"]),
-        champions: data["champions"],
-        criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-        comment: data["userInfo"]["comment"]
-      }
+    case validate_player_json(data) do
+      {:ok} ->
+        player = %BuddyMatching.Players.Player{
+          id: data["userInfo"]["id"],
+          name: data["name"],
+          region: String.to_existing_atom(data["region"]),
+          voice: data["userInfo"]["voicechat"],
+          languages: languages_from_json(data["userInfo"]["languages"]),
+          age_group: data["userInfo"]["agegroup"],
+          positions: positions_from_json(data["userInfo"]["selectedRoles"]),
+          leagues: leagues_from_json(data["leagues"]),
+          champions: data["champions"],
+          criteria: Criteria.from_json(data["userInfo"]["criteria"]),
+          comment: data["userInfo"]["comment"]
+        }
 
-      {:ok, player}
-    else
-      {:error, "bad player json"}
+        {:ok, player}
+
+      {:error, reason} ->
+        {:error, "Bad player json because #{reason}"}
     end
   end
 
@@ -75,13 +77,29 @@ defmodule BuddyMatching.Players.Player do
   https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
   """
   def validate_player_json(data) do
-    String.length(data["name"]) <= @riot_name_length_limit &&
-      map_size(data["userInfo"]["selectedRoles"]) <= @role_limit &&
-      length(data["champions"]) <= @champion_limit &&
-      length(data["userInfo"]["languages"]) <= @language_limit &&
-      (data["userInfo"]["comment"] == nil ||
-         String.length(data["userInfo"]["comment"]) <= @comment_char_limit) &&
-      Criteria.validate_criteria_json(data["userInfo"]["criteria"])
+    cond do
+      String.length(data["name"]) > @riot_name_length_limit ->
+        {:error, "Name too long"}
+
+      map_size(data["userInfo"]["selectedRoles"]) > @role_limit ->
+        {:error, "Too many roles selected"}
+
+      length(data["userInfo"]["languages"]) > @language_limit ->
+        {:error, "Too many langauges"}
+
+      length(data["champions"]) > @champion_limit ->
+        {:error, "Too many champions"}
+
+      data["userInfo"]["comment"] != nil &&
+          String.length(data["userInfo"]["comment"]) > @comment_char_limit ->
+        {:error, "Comment too long"}
+
+      !Criteria.validate_criteria_json(data["userInfo"]["criteria"]) ->
+        {:error, "Bad criteria"}
+
+      true ->
+        {:ok}
+    end
   end
 
   # Parses a json leagues specification of format:

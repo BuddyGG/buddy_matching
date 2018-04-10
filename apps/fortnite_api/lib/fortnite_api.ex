@@ -31,7 +31,8 @@ defmodule FortniteApi do
     |> handle_json
   end
 
-  def fetch_token() do
+  # fetches an initial oauth token based on login creds
+  def fetch_oauth() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
     launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
@@ -46,9 +47,55 @@ defmodule FortniteApi do
          {"includePerms", true}
        ]}
 
+    HTTPoison.start()
+
     @oath_token_url
     |> HTTPoison.post(token_body, headers)
     |> handle_json
+  end
+
+  # fetches an oauth exchange token based on initial oauth token
+  def fetch_oauth_exchange(access_token) do
+    headers = get_headers_bearer(access_token)
+
+    HTTPoison.start()
+
+    @oath_exchange_url
+    |> HTTPoison.get(headers)
+    |> handle_json
+  end
+
+  # this results in the final valid token
+  def fetch_oauth(exchange_code) do
+    client_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
+    headers = get_headers_basic(client_token)
+
+    token_body =
+      {:form,
+       [
+         {"grant_type", "exchange_code"},
+         {"exchange_code", exchange_code},
+         {"token_type", "egl"},
+         {"includePerms", true}
+       ]}
+
+    HTTPoison.start()
+
+    @oath_token_url
+    |> HTTPoison.post(token_body, headers)
+    |> handle_json
+  end
+
+  def fetch_tokens() do
+    OK.for do
+      oath <- fetch_oauth()
+      access_token <- Map.fetch(oath, "access_token")
+      exchange <- fetch_oauth_exchange(access_token)
+      exchange_code <- Map.fetch(exchange, "code")
+      result <- fetch_oauth(exchange_code)
+    after
+      {result["access_token"], result["refresh_token"]}
+    end
   end
 
   defp get_headers_basic(token) do

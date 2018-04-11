@@ -10,5 +10,6 @@ defmodule BuddyMatchingWeb.Router do
 
     get("/summoner/:region/:name", SummonerController, :show)
     get("/auth/request", AuthController, :show)
+    get("/stats", StatsController, :show)
   end
 end

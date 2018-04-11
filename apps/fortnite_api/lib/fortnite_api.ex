@@ -19,6 +19,9 @@ defmodule FortniteApi do
     {:error, body}
   end
 
+  defp get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
+  defp get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
+
   def refresh_token() do
     token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
     headers = get_headers_basic(token)
@@ -32,7 +35,7 @@ defmodule FortniteApi do
   end
 
   # fetches an initial oauth token based on login creds
-  def fetch_oauth() do
+  defp fetch_oauth() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
     launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
@@ -55,7 +58,7 @@ defmodule FortniteApi do
   end
 
   # fetches an oauth exchange token based on initial oauth token
-  def fetch_oauth_exchange(access_token) do
+  defp fetch_oauth_exchange(access_token) do
     headers = get_headers_bearer(access_token)
 
     HTTPoison.start()
@@ -66,7 +69,7 @@ defmodule FortniteApi do
   end
 
   # this results in the final valid token
-  def fetch_oauth(exchange_code) do
+  defp fetch_oauth(exchange_code) do
     client_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
     headers = get_headers_basic(client_token)
 
@@ -83,10 +86,10 @@ defmodule FortniteApi do
 
     @oath_token_url
     |> HTTPoison.post(token_body, headers)
-    |> handle_json
+    |> handle_json()
   end
 
-  def fetch_tokens() do
+  defp fetch_access_tokens() do
     OK.for do
       oath <- fetch_oauth()
       access_token <- Map.fetch(oath, "access_token")
@@ -98,45 +101,33 @@ defmodule FortniteApi do
     end
   end
 
-  defp get_headers_basic(token) do
-    [{"Authorization", "basic #{token}"}]
+  defp fetch_account_id(username, access_token) do
+    headers = get_headers_bearer(access_token)
+    HTTPoison.start()
+
+    "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
+      username
+    }"
+    |> HTTPoison.get(headers)
+    |> handle_json
   end
 
-  defp get_headers_bearer(token) do
-    # [{"Authorization", "bearer #{token}"}, {"Accept", "Application/json; Charset=utf-8"}]
-    [{"Authorization", "bearer #{token}"}]
-  end
-
-  defp fetch_stats(account_id) do
-    key_launcher = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
-    key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
+  defp fetch_br_stats(account_id, access_token) do
+    headers = get_headers_bearer(access_token)
 
     "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/#{
       account_id
     }/bulk/window/alltime"
+    |> HTTPoison.get(headers)
+    |> handle_json()
   end
 
-  defp fetch_account_id(username) do
-    key_launcher = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
-    key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
-
-    "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=" <>
-      username
-  end
-
-  @doc """
-  Return a map containing the given player's stats.
-
-  If player does not exist returns {:error, error}
-
-  ## Examples
-    iex> RiotApi.fetch_user_info("Lethly", :pc)
-    {:ok, %{}}
-  """
-  def fetch_user_info(username, platform) do
+  def fetch_stats(username) do
     OK.for do
-      account_id <- fetch_account_id(username)
-      stats <- fetch_account_id(account_id)
+      {access_token, _refresh_token} <- fetch_access_tokens()
+      account_info <- fetch_account_id(username, access_token)
+      account_id <- Map.fetch(account_info, "id")
+      stats <- fetch_br_stats(account_id, access_token)
     after
       stats
     end

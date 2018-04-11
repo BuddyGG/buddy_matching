@@ -110,4 +110,14 @@ defmodule BuddyMatching.PlayerServerTest do
     PlayerServer.update(server, player)
     assert [] = PlayerServer.read(server)
   end
+
+  test "count counts the number of players on the server", %{server: server} do
+    assert PlayerServer.count(server) == 0
+
+    # player is added
+    player = %Player{id: "1", name: "foo"}
+    PlayerServer.add(server, player)
+
+    assert PlayerServer.count(server) == 1
+  end
 end

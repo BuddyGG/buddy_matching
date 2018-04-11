@@ -96,4 +96,14 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     RegionMapper.update_player(player)
     assert [] = RegionMapper.get_players(region)
   end
+
+  test "count counts the number of players on the server", %{region1: region} do
+    assert RegionMapper.count_players(region) == 0
+
+    # player is added
+    player = %Player{id: "1", name: "foo", region: region}
+    RegionMapper.add_player(player)
+
+    assert RegionMapper.count_players(region) == 1
+  end
 end

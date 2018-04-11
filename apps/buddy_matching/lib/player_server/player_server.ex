@@ -44,6 +44,12 @@ defmodule BuddyMatching.PlayerServer do
     {:reply, Map.values(list), list}
   end
 
+  # Handle calls with count - synchronous
+  # Returns {:reply, <value returned to client>, <state>}
+  def handle_call({:count}, _from, list) do
+    {:reply, Enum.count(list), list}
+  end
+
   # Handle call with add - synchronous
   # Merely add the player into the Map. Return :ok, if Player
   # was added, otherwise return :error.
@@ -106,6 +112,17 @@ defmodule BuddyMatching.PlayerServer do
   """
   def read(pid) do
     GenServer.call(pid, {:read})
+  end
+
+  @doc """
+  Returns the number players on the specified server
+  Method will run synchronously.
+  ## Examples
+  iex> BuddyMatching.PlayerServer.count(:euw)
+  10
+  """
+  def count(pid) do
+    GenServer.call(pid, {:count})
   end
 
   @doc """

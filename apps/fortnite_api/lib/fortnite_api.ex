@@ -5,6 +5,7 @@ defmodule FortniteApi do
   """
 
   require OK
+  alias FortniteApi.Stats
   alias Poison.Parser
   alias HTTPoison
 
@@ -31,7 +32,7 @@ defmodule FortniteApi do
 
     @oath_token_url
     |> HTTPoison.post(token_body, headers)
-    |> handle_json
+    |> handle_json()
   end
 
   # fetches an initial oauth token based on login creds
@@ -50,22 +51,18 @@ defmodule FortniteApi do
          {"includePerms", true}
        ]}
 
-    HTTPoison.start()
-
     @oath_token_url
     |> HTTPoison.post(token_body, headers)
-    |> handle_json
+    |> handle_json()
   end
 
   # fetches an oauth exchange token based on initial oauth token
   defp fetch_oauth_exchange(access_token) do
     headers = get_headers_bearer(access_token)
 
-    HTTPoison.start()
-
     @oath_exchange_url
     |> HTTPoison.get(headers)
-    |> handle_json
+    |> handle_json()
   end
 
   # this results in the final valid token
@@ -81,8 +78,6 @@ defmodule FortniteApi do
          {"token_type", "egl"},
          {"includePerms", true}
        ]}
-
-    HTTPoison.start()
 
     @oath_token_url
     |> HTTPoison.post(token_body, headers)
@@ -103,13 +98,12 @@ defmodule FortniteApi do
 
   defp fetch_account_id(username, access_token) do
     headers = get_headers_bearer(access_token)
-    HTTPoison.start()
 
     "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
       username
     }"
     |> HTTPoison.get(headers)
-    |> handle_json
+    |> handle_json()
   end
 
   defp fetch_br_stats(account_id, access_token) do
@@ -122,14 +116,18 @@ defmodule FortniteApi do
     |> handle_json()
   end
 
-  def fetch_stats(username) do
+  def fetch_stats(username, platform) do
     OK.for do
       {access_token, _refresh_token} <- fetch_access_tokens()
       account_info <- fetch_account_id(username, access_token)
       account_id <- Map.fetch(account_info, "id")
+      display_name <- Map.fetch(account_info, "displayName")
       stats <- fetch_br_stats(account_id, access_token)
     after
       stats
+      |> Stats.get_duo_stats(platform)
+      |> Map.put("username", display_name)
+      |> Map.put("platform", platform)
     end
   end
 end

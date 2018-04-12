@@ -34,7 +34,7 @@ defmodule FortniteApi.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [applications: [:logger, :runtime_tools]]
+    [applications: [:logger, :runtime_tools, :httpoison]]
   end
 
   # Specifies which paths to compile per environment.

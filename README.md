@@ -1,6 +1,7 @@
 # Backend service for buddy.gg
 [![Build Status](https://travis-ci.org/BuddyGG/buddy_matching.png)](https://travis-ci.org/BuddyGG/buddy_matching)
 [![Coverage Status](https://coveralls.io/repos/github/BuddyGG/buddy_matching/badge.svg?branch=master)](https://coveralls.io/github/BuddyGG/buddy_matching?branch=master)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 Somewhat Generic player matching service built with Phoenix, utilizing GenServers and sockets to avoid having an underlying database. 
 

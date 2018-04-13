@@ -4,16 +4,14 @@ defmodule BuddyMatchingWeb.StatsController do
 
   alias BuddyMatching.PlayerServer.RegionMapper
 
-  @all_regions [:br, :eune, :euw, :jp, :kr, :lan, :las, :na, :oce, :tr, :ru, :pbe]
+  @regions [:br, :eune, :euw, :jp, :kr, :lan, :las, :na, :oce, :tr, :ru, :pbe]
 
   @doc """
   Get request to get the amount of currently connected players
   """
   def show(conn, _param) do
     stats =
-      @all_regions
-      |> Enum.map(&{&1, RegionMapper.count_players(&1)})
-      |> Enum.into(%{})
+      Enum.reduce(@regions, %{}, fn x, acc -> Map.put(acc, x, RegionMapper.count_players(x)) end)
 
     render(conn, "show.json", stats: stats)
   end

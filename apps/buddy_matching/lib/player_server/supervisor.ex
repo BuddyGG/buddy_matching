@@ -18,14 +18,6 @@ defmodule BuddyMatching.PlayerServer.Supervisor do
   end
 
   @doc """
-  Starts a PlayerServer with potential options.
-  """
-
-  def start_link(opts) do
-    Supervisor.start_link(__MODULE__, :ok, opts)
-  end
-
-  @doc """
   Define all the child specs for the various regions
   and start them all with one_for_one strategy.
   """

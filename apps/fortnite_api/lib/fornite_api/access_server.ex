@@ -110,8 +110,6 @@ defmodule FortniteApi.AccessServer do
   end
 
   defp fetch_access_tokens() do
-    Logger.debug(fn -> "Fetching new access token for Fortnite API" end)
-
     OK.for do
       oath <- fetch_oauth()
       access_token <- Map.fetch(oath, "access_token")

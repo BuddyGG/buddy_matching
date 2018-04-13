@@ -12,23 +12,26 @@ defmodule FortniteApi.Stats do
   Formats the list of maps returned by Fornite's API
   as a Map of %{"stat_type" => "value}.
 
-  Examples:
+  ## Examples:
+
     iex> format_stats([%{"name" => "br_score_pc_m0_p10", "value" => 703}])
     %{"br_score_pc_m0_p10" => 703}
+
   """
   def format_stats(stats) do
     Enum.reduce(stats, %{}, fn x, acc -> Map.put(acc, x["name"], x["value"]) end)
   end
 
-  # Expects the given stats to be formatted
   @doc """
   Extracts specific stats from a formatted stats map, a platform
-  and a queue type and returns them as a tuple:
+  and a queue type and returns them as a tuple.
 
-  Examples:
+  ## Examples:
+
     iex> stats = %{"br_placetop1_p2_pc" => 1, "br_placetop3_p2" => 3...}
     iex> get_stats_for_queue(stats, "pc", "p2")
     {5, 10, 1, 3, 7}
+
   """
   def get_stats_for_queue(stats, platform, queue) do
     wins = Map.get(stats, "br_placetop1_#{platform}_m0_#{queue}", 0)
@@ -40,6 +43,38 @@ defmodule FortniteApi.Stats do
     {games, kills, wins, top3, top5}
   end
 
+  @doc """
+  Extracts and format stats for the the duo bracket from the given
+  stats returned by Fortnite API and the given platform.
+
+  ## Examples:
+
+    iex> stats = [
+      %{
+        "name" => "br_score_pc_m0_p10",
+        "ownerType" => 1,
+        "value" => 703,
+        "window" => "alltime"
+      },
+      %{
+        "name" => "br_score_pc_m0_p9",
+        "ownerType" => 1,
+        "value" => 2669,
+        "window" => "alltime"
+      }...]
+    iex> Stats.get_duo_stats(stats, "pc")
+    %{"duo" => %{
+      "gamesPlayed" => 5,
+      "gamesWon" => 0,
+      "killDeathRatio" => 1.2,
+      "top1finishes" => 0,
+      "top3finishes" => 0,
+      "top5finishes" => 0
+    },
+      "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1},
+    }
+
+  """
   def get_duo_stats(stats, platform) do
     stats = format_stats(stats)
 

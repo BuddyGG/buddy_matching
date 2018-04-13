@@ -40,25 +40,25 @@ defmodule BuddyMatching.PlayerServer do
 
   # Handle calls with read - synchronous
   # Returns {:reply, <value returned to client>, <state>}
-  def handle_call({:read}, _from, list) do
-    {:reply, Map.values(list), list}
+  def handle_call({:read}, _from, state) do
+    {:reply, Map.values(state), state}
   end
 
   # Handle calls with count - synchronous
   # Returns {:reply, <value returned to client>, <state>}
-  def handle_call({:count}, _from, list) do
-    {:reply, Enum.count(list), list}
+  def handle_call({:count}, _from, state) do
+    {:reply, map_size(state), state}
   end
 
   # Handle call with add - synchronous
   # Merely add the player into the Map. Return :ok, if Player
   # was added, otherwise return :error.
   # Returns {:noreply, <value returned to client>, <state>}
-  def handle_call({:add, player}, _from, list) do
-    if Map.has_key?(list, player.name) do
-      {:reply, :error, list}
+  def handle_call({:add, player}, _from, state) do
+    if Map.has_key?(state, player.name) do
+      {:reply, :error, state}
     else
-      {:reply, :ok, Map.put_new(list, player.name, player)}
+      {:reply, :ok, Map.put_new(state, player.name, player)}
     end
   end
 

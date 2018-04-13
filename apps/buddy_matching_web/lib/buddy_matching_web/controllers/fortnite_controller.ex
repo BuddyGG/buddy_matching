@@ -3,7 +3,6 @@ defmodule BuddyMatchingWeb.FortniteController do
   action_fallback(BuddyMatchingWeb.FallbackController)
 
   alias FortniteApi
-  alias BuddyMatchingWeb.FortniteView
 
   @doc """
   Get request to stats for a fortnite player on a specific platform

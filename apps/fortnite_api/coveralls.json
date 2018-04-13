@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/fortnite_api.ex",
+    "lib/fortnite_api/access_server.ex",
+  ]
+}

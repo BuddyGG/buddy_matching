@@ -25,6 +25,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
 
   @doc """
   Returns the amount of players in the given region
+
   ## Examples
       iex> BuddyMatching.RegionMapper.count_players(:euw)
       10

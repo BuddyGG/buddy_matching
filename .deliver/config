@@ -17,6 +17,7 @@ pre_erlang_get_and_update_deps() {
     __sync_remote " # execute on build host
       cp $_secret_config_buddy_matching_web $BUILD_AT/apps/buddy_matching_web/config/buddy_matching_web.conf
       cp $_secret_config_riot_api $BUILD_AT/apps/riot_api/config/riot_api.conf
+      cp $_secret_config_fortnite_api $BUILD_AT/apps/riot_api/config/fortnite_api.conf
     "
   fi
 }

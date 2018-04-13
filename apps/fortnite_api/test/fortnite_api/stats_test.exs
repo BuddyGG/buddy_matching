@@ -111,7 +111,7 @@ defmodule FortniteApi.StatsTest do
     }
   ]
 
-  test "format_stats formats correctly" do
+  test "format_stats/1 formats correctly" do
     expected_output = %{
       "br_kills_pc_m0_p10" => 6,
       "br_kills_pc_m0_p2" => 2,
@@ -136,7 +136,7 @@ defmodule FortniteApi.StatsTest do
     assert expected_output == actual_output
   end
 
-  test "get_stats_for_queue fetches correct results" do
+  test "get_stats_for_queue/3 fetches correct results" do
     stats = Stats.format_stats(@fortnite_stats)
     {games, kills, wins, top3, top5} = Stats.get_stats_for_queue(stats, "pc", @duo)
 
@@ -145,5 +145,22 @@ defmodule FortniteApi.StatsTest do
     assert 0 == wins
     assert 0 == top3
     assert 0 == top5
+  end
+
+  test "get_duo_stats/2 correctly extracts and  formats duo pc stats from all stats" do
+    expected_output = %{
+      "duo" => %{
+        "gamesPlayed" => 5,
+        "gamesWon" => 0,
+        "killDeathRatio" => 1.2,
+        "top1finishes" => 0,
+        "top3finishes" => 0,
+        "top5finishes" => 0
+      },
+      "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1}
+    }
+
+    actual_output = Stats.get_duo_stats(@fortnite_stats, "pc")
+    assert expected_output == actual_output
   end
 end

@@ -249,6 +249,12 @@ defmodule BuddyMatching.MatchingTest do
     assert Matching.tier_compatible?(platinum3, diamond5)
   end
 
+  test "diamond3 and plat1 are compatible" do
+    platinum1 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}
+    diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
+    assert Matching.tier_compatible?(platinum1, diamond3)
+  end
+
   test "diamond4 and plat3 are incompatible" do
     platinum3 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 3}
     diamond4 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 4}

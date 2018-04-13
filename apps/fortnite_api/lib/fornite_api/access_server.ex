@@ -17,8 +17,10 @@ defmodule FortniteApi.AccessServer do
   @doc """
   Starts the AccessServer.
   ## Examples
-  iex> {:ok, pid} = FortniteApi.AccessServer.start_link
-  {:ok, #PID<0.246.0>}
+
+    iex> {:ok, pid} = FortniteApi.AccessServer.start_link
+    {:ok, #PID<0.246.0>}
+
   """
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -31,7 +33,9 @@ defmodule FortniteApi.AccessServer do
   These are described here:
   https://hexdocs.pm/elixir/GenServer.html#start_link/3
   ## Examples
-  iex> {:ok, pid} = FortniteApi.AcessServer.start_link
+  #
+    iex> {:ok, pid} = FortniteApi.AcessServer.start_link
+
   """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
@@ -56,7 +60,7 @@ defmodule FortniteApi.AccessServer do
     |> handle_json()
   end
 
-  # fetches an initial oauth token based on login creds
+  # Fetches an initial oauth token based on login creds
   defp fetch_oauth() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
@@ -77,7 +81,7 @@ defmodule FortniteApi.AccessServer do
     |> handle_json()
   end
 
-  # fetches an oauth exchange token based on initial oauth token
+  # Fetches an oauth exchange token based on initial oauth token
   defp fetch_oauth_exchange(access_token) do
     headers = get_headers_bearer(access_token)
 
@@ -86,7 +90,7 @@ defmodule FortniteApi.AccessServer do
     |> handle_json()
   end
 
-  # this results in the final valid access_token
+  # This results in the final valid access_token
   defp fetch_oauth(exchange_code) do
     client_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
     headers = get_headers_basic(client_token)
@@ -119,7 +123,7 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # returns an error tuple with the res from fetch_access_tokens/0
+  # Returns an error tuple with the res from fetch_access_tokens/0
   # or refresh_token/0 parsed and formatted as the state
   defp res_to_state(res) do
     OK.for do
@@ -132,8 +136,10 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # Called automatically by start_link
-  # Returns :ok and initial state of GenServer
+  @doc """
+  Called automatically by start_link.
+  Returns :ok and initial state of GenServer.
+  """
   def init(:ok) do
     OK.for do
       res <- fetch_access_tokens()
@@ -193,10 +199,12 @@ defmodule FortniteApi.AccessServer do
   Otherwise behaves identical to get_token/0
 
   ## Examples
-  iex> FortniteApi.AccessServer.force_refresh()
-  {:ok, token}
-  iex> FortniteApi.AccessServer.get_token()
-  {:error, "Couldn't refresh expired token"}
+
+    iex> FortniteApi.AccessServer.force_refresh()
+    {:ok, token}
+    iex> FortniteApi.AccessServer.get_token()
+    {:error, "Couldn't refresh expired token"}
+
   """
   def force_refresh() do
     GenServer.call(__MODULE__, {:force_refresh})
@@ -208,10 +216,12 @@ defmodule FortniteApi.AccessServer do
   prior to returning. If it could not be refreshed, an error will be returned.
 
   ## Examples
-  iex> FortniteApi.AccessServer.force_refresh()
-  {:ok, token}
-  iex> FortniteApi.AccessServer.get_token()
-  {:error, "Couldn't refresh expired token"}
+
+    iex> FortniteApi.AccessServer.force_refresh()
+    {:ok, token}
+    iex> FortniteApi.AccessServer.get_token()
+    {:error, "Couldn't refresh expired token"}
+
   """
   def get_token() do
     GenServer.call(__MODULE__, {:get_token})

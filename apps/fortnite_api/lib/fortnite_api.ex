@@ -34,10 +34,59 @@ defmodule FortniteApi do
     |> handle_json()
   end
 
-  def fetch_stats(username, platform) do
+  @doc """
+  Validates that the given platform is among the supported/expected
+  platforms that the API currently supports.
+
+  Returns an error tuple containing the lower case
+  representation of the given platform assuming it is valid.
+
+  ## Examples
+
+    iex> FortniteApi.validate_platform("PC")
+    {:ok, "pc"}
+    iex> FortniteApi.validate_platform("GAMEBOY")
+    {:error, "Bad paltform. Should be xb1/ps4/pc."}
+
+  """
+  def validate_platform(platform) do
+    platform
+    |> String.downcase()
+    |> case do
+      "xb1" -> {:ok, "xb1"}
+      "ps4" -> {:ok, "ps4"}
+      "pc" -> {:ok, "pc"}
+      _ -> {:error, "Bad platform. Should be xb1/ps4/pc."}
+    end
+  end
+
+  @doc """
+  Returns a map containing the given player's
+  stats for the given platform.
+
+  ## Examples
+
+    iex> FortniteApi.fetch_stats("Trollerenn", "PC")
+    {:ok,
+      %{"duo" => %{
+       "gamesPlayed" => 5,
+       "gamesWon" => 0,
+       "killDeathRatio" => 1.2,
+       "top1finishes" => 0,
+       "top3finishes" => 0,
+       "top5finishes" => 0
+     },
+     "platform" => "pc",
+     "total" => %{"gamesPlayed" => 27, "gamesWon" => 1},
+     "username" => "trollerenn"
+    }}
+
+  """
+  def fetch_stats(name, platform) do
     OK.for do
+      platform <- validate_platform(platform)
       access_token <- AccessServer.get_token()
-      account_info <- fetch_account_id(username, access_token)
+      account_info <- fetch_account_id(name, access_token)
       account_id <- Map.fetch(account_info, "id")
       display_name <- Map.fetch(account_info, "displayName")
       stats <- fetch_br_stats(account_id, access_token)

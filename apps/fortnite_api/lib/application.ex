@@ -11,8 +11,8 @@ defmodule FortniteApi.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    # Define workers and child supervisors to be supervised
-    children = [worker(AccessServer, [])]
+    # We don't want to start the AccessServer during testing
+    children = if Mix.env() != :test, do: [worker(AccessServer, [])], else: []
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

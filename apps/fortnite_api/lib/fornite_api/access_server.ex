@@ -43,6 +43,7 @@ defmodule FortniteApi.AccessServer do
   defp get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
   defp refresh_token(refresh_token) do
+    Logger.debug(fn -> "Refreshing access token for Fortnite API" end)
     key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
     headers = get_headers_basic(key_client)
 
@@ -105,6 +106,8 @@ defmodule FortniteApi.AccessServer do
   end
 
   defp fetch_access_tokens() do
+    Logger.debug(fn -> "Fetching new access token for Fortnite API" end)
+
     OK.for do
       oath <- fetch_oauth()
       access_token <- Map.fetch(oath, "access_token")
@@ -144,8 +147,6 @@ defmodule FortniteApi.AccessServer do
   # and returns true if the expiration is smaller than current time.
   defp is_expired?(expiration) do
     now = DateTime.utc_now()
-    IO.inspect(now, label: "now")
-    IO.inspect(expiration, label: "expiration")
 
     case DateTime.compare(now, expiration) do
       :lt -> false
@@ -174,8 +175,6 @@ defmodule FortniteApi.AccessServer do
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:get_token}, _from, {access, refresh, expiration} = state) do
     if is_expired?(expiration) do
-      IO.inspect("EXPIRED")
-
       case refresh_token(refresh) do
         {:ok, res} ->
           new_state = res_to_state(res)

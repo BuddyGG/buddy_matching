@@ -46,7 +46,7 @@ defmodule FortniteApi.AccessServer do
   defp get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
   defp get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
-  defp refresh_token(refresh_token) do
+  defp fetch_refreshed_tokens(refresh_token) do
     Logger.debug(fn -> "Refreshing access token for Fortnite API" end)
     key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
     headers = get_headers_basic(key_client)
@@ -158,35 +158,35 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
+  # Attempts to refresh tokens given a state, and returns
+  # a correctly formatted response from the AccessServer of format:
+  # {:reply, return_val, state}
+  defp refresh_tokens({_, refresh, _} = state) do
+    OK.try do
+      res <- fetch_refreshed_tokens(refresh)
+      new_state <- res_to_state(res)
+    after
+      {:reply, {:ok, elem(new_state, 0)}, new_state}
+    rescue
+      _ -> {:reply, {:error, "Couldn't refresh access token"}, state}
+    end
+  end
+
   # Forces a refresh of the access token before returning,
   # even if it has not expired yet.
   # Handle calls with read - synchronous.
   # Returns {:reply, <value returned to client>, <state>}
-  def handle_call({:force_refresh}, _from, {_, refresh, _} = state) do
-    case refresh_token(refresh) do
-      {:ok, res} ->
-        new_state = res_to_state(res)
-        {:reply, {:ok, elem(new_state, 0)}, new_state}
-
-      {:error, _} ->
-        {:reply, {:error, "Couldn't refresh access token"}, state}
-    end
+  def handle_call({:force_refresh}, _from, state) do
+    refresh_tokens(state)
   end
 
   # Returns the access token, refreshing it prior to return
   # if it has exceeded its expiration date.
   # Handle calls with read - synchronous
   # Returns {:reply, <value returned to client>, <state>}
-  def handle_call({:get_token}, _from, {access, refresh, expiration} = state) do
+  def handle_call({:get_token}, _from, {access, _refresh, expiration} = state) do
     if is_expired?(expiration) do
-      case refresh_token(refresh) do
-        {:ok, res} ->
-          new_state = res_to_state(res)
-          {:reply, {:ok, elem(new_state, 0)}, new_state}
-
-        {:error, _} ->
-          {:reply, {:error, "Couldn't refresh access token"}, state}
-      end
+      refresh_tokens(state)
     else
       {:reply, {:ok, access}, state}
     end

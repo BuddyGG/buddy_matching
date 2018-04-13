@@ -1,7 +1,10 @@
 defmodule FortniteApi do
   @moduledoc """
   This module handles all interaction with Fortnite's Unofficial API.
-  It is expected to be accessed through 'RiotApi.fetch_user_info/2'.
+  It is expected to be accessed through 'FortniteApi.fetch_stats/2'.
+
+  It is inspired by:
+  https://github.com/qlaffont/fortnite-api
   """
 
   require OK

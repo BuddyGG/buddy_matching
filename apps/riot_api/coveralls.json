@@ -1,5 +1,4 @@
 {
   "skip_files": [
-    "lib/riot_api.ex",
   ]
 }

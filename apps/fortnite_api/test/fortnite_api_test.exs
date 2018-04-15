@@ -111,6 +111,9 @@ defmodule FortniteApi.Test do
     }
   ]
 
+  defp success_response(value), do: {:ok, %{status_code: 200, body: value}}
+  defp error_response(value), do: {:error, %{status_code: 404, body: value}}
+
   defp account_id_url(username) do
     "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
       username
@@ -121,14 +124,6 @@ defmodule FortniteApi.Test do
     "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/#{
       account_id
     }/bulk/window/alltime"
-  end
-
-  defp success_response(value) do
-    {:ok, %{status_code: 200, body: value}}
-  end
-
-  defp error_response(value) do
-    {:error, %{status_code: 404, body: value}}
   end
 
   test "fetch_stats with correct access returns expected stats" do
@@ -189,23 +184,6 @@ defmodule FortniteApi.Test do
     stats_url = br_stats_url(account_id)
 
     id_response = Poison.encode!(%{"id" => account_id, "displayName" => username})
-    stats_response = Poison.encode!(@fortnite_stats)
-
-    expected_output =
-      {:ok,
-       %{
-         "username" => username,
-         "platform" => platform,
-         "duo" => %{
-           "gamesPlayed" => 5,
-           "gamesWon" => 0,
-           "killDeathRatio" => 1.2,
-           "top1finishes" => 0,
-           "top3finishes" => 0,
-           "top5finishes" => 0
-         },
-         "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1}
-       }}
 
     with_mocks([
       {HTTPoison, [],

@@ -18,8 +18,8 @@ defmodule FortniteApi.AccessServer do
   Starts the AccessServer.
   ## Examples
 
-    iex> {:ok, pid} = FortniteApi.AccessServer.start_link
-    {:ok, #PID<0.246.0>}
+  iex> {:ok, pid} = FortniteApi.AccessServer.start_link
+  {:ok, #PID<0.246.0>}
 
   """
   def start_link do
@@ -34,13 +34,14 @@ defmodule FortniteApi.AccessServer do
   https://hexdocs.pm/elixir/GenServer.html#start_link/3
   ## Examples
   #
-    iex> {:ok, pid} = FortniteApi.AcessServer.start_link
+  iex> {:ok, pid} = FortniteApi.AcessServer.start_link
 
   """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
+  defp initial_state(), do: {"", "", DateTime.utc_now()}
   defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
   def get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
@@ -61,7 +62,7 @@ defmodule FortniteApi.AccessServer do
   end
 
   # Fetches an initial oauth token based on login creds
-  def fetch_oauth() do
+  defp fetch_oauth() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
     launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
@@ -111,8 +112,8 @@ defmodule FortniteApi.AccessServer do
 
   defp fetch_access_tokens() do
     OK.for do
-      oath <- fetch_oauth()
-      access_token <- Map.fetch(oath, "access_token")
+      oauth <- fetch_oauth()
+      access_token <- Map.fetch(oauth, "access_token")
       exchange <- fetch_oauth_exchange(access_token)
       exchange_code <- Map.fetch(exchange, "code")
       res <- fetch_oauth(exchange_code)
@@ -143,12 +144,12 @@ defmodule FortniteApi.AccessServer do
   Returns :ok and initial state of GenServer.
   """
   def init(:ok) do
-    {:ok, {"", "", DateTime.utc_now()}}
+    {:ok, initial_state()}
   end
 
   # Compares the expiration of the token against current time
   # and returns true if the expiration is smaller than current time.
-  def is_expired?(expiration) do
+  defp is_expired?(expiration) do
     now = DateTime.utc_now()
 
     case DateTime.compare(now, expiration) do
@@ -162,14 +163,14 @@ defmodule FortniteApi.AccessServer do
   # the GenServer in the given state.
   # Returns a correctly formatted response from the AccessServer of format:
   # {:reply, return_val, state}
-  defp try_get_access_token(state) do
+  defp try_get_access_tokens(state) do
     OK.try do
       res <- fetch_access_tokens()
       new_state <- res_to_state(res)
     after
       {:reply, {:ok, elem(new_state, 0)}, new_state}
     rescue
-      _ -> {:reply, {:error, "Couldn't refresh nor get a new access token."}, state}
+      _ -> {:reply, {:error, "Couldn't refresh nor get a new access token"}, state}
     end
   end
 
@@ -184,7 +185,7 @@ defmodule FortniteApi.AccessServer do
     after
       {:reply, {:ok, elem(new_state, 0)}, new_state}
     rescue
-      _ -> try_get_access_token(state)
+      _ -> try_get_access_tokens(state)
     end
   end
 
@@ -208,16 +209,38 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
+  # Resets the AccessServer to its initial state
+  # with DateTime.utc_now as its expiration.
+  # Handle calls with read - synchronous
+  # Returns {:reply, <value returned to client>, <state>}
+  def handle_call({:reset}, _from, _state) do
+    {:reply, :ok, initial_state()}
+  end
+
+  @doc """
+  Forces the AccessServer to reset it's state.
+  The state will be {"", "", DateTime.utc_now}.
+  Primarily made for testing.
+
+  ## Examples
+
+  iex> FortniteApi.AccessServer.reset()
+  :ok
+  """
+  def reset() do
+    GenServer.call(__MODULE__, {:reset})
+  end
+
   @doc """
   Forces a refresh of the servers access token prior to returning.
   Otherwise behaves identical to get_token/0
 
   ## Examples
 
-    iex> FortniteApi.AccessServer.force_refresh()
-    {:ok, token}
-    iex> FortniteApi.AccessServer.get_token()
-    {:error, "Couldn't refresh expired token"}
+  iex> FortniteApi.AccessServer.force_refresh()
+  {:ok, token}
+  iex> FortniteApi.AccessServer.get_token()
+  {:error, "Couldn't refresh expired token"}
 
   """
   def force_refresh() do
@@ -231,10 +254,10 @@ defmodule FortniteApi.AccessServer do
 
   ## Examples
 
-    iex> FortniteApi.AccessServer.force_refresh()
-    {:ok, token}
-    iex> FortniteApi.AccessServer.get_token()
-    {:error, "Couldn't refresh expired token"}
+  iex> FortniteApi.AccessServer.force_refresh()
+  {:ok, token}
+  iex> FortniteApi.AccessServer.get_token()
+  {:error, "Couldn't refresh expired token"}
 
   """
   def get_token() do

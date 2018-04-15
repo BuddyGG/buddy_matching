@@ -121,7 +121,7 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # Returns an error tuple with the res from fetch_access_tokens/0
+  # Returns a result tuple with the res from fetch_access_tokens/0
   # or refresh_token/0 parsed and formatted as the state
   defp res_to_state(res) do
     OK.for do
@@ -158,17 +158,34 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # Attempts to refresh tokens given a state, and returns
-  # a correctly formatted response from the AccessServer of format:
+  # Attempts to get entirely new tokens given a state.
+  # If acquiring new tokens fails, returns an error stating so and leaves
+  # the GenServer in the given state.
+  # Returns a correctly formatted response from the AccessServer of format:
   # {:reply, return_val, state}
-  defp refresh_tokens({_, refresh, _} = state) do
+  defp try_get_access_token(state) do
+    OK.try do
+      res <- fetch_access_tokens()
+      new_state <- res_to_state(res)
+    after
+      {:reply, {:ok, elem(new_state, 0)}, new_state}
+    rescue
+      _ -> {:reply, {:error, "Couldn't refresh nor get a new access token."}, state}
+    end
+  end
+
+  # Attempts to refresh tokens given a state.
+  # If refreshing fails, tries to get a brand new access tokens.
+  # Returns a correctly formatted response from the AccessServer of format:
+  # {:reply, return_val, state}
+  defp try_refresh_tokens({_, refresh, _} = state) do
     OK.try do
       res <- fetch_refreshed_tokens(refresh)
       new_state <- res_to_state(res)
     after
       {:reply, {:ok, elem(new_state, 0)}, new_state}
     rescue
-      _ -> {:reply, {:error, "Couldn't refresh access token"}, state}
+      _ -> try_get_access_token(state)
     end
   end
 
@@ -177,7 +194,7 @@ defmodule FortniteApi.AccessServer do
   # Handle calls with read - synchronous.
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:force_refresh}, _from, state) do
-    refresh_tokens(state)
+    try_refresh_tokens(state)
   end
 
   # Returns the access token, refreshing it prior to return
@@ -186,7 +203,7 @@ defmodule FortniteApi.AccessServer do
   # Returns {:reply, <value returned to client>, <state>}
   def handle_call({:get_token}, _from, {access, _refresh, expiration} = state) do
     if is_expired?(expiration) do
-      refresh_tokens(state)
+      try_refresh_tokens(state)
     else
       {:reply, {:ok, access}, state}
     end

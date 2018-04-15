@@ -11,8 +11,8 @@ defmodule FortniteApi.AccessServer do
   alias Poison.Parser
   alias HTTPoison
 
-  @oath_token_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
-  @oath_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
+  @oauth_token_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
+  @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
 
   @doc """
   Starts the AccessServer.
@@ -43,8 +43,8 @@ defmodule FortniteApi.AccessServer do
 
   defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
-  defp get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
-  defp get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
+  def get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
+  def get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
   defp fetch_refreshed_tokens(refresh_token) do
     Logger.debug(fn -> "Refreshing access token for Fortnite API" end)
@@ -55,13 +55,13 @@ defmodule FortniteApi.AccessServer do
       {:form,
        [{"grant_type", "refresh_token"}, {"refresh_token", refresh_token}, {"includePerms", true}]}
 
-    @oath_token_url
+    @oauth_token_url
     |> HTTPoison.post(token_body, headers)
     |> handle_json()
   end
 
   # Fetches an initial oauth token based on login creds
-  defp fetch_oauth() do
+  def fetch_oauth() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
     launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
@@ -76,7 +76,7 @@ defmodule FortniteApi.AccessServer do
          {"includePerms", true}
        ]}
 
-    @oath_token_url
+    @oauth_token_url
     |> HTTPoison.post(token_body, headers)
     |> handle_json()
   end
@@ -85,7 +85,7 @@ defmodule FortniteApi.AccessServer do
   defp fetch_oauth_exchange(access_token) do
     headers = get_headers_bearer(access_token)
 
-    @oath_exchange_url
+    @oauth_exchange_url
     |> HTTPoison.get(headers)
     |> handle_json()
   end
@@ -104,7 +104,7 @@ defmodule FortniteApi.AccessServer do
          {"includePerms", true}
        ]}
 
-    @oath_token_url
+    @oauth_token_url
     |> HTTPoison.post(token_body, headers)
     |> handle_json()
   end
@@ -136,20 +136,19 @@ defmodule FortniteApi.AccessServer do
 
   @doc """
   Called automatically by start_link.
+  We instantiate the AccessServer with DateTime.utc_now/0
+  as its expiration, causing the server to try to get a new
+  access token next time it get_token/0 is called.
+
   Returns :ok and initial state of GenServer.
   """
   def init(:ok) do
-    OK.for do
-      res <- fetch_access_tokens()
-      state <- res_to_state(res)
-    after
-      state
-    end
+    {:ok, {"", "", DateTime.utc_now()}}
   end
 
   # Compares the expiration of the token against current time
   # and returns true if the expiration is smaller than current time.
-  defp is_expired?(expiration) do
+  def is_expired?(expiration) do
     now = DateTime.utc_now()
 
     case DateTime.compare(now, expiration) do

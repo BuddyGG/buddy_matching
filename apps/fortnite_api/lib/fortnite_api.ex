@@ -15,10 +15,9 @@ defmodule FortniteApi do
 
   defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
-  defp get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
   defp fetch_account_id(username, access_token) do
-    headers = get_headers_bearer(access_token)
+    headers = AccessServer.get_headers_bearer(access_token)
 
     "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
       username
@@ -28,7 +27,7 @@ defmodule FortniteApi do
   end
 
   defp fetch_br_stats(account_id, access_token) do
-    headers = get_headers_bearer(access_token)
+    headers = AccessServer.get_headers_bearer(access_token)
 
     "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/#{
       account_id

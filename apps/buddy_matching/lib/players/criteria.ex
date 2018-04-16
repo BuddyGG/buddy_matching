@@ -28,10 +28,23 @@ defmodule BuddyMatching.Players.Criteria do
   Validates that the given criteria json adheres to some reasonable bounds.
   Doesn't attempt to catch errors that may be apparent from merely
   parsing the json map.
+
+  Returns {:ok} if json is validate, otherwise returns an error tuple.
   """
   def validate_criteria_json(data) do
-    map_size(data["positions"]) <= @position_limit && map_size(data["voiceChat"]) <= @voice_limit &&
-      map_size(data["ageGroups"]) <= @age_group_limit
+    cond do
+      map_size(data["positions"]) > @position_limit ->
+        {:error, "Too many positions in criteria"}
+
+      map_size(data["ageGroups"]) > @age_group_limit ->
+        {:error, "Too many age groups in criteria"}
+
+      map_size(data["voiceChat"]) > @voice_limit ->
+        {:error, "Too many values for voice chat in criteria"}
+
+      true ->
+        {:ok}
+    end
   end
 
   defp voice_parse("YES"), do: true

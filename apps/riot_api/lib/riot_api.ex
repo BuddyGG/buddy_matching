@@ -10,13 +10,8 @@ defmodule RiotApi do
   alias RiotApi.Champions
   alias Poison.Parser
 
-  defp handle_json({:ok, %{status_code: 200, body: body}}) do
-    {:ok, Parser.parse!(body)}
-  end
-
-  defp handle_json({_, %{status_code: _, body: body}}) do
-    {:error, body}
-  end
+  defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
+  defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
 
   defp parse_json(data) do
     data

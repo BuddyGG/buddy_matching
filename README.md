@@ -6,7 +6,8 @@
 Somewhat Generic player matching service built with Phoenix, utilizing GenServers and sockets to avoid having an underlying database. 
 
 The application is structered as an umbrella consisting of 3 apps.
-- [riot_api](/apps/riot_api) for integration of Riot's API
+- [riot_api](/apps/riot_api) for integration with Riot's API
+- [fortnite_api](/apps/fortnite_api) for integration with Fortnite's unofficial API
 - [buddy_matching](apps/buddy_matching) for in-memory storage of connected players and matching logic
 - [buddy_matching_web](apps/buddy_matching_web) main phoenix app from which the matching and API is exposed
 

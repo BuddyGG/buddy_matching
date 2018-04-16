@@ -33,8 +33,8 @@ defmodule FortniteApi.AccessServer do
   These are described here:
   https://hexdocs.pm/elixir/GenServer.html#start_link/3
   ## Examples
-  #
-  iex> {:ok, pid} = FortniteApi.AcessServer.start_link
+  iex> {:ok, pid} = FortniteApi.AcessServer.start_link([])
+  {:ok, #PID<0.246.0>}
 
   """
   def start_link(opts) do
@@ -44,7 +44,27 @@ defmodule FortniteApi.AccessServer do
   defp initial_state(), do: {"", "", DateTime.utc_now()}
   defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
+
+  @doc """
+  Returns the required authorization headers with bearer prefix for the given token"
+
+  ## Examples
+  #
+    iex> AccessServer.get_headers_basic("token")
+    [{"Authorization", "basic token"}]
+
+  """
   def get_headers_basic(token), do: [{"Authorization", "basic #{token}"}]
+
+  @doc """
+  Returns the required authorization headers with bearer prefix for the given token"
+
+  ## Examples
+
+    iex> AccessServer.get_headers_bearer("token")
+    [{"Authorization", "bearer token"}]
+
+  """
   def get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
   defp fetch_refreshed_tokens(refresh_token) do
@@ -110,6 +130,8 @@ defmodule FortniteApi.AccessServer do
     |> handle_json()
   end
 
+  # Executes the full set of requests needed to
+  # retrieve a new access token.
   defp fetch_access_tokens() do
     OK.for do
       oauth <- fetch_oauth()
@@ -189,18 +211,24 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # Forces a refresh of the access token before returning,
-  # even if it has not expired yet.
-  # Handle calls with read - synchronous.
-  # Returns {:reply, <value returned to client>, <state>}
+  @doc """
+  Forces a refresh of the access token before returning,
+  even if it has not expired yet.
+  Handle calls with read - synchronous.
+
+  Returns {:reply, <value returned to client>, <state>}
+  """
   def handle_call({:force_refresh}, _from, state) do
     try_refresh_tokens(state)
   end
 
-  # Returns the access token, refreshing it prior to return
-  # if it has exceeded its expiration date.
-  # Handle calls with read - synchronous
-  # Returns {:reply, <value returned to client>, <state>}
+  @doc """
+  Returns the access token, refreshing it prior to return
+  if it has exceeded its expiration date.
+  Handle calls with read - synchronous
+
+  Returns {:reply, <value returned to client>, <state>}
+  """
   def handle_call({:get_token}, _from, {access, _refresh, expiration} = state) do
     if is_expired?(expiration) do
       try_refresh_tokens(state)
@@ -209,10 +237,13 @@ defmodule FortniteApi.AccessServer do
     end
   end
 
-  # Resets the AccessServer to its initial state
-  # with DateTime.utc_now as its expiration.
-  # Handle calls with read - synchronous
-  # Returns {:reply, <value returned to client>, <state>}
+  @doc """
+  Resets the AccessServer to its initial state
+  with DateTime.utc_now as its expiration.
+  Handle calls with read - synchronous
+
+  Returns {:reply, <value returned to client>, <state>}
+  """
   def handle_call({:reset}, _from, _state) do
     {:reply, :ok, initial_state()}
   end

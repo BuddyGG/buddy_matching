@@ -44,4 +44,26 @@ defmodule BuddyMatching.CriteriaTest do
     expected_age_groups = ["interval1"]
     assert expected_age_groups == Criteria.age_groups_from_json(input)
   end
+
+  test "too many positions is invalid" do
+    data = Poison.Parser.parse!(@criteria)
+    bad_data = Map.update!(data, "positions", &Map.put(&1, "AFK", true))
+    assert Criteria.validate_criteria_json(bad_data) == {:error, "Too many positions in criteria"}
+  end
+
+  test "too many age groups is invalid" do
+    data = Poison.Parser.parse!(@criteria)
+    bad_data = Map.update!(data, "ageGroups", &Map.put(&1, "interval4", true))
+
+    assert Criteria.validate_criteria_json(bad_data) ==
+             {:error, "Too many age groups in criteria"}
+  end
+
+  test "too many voice chat values is invalid" do
+    data = Poison.Parser.parse!(@criteria)
+    bad_data = Map.update!(data, "voiceChat", &Map.put(&1, "MAYBE", true))
+
+    assert Criteria.validate_criteria_json(bad_data) ==
+             {:error, "Too many values for voice chat in criteria"}
+  end
 end

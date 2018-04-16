@@ -11,7 +11,7 @@ defmodule BuddyMatching.Players.Player do
   @language_limit 5
   @champion_limit 3
 
-  # This module relies on the atoms defined in the Riot api module, 
+  # This module relies on the atoms defined in the Riot api module,
   # Load_atoms ensues that these are loaded before we use the module
   @on_load :load_atoms
   def load_atoms() do
@@ -102,11 +102,8 @@ defmodule BuddyMatching.Players.Player do
           String.length(data["userInfo"]["comment"]) > @comment_char_limit ->
         {:error, "Comment too long"}
 
-      !Criteria.validate_criteria_json(data["userInfo"]["criteria"]) ->
-        {:error, "Bad criteria"}
-
       true ->
-        {:ok}
+        Criteria.validate_criteria_json(data["userInfo"]["criteria"])
     end
   end
 

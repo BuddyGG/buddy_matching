@@ -11,6 +11,14 @@ defmodule BuddyMatching.Players.Player do
   @language_limit 5
   @champion_limit 3
 
+  # This module relies on the atoms defined in the Riot api module, 
+  # Load_atoms ensues that these are loaded before we use the module
+  @on_load :load_atoms
+  def load_atoms() do
+    Code.ensure_loaded?(RiotApi)
+    :ok
+  end
+
   @doc """
   id => A unique identifier for the player
   name => The player's name

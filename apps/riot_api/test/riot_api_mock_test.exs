@@ -36,4 +36,48 @@ defmodule RiotApi.ApiMockTest do
       assert {:ok, {^name, ^id, ^account_id, ^icon_id}} = RiotApi.summoner_info("Lethly", :euw)
     end
   end
+
+  test "leagues returns correct tuple for placed players" do
+    account_id = "account_id"
+    id = "id"
+
+    response =
+      Poison.encode!([
+        %{
+          "playerOrTeamId" => "22267137",
+          "playerOrTeamName" => "Lethly",
+          "queueType" => "RANKED_FLEX_SR",
+          "rank" => "I",
+          "tier" => "GOLD",
+          "veteran" => false,
+          "wins" => 23
+        },
+        %{
+          "freshBlood" => false,
+          "hotStreak" => false,
+          "inactive" => false,
+          "leagueId" => "3fe0b370-1eb3-11e8-9170-c81f66dd2a8f",
+          "leagueName" => "Fiddlesticks's Elite",
+          "leaguePoints" => 75,
+          "losses" => 10,
+          "playerOrTeamId" => "22267137",
+          "playerOrTeamName" => "Lethly",
+          "queueType" => "RANKED_SOLO_5x5",
+          "rank" => "I",
+          "tier" => "GOLD",
+          "veteran" => false,
+          "wins" => 10
+        }
+      ])
+
+    url = Regions.endpoint(:euw) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{@key}"
+
+    with_mock(
+      HTTPoison,
+      get: fn ^url -> success_response(response) end
+    ) do
+      assert {:ok, %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}} =
+               RiotApi.leagues(id, account_id, :euw)
+    end
+  end
 end

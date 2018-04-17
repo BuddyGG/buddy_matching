@@ -1,4 +1,4 @@
-defmodule FortniteApi.AccessServerTest do
+defmodule FortniteApi.AccessServerMockTest do
   alias FortniteApi.AccessServer
   alias FortniteApi.AccessServer
   use ExUnit.Case, async: false
@@ -13,12 +13,15 @@ defmodule FortniteApi.AccessServerTest do
   @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
   @token "MOCK_TOKEN"
 
-  setup do
-    AccessServer.reset()
+  setup_all do
     Application.put_env(:fortnite_api, :fortnite_api_email, @email)
     Application.put_env(:fortnite_api, :fortnite_api_password, @password)
     Application.put_env(:fortnite_api, :fortnite_api_key_client, @key_client)
     Application.put_env(:fortnite_api, :fortnite_api_key_launcher, @key_launcher)
+  end
+
+  setup do
+    AccessServer.reset()
   end
 
   defp success_response(value), do: {:ok, %{status_code: 200, body: value}}

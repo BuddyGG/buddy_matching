@@ -10,20 +10,85 @@ defmodule RiotApi do
   alias RiotApi.Champions
   alias Poison.Parser
 
+  # https://developer.riotgames.com/game-constants.html
+  @solo "420"
+
   defp handle_json({:ok, %{status_code: 200, body: body}}), do: {:ok, Parser.parse!(body)}
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
 
-  defp parse_json(data) do
-    data
+  @doc """
+  Function for sending a sending a request to Riot's API.
+  The given path will be prepended with the given region's endpoint
+  and the API-key from the environment will be appended to the final url query.
+  HTTPoison will retrieve the result and it will be returned parsed by Poison
+  in a result tuple.
+
+  ## Examples
+    iex> RiotApi.request("/lol/summoner/v3/summoners/by-name/Lethly", :euw)
+    {:ok %{"name" => "Lethly"...}}
+  """
+  def request(path, region) do
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
+
+    region
+    |> Regions.endpoint()
+    |> Kernel.<>("#{path}?api_key=#{key}")
     |> HTTPoison.get()
-    |> handle_json
+    |> handle_json()
   end
 
   defp fetch_summoner(name, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
+    "/lol/summoner/v3/summoners/by-name/#{name}"
+    |> request(region)
+  end
 
-    (Regions.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}")
-    |> parse_json
+  defp fetch_champions(id, region) do
+    "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}"
+    |> request(region)
+  end
+
+  # Fetches the last 20 matches of any queue type for given account id
+  defp fetch_recent_matches(account_id, region) do
+    "/lol/match/v3/matchlists/by-account/#{account_id}/recent"
+    |> request(region)
+  end
+
+  defp fetch_matches_for_queue(account_id, queue, region) do
+    "/lol/match/v3/matchlists/by-account/#{account_id}?queue=#{queue}&endIndex=1"
+    |> request(region)
+  end
+
+  defp fetch_match(match_id, region) do
+    "/lol/match/v3/matches/#{match_id}"
+    |> request(region)
+  end
+
+  defp fetch_leagues(id, region) do
+    "/lol/league/v3/positions/by-summoner/#{id}"
+    |> request(region)
+  end
+
+  defp name_from_id(id), do: Champions.find_by_id(id).name
+
+  defp deromanize(rank) do
+    case rank do
+      "I" -> 1
+      "II" -> 2
+      "III" -> 3
+      "IV" -> 4
+      "V" -> 5
+    end
+  end
+
+  # Utility function mostly to ensure that Challengers and Masters don't get
+  # rank 1, as Riot shows this internally despite there being no such thing.
+  defp parse_league(leagueInfo) do
+    tier = leagueInfo["tier"]
+
+    rank =
+      if tier == "CHALLENGER" || tier == "MASTER", do: nil, else: deromanize(leagueInfo["rank"])
+
+    %{type: leagueInfo["queueType"], tier: tier, rank: rank}
   end
 
   @doc """
@@ -42,26 +107,6 @@ defmodule RiotApi do
     after
       {name, id, account_id, icon_id}
     end
-  end
-
-  defp deromanize(rank) do
-    case rank do
-      "I" -> 1
-      "II" -> 2
-      "III" -> 3
-      "IV" -> 4
-      "V" -> 5
-    end
-  end
-
-  defp name_from_id(id), do: Champions.find_by_id(id).name
-
-  defp fetch_champions(id, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-
-    (Regions.endpoint(region) <>
-       "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}")
-    |> parse_json
   end
 
   @doc """
@@ -203,23 +248,10 @@ defmodule RiotApi do
     {:ok, %{"gameCreation" => 1515525992929, "gameDuration" => 1382...}}
   """
   def fetch_last_solo_match(account_id, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-
     OK.for do
-      %{"matches" => matches} <-
-        region
-        |> Regions.endpoint()
-        |> Kernel.<>("/lol/match/v3/matchlists/by-account/#{account_id}")
-        |> Kernel.<>("?queue=420&endIndex=1&api_key=#{key}")
-        |> parse_json
-
+      %{"matches" => matches} <- fetch_matches_for_queue(account_id, @solo, region)
       first = List.first(matches)["gameId"]
-
-      last_game <-
-        region
-        |> Regions.endpoint()
-        |> Kernel.<>("/lol/match/v3/matches/#{first}?api_key=#{key}")
-        |> parse_json
+      last_game <- fetch_match(first, region)
     after
       last_game
     end
@@ -237,14 +269,6 @@ defmodule RiotApi do
     match["participants"]
     |> Enum.find(fn %{"participantId" => id} -> participant_id == id end)
     |> Map.get("highestAchievedSeasonTier")
-  end
-
-  # Fetches the last 20 matches of any queue type for given account id
-  defp fetch_recent_matches(id, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-
-    (Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}")
-    |> parse_json
   end
 
   @doc """
@@ -268,24 +292,6 @@ defmodule RiotApi do
         tier -> %{rank: nil, tier: tier, type: "RANKED_SOLO_5x5"}
       end
     end
-  end
-
-  def fetch_leagues(id, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-
-    (Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}")
-    |> parse_json
-  end
-
-  # Utility function mostly to ensure that Challengers and Masters don't get
-  # rank 1, as Riot shows this internally despite there being no such thing.
-  defp parse_league(leagueInfo) do
-    tier = leagueInfo["tier"]
-
-    rank =
-      if tier == "CHALLENGER" || tier == "MASTER", do: nil, else: deromanize(leagueInfo["rank"])
-
-    %{type: leagueInfo["queueType"], tier: tier, rank: rank}
   end
 
   @doc """

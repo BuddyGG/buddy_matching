@@ -15,30 +15,16 @@ defmodule FortniteApi.AccessServer do
   @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
 
   @doc """
-  Starts the AccessServer.
-  ## Examples
+  Starts the AcessServer as a singleton registered
+  with the name of the module.
 
-  iex> {:ok, pid} = FortniteApi.AccessServer.start_link
+  ## Examples
+  iex> {:ok, pid} = FortniteApi.AcessServer.start_link()
   {:ok, #PID<0.246.0>}
 
   """
-  def start_link do
+  def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  @doc """
-  This specific initializer is used by ExUnit.
-
-  Starts the AcessServer with potential options.
-  These are described here:
-  https://hexdocs.pm/elixir/GenServer.html#start_link/3
-  ## Examples
-  iex> {:ok, pid} = FortniteApi.AcessServer.start_link([])
-  {:ok, #PID<0.246.0>}
-
-  """
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
   end
 
   defp initial_state(), do: {"", "", DateTime.utc_now()}

@@ -98,6 +98,13 @@ defmodule BuddyMatching.PlayerTest do
     assert expected_positions == Player.positions_from_json(input)
   end
 
+  test "from json returns error when json is invalid" do
+    data = Poison.Parser.parse!(@player)
+    long_name = String.duplicate("a", 17)
+    bad_data = Map.put(data, "name", long_name)
+    assert {:error, "Bad player json because: Name too long"} = Player.from_json(bad_data)
+  end
+
   test "test that languages are correctly parsed and sorted with english" do
     input = ["DK", "KR", "EN", "FR"]
     expected_languages = ["EN", "DK", "FR", "KR"]

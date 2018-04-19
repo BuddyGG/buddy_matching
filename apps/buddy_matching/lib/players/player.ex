@@ -66,7 +66,7 @@ defmodule BuddyMatching.Players.Player do
         {:ok, player}
 
       {:error, reason} ->
-        {:error, "Bad player json because #{reason}"}
+        {:error, "Bad player json because: #{reason}"}
     end
   end
 

@@ -17,6 +17,23 @@ defmodule RiotApi do
   defp handle_json({_, %{status_code: _, body: body}}), do: {:error, body}
 
   @doc """
+  Given a path and a region, formats the correct url with endpoint
+  decided based on the given region, and the API-key correctly appended.
+
+  ## Examples
+    iex> RiotApi.format_url("hello", :euw)
+    "https://euw1.api.riotgames.com/hello?api_key=APIKEY"
+  """
+  def format_url(path, region) do
+    key = Application.fetch_env!(:riot_api, :riot_api_key)
+    separator = if String.contains?(path, "?"), do: "&", else: "?"
+
+    region
+    |> Regions.endpoint()
+    |> Kernel.<>("#{path}#{separator}api_key=#{key}")
+  end
+
+  @doc """
   Function for sending a sending a request to Riot's API.
   The given path will be prepended with the given region's endpoint
   and the API-key from the environment will be appended to the final url query.
@@ -28,12 +45,8 @@ defmodule RiotApi do
     {:ok %{"name" => "Lethly"...}}
   """
   def request(path, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-    separator = if String.contains?(path, "?"), do: "&", else: "?"
-
-    region
-    |> Regions.endpoint()
-    |> Kernel.<>("#{path}#{separator}api_key=#{key}")
+    path
+    |> format_url(region)
     |> HTTPoison.get()
     |> handle_json()
   end

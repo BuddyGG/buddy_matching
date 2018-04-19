@@ -1,73 +1,101 @@
 defmodule RiotApi.ApiMockTest do
   @moduledoc """
-  Contains unpleasant but somewhat meaningful
-  integration tests of RiotApi.
-
-  We may consider refactoring all the datatypes that we encode
-  with Poison to get the JSON of into .json files eventually.
+  Contains integration tests for Riot's API.
+  All related .json files are taking directly from Riot's API,
+  with mere slight modifications to reduce the amount of hardcoded
+  IDs needed.
   """
 
   alias RiotApi
-  alias RiotApi.Regions
   use ExUnit.Case, async: false
 
   import Mock
-  @key "API_KEY"
 
+  # Sets up a bunch of hardcoded values, all of which align with the JSON
+  # in the read .json files, all of which have been retrieved directly from Riot's API.
   setup_all do
-    Application.put_env(:riot_api, :riot_api_key, @key)
+    key = "API_KEY"
+    region = :euw
+
+    # Summoner info
+    name = "Lethly"
+    id = 22_267_137
+    account_id = 26_102_926
+    icon_id = 1407
+
+    match_id = 3_412_307_012
+    Application.put_env(:riot_api, :riot_api_key, key)
+
+    summoner_url = RiotApi.format_url("/lol/summoner/v3/summoners/by-name/#{name}", region)
+
+    matchlist_url =
+      RiotApi.format_url("/lol/match/v3/matchlists/by-account/#{account_id}/recent", region)
+
+    leagues_url = RiotApi.format_url("/lol/league/v3/positions/by-summoner/#{id}", region)
+
+    solo_match_url =
+      RiotApi.format_url(
+        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=1",
+        region
+      )
+
+    match_url = RiotApi.format_url("/lol/match/v3/matches/#{match_id}", region)
+
+    summoner_json = File.read!("test/mock_json/summoner.json")
+    matchlist_json = File.read!("test/mock_json/matchlist.json")
+    leagues_json = File.read!("test/mock_json/leagues.json")
+    leagues_unranked_json = File.read!("test/mock_json/leagues_unranked.json")
+    solo_match_json = File.read!("test/mock_json/solo_match.json")
+    match_json = File.read!("test/mock_json/match.json")
+    match_unranked_json = File.read!("test/mock_json/match_unranked.json")
+
+    [
+      region: region,
+      name: name,
+      id: id,
+      account_id: account_id,
+      icon_id: icon_id,
+      match_id: icon_id,
+      summoner_url: summoner_url,
+      matchlist_url: matchlist_url,
+      leagues_url: leagues_url,
+      solo_match_url: solo_match_url,
+      match_url: match_url,
+      summoner_json: summoner_json,
+      matchlist_json: matchlist_json,
+      leagues_json: leagues_json,
+      leagues_unranked_json: leagues_unranked_json,
+      solo_match_json: solo_match_json,
+      match_json: match_json,
+      match_unranked_json: match_unranked_json
+    ]
   end
 
   defp success_response(value), do: {:ok, %{status_code: 200, body: value}}
   defp error_response(value), do: {:error, %{status_code: 404, body: value}}
 
-  test "summoner_info returns correct tuple" do
-    name = "Lethly"
-    account_id = "account_id"
-    id = "id"
-    icon_id = "icon_id"
-
-    response =
-      Poison.encode!(%{
-        "name" => name,
-        "accountId" => account_id,
-        "id" => id,
-        "profileIconId" => icon_id
-      })
-
-    url = Regions.endpoint(:euw) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{@key}"
+  test "summoner_info returns correct tuple", context do
+    name = context[:name]
+    account_id = context[:account_id]
+    id = context[:id]
+    url = context[:summoner_url]
+    region = context[:region]
+    icon_id = context[:icon_id]
+    response = context[:summoner_json]
 
     with_mock(
       HTTPoison,
       get: fn ^url -> success_response(response) end
     ) do
-      assert {:ok, {^name, ^id, ^account_id, ^icon_id}} = RiotApi.summoner_info("Lethly", :euw)
+      assert {:ok, {^name, ^id, ^account_id, ^icon_id}} = RiotApi.summoner_info(name, region)
     end
   end
 
-  test "leagues returns correct tuple for placed players" do
-    account_id = "account_id"
-    id = "id"
-
-    response =
-      Poison.encode!([
-        %{
-          "playerOrTeamName" => "Lethly",
-          "queueType" => "RANKED_FLEX_SR",
-          "rank" => "I",
-          "tier" => "GOLD",
-          "wins" => 23
-        },
-        %{
-          "playerOrTeamName" => "Lethly",
-          "queueType" => "RANKED_SOLO_5x5",
-          "rank" => "I",
-          "tier" => "GOLD",
-          "wins" => 10
-        }
-      ])
-
-    url = Regions.endpoint(:euw) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{@key}"
+  test "leagues returns correct tuple for placed players", context do
+    id = context[:id]
+    account_id = context[:account_id]
+    url = context[:leagues_url]
+    response = context[:leagues_json]
 
     with_mock(
       HTTPoison,
@@ -78,145 +106,46 @@ defmodule RiotApi.ApiMockTest do
     end
   end
 
-  test "leagues with no rank finds rank from border" do
-    name = "UghUgh"
-    account_id = "account_id"
-    tier = "GOLD"
-    id = "id"
-    match_id = 3_412_307_012
+  test "leagues with no rank finds rank from border", context do
+    account_id = context[:account_id]
+    id = context[:id]
+    leagues_url = context[:leagues_url]
+    solo_match_url = context[:solo_match_url]
+    match_url = context[:match_url]
 
-    leagues_response = Poison.encode!([])
-
-    matches_response =
-      Poison.encode!(%{
-        "endIndex" => 1,
-        "matches" => [
-          %{
-            "gameId" => match_id,
-            "queue" => 420,
-            "season" => 10
-          }
-        ],
-        "startIndex" => 0,
-        "totalGames" => 12
-      })
-
-    match_response =
-      Poison.encode!(%{
-        "gameId" => match_id,
-        "participantIdentities" => [
-          %{
-            "participantId" => 1,
-            "player" => %{
-              "accountId" => 29_828_824,
-              "currentAccountId" => 229_908_104,
-              "summonerId" => 92_397_010,
-              "summonerName" => "GG PREGNANT GG"
-            }
-          },
-          %{
-            "participantId" => 10,
-            "player" => %{
-              "accountId" => 24_332_475,
-              "currentAccountId" => account_id,
-              "summonerId" => 20_968_894,
-              "summonerName" => name
-            }
-          }
-        ],
-        "participants" => [
-          %{
-            "championId" => 126,
-            "highestAchievedSeasonTier" => "SILVER",
-            "participantId" => 1
-          },
-          %{
-            "championId" => 412,
-            "highestAchievedSeasonTier" => tier,
-            "participantId" => 10
-          }
-        ]
-      })
-
-    leagues_url =
-      Regions.endpoint(:euw) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{@key}"
-
-    matches_url =
-      Regions.endpoint(:euw) <>
-        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=1&api_key=#{@key}"
-
-    match_url = Regions.endpoint(:euw) <> "/lol/match/v3/matches/#{match_id}?api_key=#{@key}"
+    leagues_response = context[:leagues_unranked_json]
+    solo_match_response = context[:matchlist_json]
+    match_response = context[:match_json]
 
     with_mock(
       HTTPoison,
       get: fn
         ^leagues_url -> success_response(leagues_response)
-        ^matches_url -> success_response(matches_response)
+        ^solo_match_url -> success_response(solo_match_response)
         ^match_url -> success_response(match_response)
       end
     ) do
-      assert {:ok, %{type: "RANKED_SOLO_5x5", tier: ^tier, rank: nil}} =
+      assert {:ok, %{type: "RANKED_SOLO_5x5", tier: "GOLD", rank: nil}} =
                RiotApi.leagues(id, account_id, :euw)
     end
   end
 
-  test "leagues return unranked if cannot find league or border" do
-    name = "UghUgh"
-    account_id = "account_id"
-    id = "id"
-    match_id = 3_412_307_012
+  test "leagues return unranked if cannot find league or border", context do
+    id = context[:id]
+    account_id = context[:account_id]
+    leagues_url = context[:leagues_url]
+    solo_match_url = context[:solo_match_url]
+    match_url = context[:match_url]
 
-    leagues_response = Poison.encode!([])
-
-    matches_response =
-      Poison.encode!(%{
-        "endIndex" => 1,
-        "matches" => [
-          %{
-            "gameId" => match_id,
-            "queue" => 420,
-            "season" => 10
-          }
-        ],
-        "startIndex" => 0,
-        "totalGames" => 12
-      })
-
-    match_response =
-      Poison.encode!(%{
-        "gameId" => match_id,
-        "participantIdentities" => [
-          %{
-            "participantId" => 10,
-            "player" => %{
-              "accountId" => 24_332_475,
-              "currentAccountId" => account_id,
-              "summonerId" => 20_968_894,
-              "summonerName" => name
-            }
-          }
-        ],
-        "participants" => [
-          %{
-            "participantId" => 10
-          }
-        ]
-      })
-
-    leagues_url =
-      Regions.endpoint(:euw) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{@key}"
-
-    matches_url =
-      Regions.endpoint(:euw) <>
-        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=1&api_key=#{@key}"
-
-    match_url = Regions.endpoint(:euw) <> "/lol/match/v3/matches/#{match_id}?api_key=#{@key}"
+    leagues_response = context[:leagues_unranked_json]
+    solo_match_response = context[:solo_match_json]
+    match_response = context[:match_unranked_json]
 
     with_mock(
       HTTPoison,
       get: fn
         ^leagues_url -> success_response(leagues_response)
-        ^matches_url -> success_response(matches_response)
+        ^solo_match_url -> success_response(solo_match_response)
         ^match_url -> success_response(match_response)
       end
     ) do
@@ -225,227 +154,73 @@ defmodule RiotApi.ApiMockTest do
     end
   end
 
-  test "test recent_roles_and_champions return expected result" do
-    account_id = "account_id"
-
-    response =
-      Poison.encode!(%{
-        "endIndex" => 20,
-        "matches" => [
-          %{
-            "champion" => 96,
-            "gameId" => 3_519_943_052,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_872_970_404
-          },
-          %{
-            "champion" => 67,
-            "gameId" => 3_519_875_372,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_871_086_573
-          },
-          %{
-            "champion" => 18,
-            "gameId" => 3_519_774_631,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_868_504_830
-          },
-          %{
-            "champion" => 81,
-            "gameId" => 3_514_813_204,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_518_514_148
-          },
-          %{
-            "champion" => 67,
-            "gameId" => 3_514_757_585,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_516_359_344
-          },
-          %{
-            "champion" => 67,
-            "gameId" => 3_512_457_989,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_335_834_667
-          },
-          %{
-            "champion" => 119,
-            "gameId" => 3_512_407_579,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_333_986_834
-          },
-          %{
-            "champion" => 18,
-            "gameId" => 3_512_218_275,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_327_289_385
-          },
-          %{
-            "champion" => 81,
-            "gameId" => 3_510_365_638,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_164_978_985
-          },
-          %{
-            "champion" => 101,
-            "gameId" => 3_510_334_190,
-            "lane" => "MID",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "SOLO",
-            "season" => 11,
-            "timestamp" => 1_517_163_534_188
-          },
-          %{
-            "champion" => 81,
-            "gameId" => 3_509_035_691,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_087_854_736
-          },
-          %{
-            "champion" => 67,
-            "gameId" => 3_508_975_717,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_085_164_433
-          },
-          %{
-            "champion" => 67,
-            "gameId" => 3_508_932_343,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_083_116_545
-          },
-          %{
-            "champion" => 8,
-            "gameId" => 3_508_745_758,
-            "lane" => "TOP",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "SOLO",
-            "season" => 11,
-            "timestamp" => 1_517_073_157_652
-          },
-          %{
-            "champion" => 134,
-            "gameId" => 3_508_687_278,
-            "lane" => "MID",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "SOLO",
-            "season" => 11,
-            "timestamp" => 1_517_070_429_203
-          },
-          %{
-            "champion" => 18,
-            "gameId" => 3_508_638_736,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO",
-            "season" => 11,
-            "timestamp" => 1_517_068_971_445
-          },
-          %{
-            "champion" => 126,
-            "gameId" => 3_508_576_073,
-            "lane" => "TOP",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "SOLO",
-            "season" => 11,
-            "timestamp" => 1_517_065_758_841
-          },
-          %{
-            "champion" => 18,
-            "gameId" => 3_508_519_747,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 420,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_063_335_028
-          },
-          %{
-            "champion" => 53,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_SUPPORT",
-            "season" => 11,
-            "timestamp" => 1_517_007_436_196
-          },
-          %{
-            "champion" => 96,
-            "gameId" => 3_507_655_197,
-            "lane" => "BOTTOM",
-            "platformId" => "EUW1",
-            "queue" => 440,
-            "role" => "DUO_CARRY",
-            "season" => 11,
-            "timestamp" => 1_517_005_218_031
-          }
-        ],
-        "startIndex" => 0,
-        "totalGames" => 133
-      })
-
-    url =
-      Regions.endpoint(:euw) <>
-        "/lol/match/v3/matchlists/by-account/#{account_id}/recent?api_key=#{@key}"
+  test "recent_roles_and_champions happy path integration test", context do
+    account_id = context[:account_id]
+    url = context[:matchlist_url]
+    region = context[:region]
+    response = context[:matchlist_json]
 
     with_mock(
       HTTPoison,
       get: fn ^url -> success_response(response) end
     ) do
       assert {:ok, {["Vayne", "Tristana", "Ezreal"], [:marksman, :mid]}} =
-               RiotApi.recent_champions_and_roles(account_id, :euw)
+               RiotApi.recent_champions_and_roles(account_id, region)
+    end
+  end
+
+  test "fetch_summoner_info integration test", context do
+    name = context[:name]
+    region = context[:region]
+
+    summoner_url = context[:summoner_url]
+    leagues_url = context[:leagues_url]
+    matchlist_url = context[:matchlist_url]
+
+    summoner_response = context[:summoner_json]
+    leagues_response = context[:leagues_json]
+    matchlist_response = context[:matchlist_json]
+
+    with_mock(
+      HTTPoison,
+      get: fn
+        ^summoner_url -> success_response(summoner_response)
+        ^leagues_url -> success_response(leagues_response)
+        ^matchlist_url -> success_response(matchlist_response)
+      end
+    ) do
+      assert {:ok,
+              %{
+                champions: ["Vayne", "Tristana", "Ezreal"],
+                icon_id: 1407,
+                leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+                name: "Lethly",
+                positions: [:marksman, :mid],
+                region: :euw
+              }} = RiotApi.fetch_summoner_info(name, region)
+    end
+  end
+
+  test "fetch_summoner_info fails if a single request fails", context do
+    name = context[:name]
+    region = context[:region]
+
+    summoner_url = context[:summoner_url]
+    leagues_url = context[:leagues_url]
+    matchlist_url = context[:matchlist_url]
+
+    summoner_response = context[:summoner_json]
+    leagues_response = context[:leagues_json]
+
+    with_mock(
+      HTTPoison,
+      get: fn
+        ^summoner_url -> success_response(summoner_response)
+        ^leagues_url -> success_response(leagues_response)
+        ^matchlist_url -> error_response("")
+      end
+    ) do
+      assert {:error, _} = RiotApi.fetch_summoner_info(name, region)
     end
   end
 end

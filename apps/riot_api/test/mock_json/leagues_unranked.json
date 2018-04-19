@@ -1,0 +1,24 @@
+[
+  {
+    "leagueId": "91c0b280-fd52-11e7-8457-c81f66dd2a8f",
+    "leagueName": "Jax's Sorcerers",
+    "tier": "GOLD",
+    "queueType": "RANKED_FLEX_SR",
+    "rank": "I",
+    "playerOrTeamId": "22267137",
+    "playerOrTeamName": "Lethly",
+    "leaguePoints": 95,
+    "wins": 23,
+    "losses": 19,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false,
+    "miniSeries": {
+      "target": 3,
+      "wins": 1,
+      "losses": 2,
+      "progress": "WLLNN"
+    }
+  }
+]

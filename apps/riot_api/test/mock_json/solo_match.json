@@ -1,0 +1,17 @@
+{
+  "matches": [
+    {
+      "platformId": "EUW1",
+      "gameId": 3412307012,
+      "champion": 412,
+      "queue": 420,
+      "season": 10,
+      "timestamp": 1510308841062,
+      "role": "DUO",
+      "lane": "BOTTOM"
+    }
+  ],
+  "startIndex": 0,
+  "endIndex": 1,
+  "totalGames": 12
+}

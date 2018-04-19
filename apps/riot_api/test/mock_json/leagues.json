@@ -1,0 +1,40 @@
+[
+  {
+    "leagueId": "91c0b280-fd52-11e7-8457-c81f66dd2a8f",
+    "leagueName": "Jax's Sorcerers",
+    "tier": "GOLD",
+    "queueType": "RANKED_FLEX_SR",
+    "rank": "I",
+    "playerOrTeamId": "22267137",
+    "playerOrTeamName": "Lethly",
+    "leaguePoints": 95,
+    "wins": 23,
+    "losses": 19,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false,
+    "miniSeries": {
+      "target": 3,
+      "wins": 1,
+      "losses": 2,
+      "progress": "WLLNN"
+    }
+  },
+  {
+    "leagueId": "3fe0b370-1eb3-11e8-9170-c81f66dd2a8f",
+    "leagueName": "Fiddlesticks's Elite",
+    "tier": "GOLD",
+    "queueType": "RANKED_SOLO_5x5",
+    "rank": "I",
+    "playerOrTeamId": "22267137",
+    "playerOrTeamName": "Lethly",
+    "leaguePoints": 75,
+    "wins": 10,
+    "losses": 10,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false
+  }
+]

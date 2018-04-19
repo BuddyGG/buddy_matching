@@ -29,21 +29,17 @@ defmodule RiotApi do
   """
   def request(path, region) do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
+    separator = if String.contains?(path, "?"), do: "&", else: "?"
 
     region
     |> Regions.endpoint()
-    |> Kernel.<>("#{path}?api_key=#{key}")
+    |> Kernel.<>("#{path}#{separator}api_key=#{key}")
     |> HTTPoison.get()
     |> handle_json()
   end
 
   defp fetch_summoner(name, region) do
     "/lol/summoner/v3/summoners/by-name/#{name}"
-    |> request(region)
-  end
-
-  defp fetch_champions(id, region) do
-    "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}"
     |> request(region)
   end
 
@@ -106,27 +102,6 @@ defmodule RiotApi do
         fetch_summoner(name, region)
     after
       {name, id, account_id, icon_id}
-    end
-  end
-
-  @doc """
-  Returns the 3 champions with highest mastery score for a given
-  summoner_id and region.
-
-  Returns {:ok, ["champion1", "champion2", "champion3"]}
-
-  ## Examples
-      iex> RiotApi.champions(22267137, :euw)
-      {:ok, ["Vayne", "Caitlyn", "Ezreal"]}
-  """
-  def champions(id, region) do
-    OK.for do
-      champions <- fetch_champions(id, region)
-    after
-      champions
-      |> Enum.take(3)
-      |> Enum.map(fn map -> Map.get(map, "championId") end)
-      |> Enum.map(fn id -> name_from_id(id) end)
     end
   end
 

@@ -19,4 +19,9 @@ defmodule BuddyMatchingWeb.ErrorViewTest do
     assert render(BuddyMatchingWeb.ErrorView, "505.json", []) ==
              %{errors: %{detail: "Internal server error"}}
   end
+
+  test "render error.json" do
+    assert render(BuddyMatchingWeb.ErrorView, "error.json", %{error: "Some error"}) ==
+             %{error: "Some error"}
+  end
 end

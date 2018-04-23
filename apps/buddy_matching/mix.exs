@@ -49,7 +49,8 @@ defmodule BuddyMatching.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:ok, "~> 1.9"}
     ]
   end
 end

@@ -1,9 +1,9 @@
-defmodule BuddyMatching.MatchingTest do
+defmodule BuddyMatching.Matching.LolMatchingTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Matching
-  alias BuddyMatching.Players.Criteria
-  alias BuddyMatching.Players.LolInfo
+  alias BuddyMatching.Players.Matching.LolMatching, as: Matching
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
+  alias BuddyMatching.Players.Info.LolInfo, as: Info
 
   # setup some bases for criteria and players that can be used in relation
   # to custom definitions for testing
@@ -32,7 +32,7 @@ defmodule BuddyMatching.MatchingTest do
       age_group: "interval1",
       criteria: broad_criteria,
       comment: "Never dies on Vayne",
-      game_info: %LolInfo{
+      game_info: %Info{
         region: :euw,
         positions: [:marksman],
         leagues: diamond1,
@@ -48,7 +48,7 @@ defmodule BuddyMatching.MatchingTest do
       age_group: "interval3",
       criteria: narrow_criteria,
       comment: "Apparently I play Riven",
-      game_info: %LolInfo{
+      game_info: %Info{
         region: :euw,
         positions: [:top],
         leagues: diamond1,
@@ -82,7 +82,7 @@ defmodule BuddyMatching.MatchingTest do
   test "player with compatible criteria but bad regions are not matching", context do
     player2 = %Player{
       context[:player2]
-      | game_info: %LolInfo{context[:player2].game_info | region: :br}
+      | game_info: %Info{context[:player2].game_info | region: :br}
     }
 
     refute Matching.match?(context[:player1], player2)
@@ -93,7 +93,7 @@ defmodule BuddyMatching.MatchingTest do
 
     player2 = %Player{
       context[:player2]
-      | game_info: %LolInfo{context[:player2].game_info | leagues: diamond5}
+      | game_info: %Info{context[:player2].game_info | leagues: diamond5}
     }
 
     refute Matching.match?(context[:player1], player2)

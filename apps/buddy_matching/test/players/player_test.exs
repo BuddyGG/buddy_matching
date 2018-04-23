@@ -1,7 +1,8 @@
 defmodule BuddyMatching.PlayerTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.LolInfo
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Criteria.LolCriteria
 
   @player ~s({
     "champions":[
@@ -65,7 +66,7 @@ defmodule BuddyMatching.PlayerTest do
       {:ok,
        %Player{
          age_group: "interval2",
-         criteria: %BuddyMatching.Players.Criteria{
+         criteria: %LolCriteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
            voice: [false, true],
@@ -120,9 +121,9 @@ defmodule BuddyMatching.PlayerTest do
     assert expected_languages == Player.languages_from_json(input)
   end
 
-  test "valid player json validates to true" do
+  test "valid player json returns ok result tuple" do
     data = Poison.Parser.parse!(@player)
-    assert Player.validate_player_json(data)
+    assert {:ok, _} = Player.from_json(data)
   end
 
   test "too long comment in player json is invalid" do
@@ -134,7 +135,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("comment", long_comment)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert Player.validate_player_json(bad_data) == {:error, "Comment too long"}
+    assert {:error, "Comment too long"} == Player.from_json(bad_data)
   end
 
   test "comment can be nil" do
@@ -146,7 +147,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("comment", no_comment)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert Player.validate_player_json(bad_data)
+    assert {:ok, _} = Player.from_json(bad_data)
   end
 
   test "too many selected roles is invalid" do
@@ -157,7 +158,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.update!("selectedRoles", &Map.put(&1, "a", "b"))
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert Player.validate_player_json(bad_data) == {:error, "Too many roles selected"}
+    assert {:error, "Too many roles selected"} == Player.from_json(bad_data)
   end
 
   test "too many selected languages is invalid" do
@@ -170,20 +171,20 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("languages", too_many_languages)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert Player.validate_player_json(bad_data) == {:error, "Too many langauges"}
+    assert  {:error, "Too many langauges"} == Player.from_json(bad_data)
   end
 
   test "too long player name is invalid" do
     data = Poison.Parser.parse!(@player)
     long_name = String.duplicate("a", 17)
     bad_data = Map.put(data, "name", long_name)
-    assert Player.validate_player_json(bad_data) == {:error, "Name too long"}
+    assert {:error, "Name too long"} == Player.from_json(bad_data)
   end
 
   test "player with null rank is valid json" do
     player = String.replace(@player, "\"rank\":1", "\"rank\":null")
     data = Poison.Parser.parse!(player)
-    assert Player.validate_player_json(data)
+    assert {:ok, _} = Player.from_json(data)
   end
 
   test "player with null rank is parsed correctly" do
@@ -191,7 +192,7 @@ defmodule BuddyMatching.PlayerTest do
       {:ok,
        %Player{
          age_group: "interval2",
-         criteria: %BuddyMatching.Players.Criteria{
+         criteria: %LolCriteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
            voice: [false, true]

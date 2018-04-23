@@ -2,7 +2,7 @@ defmodule BuddyMatching.PlayerServerTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.PlayerServer
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
 
   setup do
     {:ok, server} = start_supervised(PlayerServer)

@@ -1,9 +1,11 @@
-defmodule BuddyMatching.Players.Criteria do
+defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   @moduledoc """
   Struct definining the possible criterias with which Players can
   filter their matches.
   """
-  alias BuddyMatching.Players.LolInfo
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Criteria
+  @behaviour Criteria
 
   @position_limit 5
   @voice_limit 2
@@ -16,22 +18,6 @@ defmodule BuddyMatching.Players.Criteria do
   into the criteria struct used in the backend.
   """
   def from_json(data) do
-    %BuddyMatching.Players.Criteria{
-      positions: LolInfo.positions_from_json(data["positions"]),
-      voice: voice_from_json(data["voiceChat"]),
-      age_groups: age_groups_from_json(data["ageGroups"]),
-      ignore_language: data["ignoreLanguage"]
-    }
-  end
-
-  @doc """
-  Validates that the given criteria json adheres to some reasonable bounds.
-  Doesn't attempt to catch errors that may be apparent from merely
-  parsing the json map.
-
-  Returns {:ok} if json is validate, otherwise returns an error tuple.
-  """
-  def validate_criteria_json(data) do
     cond do
       map_size(data["positions"]) > @position_limit ->
         {:error, "Too many positions in criteria"}
@@ -43,7 +29,12 @@ defmodule BuddyMatching.Players.Criteria do
         {:error, "Too many values for voice chat in criteria"}
 
       true ->
-        {:ok}
+        %BuddyMatching.Players.Criteria.LolCriteria{
+          positions: LolInfo.positions_from_json(data["positions"]),
+          voice: voice_from_json(data["voiceChat"]),
+          age_groups: age_groups_from_json(data["ageGroups"]),
+          ignore_language: data["ignoreLanguage"]
+        }
     end
   end
 

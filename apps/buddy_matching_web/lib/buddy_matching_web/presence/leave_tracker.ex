@@ -46,12 +46,12 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
   # remove him from the state. In a separate process alert all the matches
   # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    [{name, region} | _] =
+    [{name, game_info} | _] =
       leaves
       |> Map.values()
-      |> Enum.map(fn %{metas: [%{name: name, region: region}]} -> {name, region} end)
+      |> Enum.map(fn %{metas: [%{name: name, game_info: game_info}]} -> {name, game_info} end)
 
-    result = RegionMapper.remove_player(name, region)
+    result = RegionMapper.remove_player(name, game_info)
 
     unless result == :error do
       {:ok, player} = result
@@ -59,7 +59,7 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
       Task.start(fn ->
         [topic | _] = Map.keys(leaves)
         Endpoint.unsubscribe("players:" <> topic)
-        region_players = RegionMapper.get_players(player.game_info.region)
+        region_players = RegionMapper.get_players(player.game_info)
 
         player
         |> Players.get_matches(region_players)

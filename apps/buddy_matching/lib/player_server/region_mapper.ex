@@ -8,6 +8,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
 
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.LolInfo
+  alias BuddyMatching.Players.FortniteInfo
   alias BuddyMatching.PlayerServer
 
   @doc """
@@ -52,6 +53,12 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
     |> PlayerServer.add(player)
   end
 
+  def add_player(%Player{game_info: %FortniteInfo{platform: platform}} = player) do
+    platform
+    |> :global.whereis_name()
+    |> PlayerServer.add(player)
+  end
+
   @doc """
   Removes the given player from its region's PlayerServer
 
@@ -64,6 +71,12 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
   """
   def remove_player(%Player{game_info: %LolInfo{region: region}} = player) do
     region
+    |> :global.whereis_name()
+    |> PlayerServer.remove(player)
+  end
+
+  def remove_player(%Player{game_info: %FortniteInfo{platform: platform}} = player) do
+    platform
     |> :global.whereis_name()
     |> PlayerServer.remove(player)
   end
@@ -101,6 +114,12 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
   """
   def update_player(%Player{game_info: %LolInfo{region: region}} = player) do
     region
+    |> :global.whereis_name()
+    |> PlayerServer.update(player)
+  end
+
+  def update_player(%Player{game_info: %FortniteInfo{platform: platform}} = player) do
+    platform
     |> :global.whereis_name()
     |> PlayerServer.update(player)
   end

@@ -19,8 +19,14 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
         [%{id: 1, name: "Lethly", region: :euw},
          %{id: 2, name: "hansp", region: :euw}]
   """
-  def get_players(region) do
+  def get_players(%LolInfo{region: region}) do
     region
+    |> :global.whereis_name()
+    |> PlayerServer.read()
+  end
+
+  def get_players(%FortniteInfo{platform: platform}) do
+    platform
     |> :global.whereis_name()
     |> PlayerServer.read()
   end
@@ -91,8 +97,14 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
       iex> BuddyMatching.RegionMapper.remove_player("Lethly", :some_region)
         :ok
   """
-  def remove_player(name, region) do
+  def remove_player(name, %LolInfo{region: region}) do
     region
+    |> :global.whereis_name()
+    |> PlayerServer.remove(name)
+  end
+
+  def remove_player(name, %FortniteInfo{platform: platform}) do
+    platform
     |> :global.whereis_name()
     |> PlayerServer.remove(name)
   end

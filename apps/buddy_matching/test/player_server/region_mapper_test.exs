@@ -19,14 +19,14 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
     RegionMapper.add_player(player)
 
-    assert [^player] = RegionMapper.get_players(region)
+    assert [^player] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "player is not accessible from other servers", %{region1: region1, region2: region2} do
     player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region1}}
     RegionMapper.add_player(player)
 
-    assert [] = RegionMapper.get_players(region2)
+    assert [] = RegionMapper.get_players(%LolInfo{region: region2})
   end
 
   test "multiple players may be added to same server", %{region1: region} do
@@ -35,27 +35,27 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)
 
-    assert 2 = length(RegionMapper.get_players(region))
+    assert 2 = length(RegionMapper.get_players(%LolInfo{region: region}))
   end
 
   test "players can be removed from server", %{region1: region} do
     player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
 
     RegionMapper.add_player(player)
-    assert [^player] = RegionMapper.get_players(region)
+    assert [^player] = RegionMapper.get_players(%LolInfo{region: region})
 
     RegionMapper.remove_player(player)
-    assert [] = RegionMapper.get_players(region)
+    assert [] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "players can be removed from server using name and region", %{region1: region} do
     player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
 
     RegionMapper.add_player(player)
-    assert [^player] = RegionMapper.get_players(region)
+    assert [^player] = RegionMapper.get_players(%LolInfo{region: region})
 
-    RegionMapper.remove_player(player.name, region)
-    assert [] = RegionMapper.get_players(region)
+    RegionMapper.remove_player(player.name, %LolInfo{region: region})
+    assert [] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "remove_player removes correct player", %{region1: region} do
@@ -64,14 +64,14 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
 
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)
-    assert 2 = length(RegionMapper.get_players(region))
+    assert 2 = length(RegionMapper.get_players(%LolInfo{region: region}))
 
     RegionMapper.remove_player(player2)
-    assert [^player1] = RegionMapper.get_players(region)
+    assert [^player1] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "update player updates player in server", %{region1: region} do
-    assert RegionMapper.get_players(region) == []
+    assert RegionMapper.get_players(%LolInfo{region: region}) == []
 
     c1 = %Criteria{positions: [:marksman]}
     c2 = %Criteria{positions: [:jungle]}
@@ -80,22 +80,22 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
 
     # player is added
     RegionMapper.add_player(player)
-    assert [^player] = RegionMapper.get_players(region)
+    assert [^player] = RegionMapper.get_players(%LolInfo{region: region})
 
     # player is removed
     RegionMapper.update_player(updated_player)
-    assert [^updated_player] = RegionMapper.get_players(region)
+    assert [^updated_player] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "updating a player that isn't in server has no effect", %{region1: region} do
-    assert RegionMapper.get_players(region) == []
+    assert RegionMapper.get_players(%LolInfo{region: region}) == []
 
     c1 = %Criteria{positions: [:marksman]}
     player = %Player{id: "0", name: "bar", criteria: c1, game_info: %LolInfo{region: region}}
 
     # player should not get added because not already present
     RegionMapper.update_player(player)
-    assert [] = RegionMapper.get_players(region)
+    assert [] = RegionMapper.get_players(%LolInfo{region: region})
   end
 
   test "count counts the number of players on the server", %{region1: region} do

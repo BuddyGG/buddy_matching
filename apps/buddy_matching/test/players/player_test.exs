@@ -1,6 +1,7 @@
 defmodule BuddyMatching.PlayerTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.LolInfo
 
   @player ~s({
     "champions":[
@@ -64,7 +65,6 @@ defmodule BuddyMatching.PlayerTest do
       {:ok,
        %Player{
          age_group: "interval2",
-         champions: ["Vayne", "Caitlyn", "Ezreal"],
          criteria: %BuddyMatching.Players.Criteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
@@ -73,10 +73,13 @@ defmodule BuddyMatching.PlayerTest do
          },
          id: 1,
          languages: ["EN", "DA", "KO"],
-         leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
          name: "Lethly",
-         positions: [:jungle, :top],
-         region: :euw,
+         game_info: %LolInfo{
+           leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+           positions: [:jungle, :top],
+           champions: ["Vayne", "Caitlyn", "Ezreal"],
+           region: :euw
+         },
          voice: [true],
          comment: "test"
        }}
@@ -95,7 +98,7 @@ defmodule BuddyMatching.PlayerTest do
     }
 
     expected_positions = [:jungle, :mid]
-    assert expected_positions == Player.positions_from_json(input)
+    assert expected_positions == LolInfo.positions_from_json(input)
   end
 
   test "from json returns error when json is invalid" do
@@ -188,7 +191,6 @@ defmodule BuddyMatching.PlayerTest do
       {:ok,
        %Player{
          age_group: "interval2",
-         champions: ["Vayne", "Caitlyn", "Ezreal"],
          criteria: %BuddyMatching.Players.Criteria{
            age_groups: ["interval1", "interval2", "interval3"],
            positions: [:jungle, :marksman, :mid, :support, :top],
@@ -196,10 +198,13 @@ defmodule BuddyMatching.PlayerTest do
          },
          id: 1,
          languages: ["EN", "DA", "KO"],
-         leagues: %{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"},
          name: "Lethly",
-         positions: [:jungle, :top],
-         region: :euw,
+         game_info: %LolInfo{
+           champions: ["Vayne", "Caitlyn", "Ezreal"],
+           leagues: %{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+           positions: [:jungle, :top],
+           region: :euw
+         },
          voice: [true],
          comment: "test"
        }}

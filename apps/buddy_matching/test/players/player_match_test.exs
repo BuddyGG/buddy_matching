@@ -1,6 +1,7 @@
 defmodule BuddyMatching.PlayersTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.Players
+  alias BuddyMatching.Players.LolInfo
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Criteria
 
@@ -27,113 +28,129 @@ defmodule BuddyMatching.PlayersTest do
     base_player0 = %Player{
       id: 0,
       name: "Faker",
-      region: :euw,
       voice: [false],
       languages: ["danish"],
       age_group: 1,
-      positions: [:mid],
-      leagues: challenger,
-      champions: ["LeBlanc", "Syndra", "Fizz"],
       criteria: broad_criteria,
-      comment: "numero uno"
+      comment: "numero uno",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:mid],
+        leagues: challenger,
+        champions: ["LeBlanc", "Syndra", "Fizz"]
+      }
     }
 
     base_player1 = %Player{
       id: 1,
       name: "Froggen",
-      region: :euw,
       voice: [false],
       languages: ["danish"],
       age_group: 1,
-      positions: [:mid],
-      leagues: master,
-      champions: ["LeBlanc", "Syndra", "Fizz"],
       criteria: broad_criteria,
-      comment: "Haha DDOS Frogger"
+      comment: "Haha DDOS Frogger",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:mid],
+        leagues: master,
+        champions: ["LeBlanc", "Syndra", "Fizz"]
+      }
     }
 
     base_player2 = %Player{
       id: 2,
       name: "Lethly",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: 1,
-      positions: [:marksman],
-      leagues: diamond1,
-      champions: ["Vayne", "Ezreal", "Caitlyn"],
       criteria: broad_criteria,
-      comment: "Never dies on Vayne"
+      comment: "Never dies on Vayne",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:marksman],
+        leagues: diamond1,
+        champions: ["Vayne", "Ezreal", "Caitlyn"]
+      }
     }
 
     base_player3 = %Player{
       id: 3,
       name: "hansp",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: 1,
-      positions: [:top],
-      leagues: platinum2,
-      champions: ["Cho'Gath", "Renekton", "Riven"],
       criteria: broad_criteria,
-      comment: "Apparently plays Riven"
+      comment: "Apparently plays Riven",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:top],
+        leagues: platinum2,
+        champions: ["Cho'Gath", "Renekton", "Riven"]
+      }
     }
 
     base_player4 = %Player{
       id: 4,
-      name: "esow",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: 1,
-      positions: [:jungle],
-      leagues: gold3,
-      champions: ["Lee'Sin", "Ekko", "Vayne"],
+      name: "esow",
       criteria: broad_criteria,
-      comment: "Lul, I'm only Platinum 4"
+      comment: "Lul, I'm only Platinum 4",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:jungle],
+        leagues: gold3,
+        champions: ["Lee'Sin", "Ekko", "Vayne"]
+      }
     }
 
     base_player5 = %Player{
       id: 5,
       name: "UghUgh",
-      region: :euw,
+      age_group: 1,
       voice: [false],
       languages: ["danish", "english"],
-      age_group: 1,
-      positions: [:support],
-      leagues: silver4,
-      champions: ["Braum", "Leona", "Blitzcrank"],
       criteria: broad_criteria,
-      comment: "That's okay guys, I'll hit the next one"
+      comment: "That's okay guys, I'll hit the next one",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:support],
+        leagues: silver4,
+        champions: ["Braum", "Leona", "Blitzcrank"]
+      }
     }
 
     base_player6 = %Player{
       id: 6,
       name: "xm3m3l0rd69x",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: 1,
-      positions: [:mid, :marksman],
-      leagues: bronze5,
-      champions: ["Yasuo", "Riven", "Vayne"],
       criteria: broad_criteria,
-      comment: "Am in elo hell, but am good"
+      comment: "Am in elo hell, but am good",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:mid, :marksman],
+        leagues: bronze5,
+        champions: ["Yasuo", "Riven", "Vayne"]
+      }
     }
 
     base_player7 = %Player{
       id: 7,
       name: "LordOfDeathIThink",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: 1,
-      positions: [:jungle],
-      leagues: unranked,
-      champions: ["Yasuo", "Riven", "Vayne"],
       criteria: broad_criteria,
-      comment: "I don't play very much"
+      comment: "I don't play very much",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:jungle],
+        leagues: unranked,
+        champions: ["Yasuo", "Riven", "Vayne"]
+      }
     }
 
     all_players = [
@@ -214,7 +231,8 @@ defmodule BuddyMatching.PlayersTest do
 
   test "silver with no rank can still match with gold/bronze/unranked", context do
     silver = %{type: "RANKED_SOLO_5x5", tier: "SILVER", rank: nil}
-    silver_no_rank = %Player{context[:s4_player] | leagues: silver}
+    game_info = %LolInfo{context[:s4_player].game_info | leagues: silver}
+    silver_no_rank = %Player{context[:s4_player] | game_info: game_info}
     matches = Players.get_matches(silver_no_rank, context[:all_players])
     assert length(matches) == 3
     assert Enum.member?(matches, context[:g3_player])

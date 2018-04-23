@@ -45,10 +45,10 @@ defmodule BuddyMatching.Players.Matching do
 
   # helper for extracting solo queue and determining if it is possible for
   # two players to queue together
-  defp can_queue?(%Player{} = player, %Player{} = candidate) do
-    case player.region == candidate.region do
+  defp can_queue?(%Player{game_info: player_game_info}, %Player{game_info: candidate_game_info}) do
+    case player_game_info.region == candidate_game_info.region do
       false -> false
-      _ -> tier_compatible?(player.leagues, candidate.leagues)
+      _ -> tier_compatible?(player_game_info.leagues, candidate_game_info.leagues)
     end
   end
 
@@ -66,9 +66,9 @@ defmodule BuddyMatching.Players.Matching do
       iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
-  def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
+  def criteria_compatible?(%Criteria{} = criteria, %Player{game_info: player_game_info} = player) do
     lists_intersect?(criteria.voice, player.voice) &&
-      lists_intersect?(criteria.positions, player.positions) &&
+      lists_intersect?(criteria.positions, player_game_info.positions) &&
       Enum.member?(criteria.age_groups, player.age_group)
   end
 

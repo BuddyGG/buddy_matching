@@ -3,7 +3,7 @@ defmodule BuddyMatching.Players.Criteria do
   Struct definining the possible criterias with which Players can
   filter their matches.
   """
-  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.LolInfo
 
   @position_limit 5
   @voice_limit 2
@@ -17,7 +17,7 @@ defmodule BuddyMatching.Players.Criteria do
   """
   def from_json(data) do
     %BuddyMatching.Players.Criteria{
-      positions: Player.positions_from_json(data["positions"]),
+      positions: LolInfo.positions_from_json(data["positions"]),
       voice: voice_from_json(data["voiceChat"]),
       age_groups: age_groups_from_json(data["ageGroups"]),
       ignore_language: data["ignoreLanguage"]

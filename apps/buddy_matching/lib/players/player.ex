@@ -4,6 +4,7 @@ defmodule BuddyMatching.Players.Player do
   """
 
   alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.LolInfo
 
   @comment_char_limit 100
   @riot_name_length_limit 16
@@ -32,15 +33,12 @@ defmodule BuddyMatching.Players.Player do
   """
   defstruct id: nil,
             name: nil,
-            region: nil,
             voice: [],
             languages: [],
             age_group: nil,
-            positions: [],
-            leagues: nil,
-            champions: [],
             criteria: nil,
-            comment: nil
+            comment: nil,
+            game_info: %{}
 
   @doc """
   Parses an entire player from json into the Player struct used in the backend,
@@ -52,15 +50,12 @@ defmodule BuddyMatching.Players.Player do
         player = %BuddyMatching.Players.Player{
           id: data["userInfo"]["id"],
           name: data["name"],
-          region: String.to_existing_atom(data["region"]),
           voice: data["userInfo"]["voicechat"],
           languages: languages_from_json(data["userInfo"]["languages"]),
           age_group: data["userInfo"]["agegroup"],
-          positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-          leagues: leagues_from_json(data["leagues"]),
-          champions: data["champions"],
           criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-          comment: data["userInfo"]["comment"]
+          comment: data["userInfo"]["comment"],
+          game_info: LolInfo.from_json(data)
         }
 
         {:ok, player}
@@ -106,28 +101,6 @@ defmodule BuddyMatching.Players.Player do
         Criteria.validate_criteria_json(data["userInfo"]["criteria"])
     end
   end
-
-  # Parses a json leagues specification of format:
-  # "leagues" => %{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}
-  # to %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}
-  defp leagues_from_json(leagues) do
-    leagues
-    |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
-    |> Enum.into(%{})
-  end
-
-  @doc """
-  Parses positions given as json into the atom list format used for positions
-  for the Player struct.
-
-  ## Examples
-    iex> positions = {"jungle" => true, "marksman" => false,
-      "mid" => true, "support" => false, "top" => false}
-    iex> positions_from_json(positions)
-    [:jungle, :mid]
-  """
-  def positions_from_json(positions),
-    do: for({val, true} <- positions, do: String.to_existing_atom(val))
 
   # Sort the languages alphabetically, but ensure that english is first
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)

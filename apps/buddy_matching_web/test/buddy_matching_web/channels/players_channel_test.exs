@@ -2,6 +2,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
   use BuddyMatchingWeb.ChannelCase
   alias BuddyMatchingWeb.PlayersChannel
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.LolInfo
   alias BuddyMatching.Players.Criteria
   alias BuddyMatchingWeb.PlayerSocket
   alias BuddyMatchingWeb.Auth
@@ -26,44 +27,50 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
 
   @base_player1 %Player{
     name: "Lethly",
-    region: :euw,
     voice: [false],
     id: "1",
     languages: ["danish"],
     age_group: "interval1",
-    positions: [:marksman],
-    leagues: @diamond1,
-    champions: ["Vayne", "Ezreal", "Caitlyn"],
     criteria: @broad_criteria,
-    comment: "Never dies on Vayne"
+    comment: "Never dies on Vayne",
+    game_info: %LolInfo{
+      region: :euw,
+      positions: [:marksman],
+      leagues: @diamond1,
+      champions: ["Vayne", "Ezreal", "Caitlyn"]
+    }
   }
 
   @narrow_player1 %Player{
     name: "Trolleren",
-    region: :euw,
     voice: [false],
     id: "2",
     languages: ["danish"],
     age_group: "interval1",
-    positions: [:marksman],
-    leagues: @diamond1,
-    champions: ["Vayne", "Ezreal", "Caitlyn"],
     criteria: @narrow_criteria,
-    comment: "Never dies on Vayne"
+    comment: "Never dies on Vayne",
+    game_info: %LolInfo{
+      region: :euw,
+      positions: [:marksman],
+      leagues: @diamond1,
+      champions: ["Vayne", "Ezreal", "Caitlyn"]
+    }
   }
 
   @base_player2 %Player{
     name: "hansp",
-    region: :euw,
     voice: [false],
     id: "3",
     languages: ["danish", "english"],
     age_group: "interval3",
-    positions: [:top],
-    leagues: @diamond1,
-    champions: ["Cho'Gath", "Renekton", "Riven"],
     criteria: @narrow_criteria,
-    comment: "Apparently I play Riven"
+    comment: "Apparently I play Riven",
+    game_info: %LolInfo{
+      region: :euw,
+      positions: [:top],
+      leagues: @diamond1,
+      champions: ["Cho'Gath", "Renekton", "Riven"]
+    }
   }
 
   def generate_player(id) do

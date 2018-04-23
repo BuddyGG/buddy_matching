@@ -35,8 +35,8 @@ defmodule BuddyMatching.Players.Player do
             name: nil,
             voice: [],
             languages: [],
-            age_group: nil,
-            criteria: nil,
+            age_group: [],
+            criteria: %{},
             comment: nil,
             game_info: %{}
 

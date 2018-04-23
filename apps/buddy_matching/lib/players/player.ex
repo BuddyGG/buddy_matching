@@ -3,8 +3,12 @@ defmodule BuddyMatching.Players.Player do
   Struct handling a player including json parsing
   """
 
-  alias BuddyMatching.Players.Criteria
-  alias BuddyMatching.Players.LolInfo
+  require OK
+
+  alias BuddyMatching.Players.Criteria.LolCriteria
+  alias BuddyMatching.Players.Criteria.FortniteCriteria
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Info.FortniteInfo
 
   @comment_char_limit 100
   @riot_name_length_limit 16
@@ -40,30 +44,12 @@ defmodule BuddyMatching.Players.Player do
             comment: nil,
             game_info: %{}
 
-  @doc """
-  Parses an entire player from json into the Player struct used in the backend,
-  including parsing for Criteria into its struct
-  """
-  def from_json(data) do
-    case validate_player_json(data) do
-      {:ok} ->
-        player = %BuddyMatching.Players.Player{
-          id: data["userInfo"]["id"],
-          name: data["name"],
-          voice: data["userInfo"]["voicechat"],
-          languages: languages_from_json(data["userInfo"]["languages"]),
-          age_group: data["userInfo"]["agegroup"],
-          criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-          comment: data["userInfo"]["comment"],
-          game_info: LolInfo.from_json(data)
-        }
+  # Sort the languages alphabetically, but ensure that english is first
+  def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
 
-        {:ok, player}
-
-      {:error, reason} ->
-        {:error, "Bad player json because: #{reason}"}
-    end
-  end
+  defp sorter(_, "EN"), do: false
+  defp sorter("EN", _), do: true
+  defp sorter(left, right), do: left < right
 
   @doc """
   Validates that the given player adheres to the desired structure
@@ -79,7 +65,7 @@ defmodule BuddyMatching.Players.Player do
   Names should adhere to Riot's guidelines:
   https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
   """
-  def validate_player_json(data) do
+  def player_from_json(data) do
     cond do
       String.length(data["name"]) > @riot_name_length_limit ->
         {:error, "Name too long"}
@@ -98,14 +84,35 @@ defmodule BuddyMatching.Players.Player do
         {:error, "Comment too long"}
 
       true ->
-        Criteria.validate_criteria_json(data["userInfo"]["criteria"])
+        %BuddyMatching.Players.Player{
+          id: data["userInfo"]["id"],
+          name: data["name"],
+          voice: data["userInfo"]["voicechat"],
+          languages: languages_from_json(data["userInfo"]["languages"]),
+          age_group: data["userInfo"]["agegroup"],
+          comment: data["userInfo"]["comment"],
+        }
     end
   end
 
-  # Sort the languages alphabetically, but ensure that english is first
-  def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
+  def info_from_json(:lol, data), do: LolInfo.from_json(data)
+  def info_from_json(:fortnite, data), do: FortniteInfo.from_json(data)
+  def criteria_from_json(:lol, data), do: LolCriteria.from_json(data)
+  def criteria_from_json(:fortnite, data), do: FortniteCriteria.from_json(data)
 
-  defp sorter(_, "EN"), do: false
-  defp sorter("EN", _), do: true
-  defp sorter(left, right), do: left < right
+  @doc """
+  Parses an entire player from json into the Player struct used in the backend,
+  including parsing for Criteria into its struct
+  """
+  def from_json(data) do
+    OK.for do
+      player <- player_from_json(data)
+      game_string <- Map.fetch(data, "game")
+      game = String.to_existing_atom(game_string)
+      game_info <- info_from_json(game, data)
+      criteria <- criteria_from_json(game, data)
+    after
+      %BuddyMatching.Players.Player{player | game_info: game_info, criteria: criteria}
+    end
+  end
 end

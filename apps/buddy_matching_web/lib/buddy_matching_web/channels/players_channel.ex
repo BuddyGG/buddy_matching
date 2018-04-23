@@ -56,7 +56,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     Task.start(fn ->
       case RegionMapper.add_player(socket.assigns.user) do
         :ok ->
-          players = RegionMapper.get_players(socket.assigns.user.game_info.region)
+          players = RegionMapper.get_players(socket.assigns.user.game_info)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
           push(socket, @initial_matches_event, %{players: matches})
@@ -83,7 +83,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     # Presence has to track some metadata, and in our case we track the name and the
     # region, as we need these to remove the Player from the correct PlayerServer
     # when they leave.
-    tracked = %{name: socket.assigns.user.name, region: socket.assigns.user.game_info.region}
+    tracked = %{name: socket.assigns.user.name, game_info: socket.assigns.user.game_info}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
     track_player_id(socket.assigns.user)
     {:noreply, socket}
@@ -134,7 +134,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     socket = assign(socket, :user, updated_player)
 
     Task.start(fn ->
-      region_players = RegionMapper.get_players(current_player.game_info.region)
+      region_players = RegionMapper.get_players(current_player.game_info)
       current_matches = Players.get_matches(current_player, region_players)
 
       RegionMapper.update_player(updated_player)

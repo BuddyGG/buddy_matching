@@ -4,6 +4,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
   alias BuddyMatching.PlayerServer.RegionMapper
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.LolInfo
 
   setup do
     # Prepare two servers for our region mapper to use
@@ -15,22 +16,22 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
   end
 
   test "player is added to region specific server", %{region1: region} do
-    player = %Player{id: "1", name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
     RegionMapper.add_player(player)
 
-    assert [^player] = RegionMapper.get_players(player.region)
+    assert [^player] = RegionMapper.get_players(region)
   end
 
   test "player is not accessible from other servers", %{region1: region1, region2: region2} do
-    player = %Player{id: "1", name: "foo", region: region1}
+    player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region1}}
     RegionMapper.add_player(player)
 
     assert [] = RegionMapper.get_players(region2)
   end
 
   test "multiple players may be added to same server", %{region1: region} do
-    player1 = %Player{id: "1", name: "bar", region: region}
-    player2 = %Player{id: "2", name: "foo", region: region}
+    player1 = %Player{id: "1", name: "bar", game_info: %LolInfo{region: region}}
+    player2 = %Player{id: "2", name: "foo", game_info: %LolInfo{region: region}}
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)
 
@@ -38,28 +39,28 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
   end
 
   test "players can be removed from server", %{region1: region} do
-    player = %Player{id: "1", name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
 
     RegionMapper.add_player(player)
-    assert [^player] = RegionMapper.get_players(player.region)
+    assert [^player] = RegionMapper.get_players(region)
 
     RegionMapper.remove_player(player)
-    assert [] = RegionMapper.get_players(player.region)
+    assert [] = RegionMapper.get_players(region)
   end
 
   test "players can be removed from server using name and region", %{region1: region} do
-    player = %Player{id: "1", name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
 
     RegionMapper.add_player(player)
-    assert [^player] = RegionMapper.get_players(player.region)
+    assert [^player] = RegionMapper.get_players(region)
 
     RegionMapper.remove_player(player.name, region)
-    assert [] = RegionMapper.get_players(player.region)
+    assert [] = RegionMapper.get_players(region)
   end
 
   test "remove_player removes correct player", %{region1: region} do
-    player1 = %Player{id: "1", name: "foo", region: region}
-    player2 = %Player{id: "2", name: "bar", region: region}
+    player1 = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
+    player2 = %Player{id: "2", name: "bar", game_info: %LolInfo{region: region}}
 
     RegionMapper.add_player(player1)
     RegionMapper.add_player(player2)
@@ -74,7 +75,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
 
     c1 = %Criteria{positions: [:marksman]}
     c2 = %Criteria{positions: [:jungle]}
-    player = %Player{id: "0", name: "bar", criteria: c1, region: region}
+    player = %Player{id: "0", name: "bar", criteria: c1, game_info: %LolInfo{region: region}}
     updated_player = %{player | criteria: c2}
 
     # player is added
@@ -90,7 +91,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     assert RegionMapper.get_players(region) == []
 
     c1 = %Criteria{positions: [:marksman]}
-    player = %Player{id: "0", name: "bar", criteria: c1, region: region}
+    player = %Player{id: "0", name: "bar", criteria: c1, game_info: %LolInfo{region: region}}
 
     # player should not get added because not already present
     RegionMapper.update_player(player)
@@ -101,7 +102,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
     assert RegionMapper.count_players(region) == 0
 
     # player is added
-    player = %Player{id: "1", name: "foo", region: region}
+    player = %Player{id: "1", name: "foo", game_info: %LolInfo{region: region}}
     RegionMapper.add_player(player)
 
     assert RegionMapper.count_players(region) == 1

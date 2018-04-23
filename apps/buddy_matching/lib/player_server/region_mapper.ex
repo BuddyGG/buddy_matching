@@ -7,6 +7,7 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
   """
 
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.LolInfo
   alias BuddyMatching.PlayerServer
 
   @doc """
@@ -45,8 +46,8 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
       iex> BuddyMatching.RegionMapper.add_player(player)
         :ok
   """
-  def add_player(%Player{} = player) do
-    player.region
+  def add_player(%Player{game_info: %LolInfo{region: region}} = player) do
+    region
     |> :global.whereis_name()
     |> PlayerServer.add(player)
   end
@@ -61,8 +62,8 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
       iex> BuddyMatching.RegionMapper.remove_player(player)
         :ok
   """
-  def remove_player(%Player{} = player) do
-    player.region
+  def remove_player(%Player{game_info: %LolInfo{region: region}} = player) do
+    region
     |> :global.whereis_name()
     |> PlayerServer.remove(player)
   end
@@ -98,8 +99,8 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
       iex> BuddyMatching.RegionMapper.update(player1)
         :ok
   """
-  def update_player(%Player{} = player) do
-    player.region
+  def update_player(%Player{game_info: %LolInfo{region: region}} = player) do
+    region
     |> :global.whereis_name()
     |> PlayerServer.update(player)
   end

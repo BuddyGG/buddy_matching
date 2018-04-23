@@ -3,6 +3,7 @@ defmodule BuddyMatching.MatchingTest do
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Matching
   alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.LolInfo
 
   # setup some bases for criteria and players that can be used in relation
   # to custom definitions for testing
@@ -26,29 +27,33 @@ defmodule BuddyMatching.MatchingTest do
     base_player1 = %Player{
       id: 1,
       name: "Lethly",
-      region: :euw,
       voice: [false],
       languages: ["danish"],
       age_group: "interval1",
-      positions: [:marksman],
-      leagues: diamond1,
-      champions: ["Vayne", "Ezreal", "Caitlyn"],
       criteria: broad_criteria,
-      comment: "Never dies on Vayne"
+      comment: "Never dies on Vayne",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:marksman],
+        leagues: diamond1,
+        champions: ["Vayne", "Ezreal", "Caitlyn"]
+      }
     }
 
     base_player2 = %Player{
       id: 2,
       name: "hansp",
-      region: :euw,
       voice: [false],
       languages: ["danish", "english"],
       age_group: "interval3",
-      positions: [:top],
-      leagues: diamond1,
-      champions: ["Cho'Gath", "Renekton", "Riven"],
       criteria: narrow_criteria,
-      comment: "Apparently I play Riven"
+      comment: "Apparently I play Riven",
+      game_info: %LolInfo{
+        region: :euw,
+        positions: [:top],
+        leagues: diamond1,
+        champions: ["Cho'Gath", "Renekton", "Riven"]
+      }
     }
 
     [
@@ -75,13 +80,22 @@ defmodule BuddyMatching.MatchingTest do
   end
 
   test "player with compatible criteria but bad regions are not matching", context do
-    player2 = Map.put(context[:player2], :region, :br)
+    player2 = %Player{
+      context[:player2]
+      | game_info: %LolInfo{context[:player2].game_info | region: :br}
+    }
+
     refute Matching.match?(context[:player1], player2)
   end
 
   test "player with compatible criteria but unable to queue are not matching", context do
     diamond5 = Map.put(context[:diamond1], :rank, 5)
-    player2 = Map.put(context[:player2], :leagues, diamond5)
+
+    player2 = %Player{
+      context[:player2]
+      | game_info: %LolInfo{context[:player2].game_info | leagues: diamond5}
+    }
+
     refute Matching.match?(context[:player1], player2)
   end
 

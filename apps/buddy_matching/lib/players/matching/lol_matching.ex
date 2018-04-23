@@ -1,4 +1,4 @@
-defmodule BuddyMatching.Players.Matching do
+defmodule BuddyMatching.Players.Matching.LolMatching do
   @moduledoc """
   Module containing all logic for matching players with other players.
   This included handling whether or not they can play with eachother based on Riot's
@@ -7,7 +7,9 @@ defmodule BuddyMatching.Players.Matching do
   and whether Players criterias' are mutually compatible.
   """
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Criteria.LolCriteria
+  alias BuddyMatching.Players.Matching
+  @behaviour Matching
 
   @loose_tiers ["UNRANKED", "BRONZE", "SILVER", "GOLD", "PLATINUM"]
 
@@ -66,7 +68,7 @@ defmodule BuddyMatching.Players.Matching do
       iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
-  def criteria_compatible?(%Criteria{} = criteria, %Player{game_info: player_game_info} = player) do
+  def criteria_compatible?(%LolCriteria{} = criteria, %Player{game_info: player_game_info} = player) do
     lists_intersect?(criteria.voice, player.voice) &&
       lists_intersect?(criteria.positions, player_game_info.positions) &&
       Enum.member?(criteria.age_groups, player.age_group)

@@ -3,8 +3,8 @@ defmodule BuddyMatching.PlayerServer.RegionMapperTest do
   alias BuddyMatching.PlayerServer
   alias BuddyMatching.PlayerServer.RegionMapper
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria
-  alias BuddyMatching.Players.LolInfo
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
+  alias BuddyMatching.Players.Info.LolInfo
 
   setup do
     # Prepare two servers for our region mapper to use

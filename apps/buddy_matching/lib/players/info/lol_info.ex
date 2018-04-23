@@ -1,7 +1,10 @@
-defmodule BuddyMatching.Players.LolInfo do
+defmodule BuddyMatching.Players.Info.LolInfo do
   @moduledoc """
-  Struct with leauge of legends game info
+  Struct with league of legends game info
   """
+
+  alias BuddyMatching.Players.Info
+  @behaviour Info
 
   defstruct region: nil,
             positions: [],
@@ -9,12 +12,15 @@ defmodule BuddyMatching.Players.LolInfo do
             champions: []
 
   def from_json(data) do
-    %BuddyMatching.Players.LolInfo{
-      region: String.to_existing_atom(data["region"]),
-      positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-      leagues: leagues_from_json(data["leagues"]),
-      champions: data["champions"]
-    }
+    cond do
+      true ->
+        %BuddyMatching.Players.Info.LolInfo{
+          region: String.to_existing_atom(data["region"]),
+          positions: positions_from_json(data["userInfo"]["selectedRoles"]),
+          leagues: leagues_from_json(data["leagues"]),
+          champions: data["champions"]
+        }
+    end
   end
 
   # Parses a json leagues specification of format:

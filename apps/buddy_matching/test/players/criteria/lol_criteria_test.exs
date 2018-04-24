@@ -30,7 +30,7 @@ defmodule BuddyMatching.Criteria.LolCriteriaTest do
     }
 
     data = Poison.Parser.parse!(@criteria)
-    assert LolCriteria.from_json(data) == expected_criteria
+    assert {:ok, expected_criteria} == LolCriteria.from_json(data)
   end
 
   test "test voice_chat criteria are parsed correctly" do

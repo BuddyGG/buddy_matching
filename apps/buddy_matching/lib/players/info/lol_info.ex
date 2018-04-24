@@ -1,6 +1,6 @@
 defmodule BuddyMatching.Players.Info.LolInfo do
   @moduledoc """
-  Struct with league of legends game info
+  Struct with League of Legends game info
   """
 
   alias BuddyMatching.Players.Info
@@ -14,12 +14,13 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   def from_json(data) do
     cond do
       true ->
+        {:ok,
         %BuddyMatching.Players.Info.LolInfo{
           region: String.to_existing_atom(data["region"]),
           positions: positions_from_json(data["userInfo"]["selectedRoles"]),
           leagues: leagues_from_json(data["leagues"]),
           champions: data["champions"]
-        }
+        }}
     end
   end
 

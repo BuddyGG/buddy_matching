@@ -37,6 +37,7 @@ defmodule BuddyMatching.Players.Player do
   """
   defstruct id: nil,
             name: nil,
+            game: :lol,
             voice: [],
             languages: [],
             age_group: [],
@@ -84,14 +85,16 @@ defmodule BuddyMatching.Players.Player do
         {:error, "Comment too long"}
 
       true ->
+        {:ok,
         %BuddyMatching.Players.Player{
           id: data["userInfo"]["id"],
+          game: String.to_existing_atom(data["game"]),
           name: data["name"],
           voice: data["userInfo"]["voicechat"],
           languages: languages_from_json(data["userInfo"]["languages"]),
           age_group: data["userInfo"]["agegroup"],
           comment: data["userInfo"]["comment"],
-        }
+        }}
     end
   end
 
@@ -107,10 +110,8 @@ defmodule BuddyMatching.Players.Player do
   def from_json(data) do
     OK.for do
       player <- player_from_json(data)
-      game_string <- Map.fetch(data, "game")
-      game = String.to_existing_atom(game_string)
-      game_info <- info_from_json(game, data)
-      criteria <- criteria_from_json(game, data)
+      game_info <- info_from_json(player.game, data)
+      criteria <- criteria_from_json(player.game, data["userInfo"]["criteria"])
     after
       %BuddyMatching.Players.Player{player | game_info: game_info, criteria: criteria}
     end

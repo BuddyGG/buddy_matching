@@ -1,6 +1,6 @@
-defmodule BuddyMatching.Players.FortniteInfo do
+defmodule BuddyMatching.Players.Info.FortniteInfo do
   @moduledoc """
-  Struct with leauge of legends game info
+  Struct with Fortnite game info
   """
 
   alias BuddyMatching.Players.Info
@@ -8,7 +8,7 @@ defmodule BuddyMatching.Players.FortniteInfo do
 
   defstruct platform: nil
 
-  def from_json(data) do
-    %BuddyMatching.Players.FortniteInfo{}
+  def from_json(_data) do
+    {:ok, %BuddyMatching.Players.Info.FortniteInfo{}}
   end
 end

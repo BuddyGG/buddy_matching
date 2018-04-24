@@ -9,7 +9,6 @@ defmodule BuddyMatching.PlayerServer.RegionMapper do
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Info.FortniteInfo
-  alias BuddyMatching.Players.FortniteInfo
   alias BuddyMatching.PlayerServer
 
   @doc """

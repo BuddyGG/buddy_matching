@@ -4,7 +4,7 @@ defmodule BuddyMatching.PlayerTest do
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Criteria.LolCriteria
 
-  @player ~s({
+  @player_json ~s({
     "champions":[
        "Vayne",
        "Caitlyn",
@@ -20,6 +20,7 @@ defmodule BuddyMatching.PlayerTest do
        "marksman"
     ],
     "name":"Lethly",
+    "game":"lol",
     "region":"euw",
     "userInfo":{
       "criteria": {
@@ -61,10 +62,7 @@ defmodule BuddyMatching.PlayerTest do
     }
  })
 
-  test "entire player is correctly parsed from json" do
-    expected_player =
-      {:ok,
-       %Player{
+  @player_struct %Player{
          age_group: "interval2",
          criteria: %LolCriteria{
            age_groups: ["interval1", "interval2", "interval3"],
@@ -83,10 +81,12 @@ defmodule BuddyMatching.PlayerTest do
          },
          voice: [true],
          comment: "test"
-       }}
+       }
 
-    data = Poison.Parser.parse!(@player)
-    assert Player.from_json(data) == expected_player
+
+  test "entire player is correctly parsed from json" do
+    data = Poison.Parser.parse!(@player_json)
+    assert {:ok, @player_struct} == Player.from_json(data)
   end
 
   test "test two positions are correctly parsed from json" do
@@ -103,10 +103,10 @@ defmodule BuddyMatching.PlayerTest do
   end
 
   test "from json returns error when json is invalid" do
-    data = Poison.Parser.parse!(@player)
+    data = Poison.Parser.parse!(@player_json)
     long_name = String.duplicate("a", 17)
     bad_data = Map.put(data, "name", long_name)
-    assert {:error, "Bad player json because: Name too long"} = Player.from_json(bad_data)
+    assert {:error, "Name too long"} == Player.from_json(bad_data)
   end
 
   test "test that languages are correctly parsed and sorted with english" do
@@ -121,13 +121,8 @@ defmodule BuddyMatching.PlayerTest do
     assert expected_languages == Player.languages_from_json(input)
   end
 
-  test "valid player json returns ok result tuple" do
-    data = Poison.Parser.parse!(@player)
-    assert {:ok, _} = Player.from_json(data)
-  end
-
   test "too long comment in player json is invalid" do
-    data = Poison.Parser.parse!(@player)
+    data = Poison.Parser.parse!(@player_json)
     long_comment = String.duplicate("a", 101)
 
     bad_user_info =
@@ -139,19 +134,20 @@ defmodule BuddyMatching.PlayerTest do
   end
 
   test "comment can be nil" do
-    data = Poison.Parser.parse!(@player)
-    no_comment = nil
+    data = Poison.Parser.parse!(@player_json)
 
     bad_user_info =
       data["userInfo"]
-      |> Map.put("comment", no_comment)
+      |> Map.put("comment", nil)
+
+    expected_player = Map.put(@player_struct, :comment, nil)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert {:ok, _} = Player.from_json(bad_data)
+    assert {:ok, expected_player} == Player.from_json(bad_data)
   end
 
   test "too many selected roles is invalid" do
-    data = Poison.Parser.parse!(@player)
+    data = Poison.Parser.parse!(@player_json)
 
     bad_user_info =
       data["userInfo"]
@@ -162,7 +158,7 @@ defmodule BuddyMatching.PlayerTest do
   end
 
   test "too many selected languages is invalid" do
-    data = Poison.Parser.parse!(@player)
+    data = Poison.Parser.parse!(@player_json)
 
     too_many_languages = ["DK", "ENG", "SWE", "NO", "BR", "SP"]
 
@@ -175,16 +171,20 @@ defmodule BuddyMatching.PlayerTest do
   end
 
   test "too long player name is invalid" do
-    data = Poison.Parser.parse!(@player)
+    data = Poison.Parser.parse!(@player_json)
     long_name = String.duplicate("a", 17)
     bad_data = Map.put(data, "name", long_name)
     assert {:error, "Name too long"} == Player.from_json(bad_data)
   end
 
   test "player with null rank is valid json" do
-    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    player = String.replace(@player_json, "\"rank\":1", "\"rank\":null")
     data = Poison.Parser.parse!(player)
-    assert {:ok, _} = Player.from_json(data)
+    leagues = Map.put(@player_struct.game_info.leagues, :rank, nil)
+    info = Map.put(@player_struct.game_info, :leagues, leagues)
+    expected_player = Map.put(@player_struct, :game_info, info)
+
+    assert {:ok, expected_player} == Player.from_json(data)
   end
 
   test "player with null rank is parsed correctly" do
@@ -210,7 +210,7 @@ defmodule BuddyMatching.PlayerTest do
          comment: "test"
        }}
 
-    player = String.replace(@player, "\"rank\":1", "\"rank\":null")
+    player = String.replace(@player_json, "\"rank\":1", "\"rank\":null")
     data = Poison.Parser.parse!(player)
     assert expected_player == Player.from_json(data)
   end

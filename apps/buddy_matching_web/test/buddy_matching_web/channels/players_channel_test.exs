@@ -2,8 +2,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
   use BuddyMatchingWeb.ChannelCase
   alias BuddyMatchingWeb.PlayersChannel
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.LolInfo
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Info.LolInfo, as: Info
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
   alias BuddyMatchingWeb.PlayerSocket
   alias BuddyMatchingWeb.Auth
   alias Poison
@@ -33,7 +33,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval1",
     criteria: @broad_criteria,
     comment: "Never dies on Vayne",
-    game_info: %LolInfo{
+    game_info: %Info{
       region: :euw,
       positions: [:marksman],
       leagues: @diamond1,
@@ -49,7 +49,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval1",
     criteria: @narrow_criteria,
     comment: "Never dies on Vayne",
-    game_info: %LolInfo{
+    game_info: %Info{
       region: :euw,
       positions: [:marksman],
       leagues: @diamond1,
@@ -65,7 +65,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval3",
     criteria: @narrow_criteria,
     comment: "Apparently I play Riven",
-    game_info: %LolInfo{
+    game_info: %Info{
       region: :euw,
       positions: [:top],
       leagues: @diamond1,
@@ -91,6 +91,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       ],
       "name":"Lethly",
       "region":"euw",
+      "game":"lol",
       "userInfo":{
         "criteria": {
           "positions":{

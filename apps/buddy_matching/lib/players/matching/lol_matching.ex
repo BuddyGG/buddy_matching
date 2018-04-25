@@ -33,9 +33,7 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
       true
   """
   def match?(%Player{} = player, %Player{} = candidate) do
-    (lists_intersect?(player.languages, candidate.languages) ||
-       (player.criteria.ignore_language && candidate.criteria.ignore_language)) &&
-      player.id != candidate.id && can_queue?(player, candidate) &&
+    player.id != candidate.id && can_queue?(player, candidate) &&
       criteria_compatible?(player.criteria, candidate) &&
       criteria_compatible?(candidate.criteria, player)
   end
@@ -60,7 +58,7 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
   @doc """
   Returns a boolean representing whether the Player 'player'
   conforms to the Criteria 'criteria'
-
+PlayerCriteria
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
@@ -71,13 +69,10 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
       iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
-  def criteria_compatible?(
-        %LolCriteria{} = criteria,
-        %Player{game_info: player_game_info} = player
-      ) do
-    lists_intersect?(criteria.voice, player.voice) &&
-      lists_intersect?(criteria.positions, player_game_info.positions) &&
-      Enum.member?(criteria.age_groups, player.age_group)
+  def criteria_compatible?(%{game_criteria: %LolCriteria{} = game_criteria}, %Player{
+        game_info: player_game_info
+      }) do
+    lists_intersect?(game_criteria.positions, player_game_info.positions)
   end
 
   # This function assumes high isn't in @loose_tiers and that

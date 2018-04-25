@@ -33,8 +33,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "numero uno",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:mid],
         leagues: challenger,
         champions: ["LeBlanc", "Syndra", "Fizz"]
@@ -49,8 +49,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "Haha DDOS Frogger",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:mid],
         leagues: master,
         champions: ["LeBlanc", "Syndra", "Fizz"]
@@ -65,8 +65,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "Never dies on Vayne",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:marksman],
         leagues: diamond1,
         champions: ["Vayne", "Ezreal", "Caitlyn"]
@@ -81,8 +81,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "Apparently plays Riven",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:top],
         leagues: platinum2,
         champions: ["Cho'Gath", "Renekton", "Riven"]
@@ -97,8 +97,8 @@ defmodule BuddyMatching.PlayersTest do
       name: "esow",
       criteria: broad_criteria,
       comment: "Lul, I'm only Platinum 4",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:jungle],
         leagues: gold3,
         champions: ["Lee'Sin", "Ekko", "Vayne"]
@@ -113,8 +113,8 @@ defmodule BuddyMatching.PlayersTest do
       languages: ["danish", "english"],
       criteria: broad_criteria,
       comment: "That's okay guys, I'll hit the next one",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:support],
         leagues: silver4,
         champions: ["Braum", "Leona", "Blitzcrank"]
@@ -129,8 +129,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "Am in elo hell, but am good",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:mid, :marksman],
         leagues: bronze5,
         champions: ["Yasuo", "Riven", "Vayne"]
@@ -145,8 +145,8 @@ defmodule BuddyMatching.PlayersTest do
       age_group: 1,
       criteria: broad_criteria,
       comment: "I don't play very much",
+      server: :euw,
       game_info: %LolInfo{
-        region: :euw,
         positions: [:jungle],
         leagues: unranked,
         champions: ["Yasuo", "Riven", "Vayne"]

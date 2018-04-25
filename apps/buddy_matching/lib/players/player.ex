@@ -10,11 +10,9 @@ defmodule BuddyMatching.Players.Player do
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Info.FortniteInfo
 
-  @comment_char_limit 100
-  @riot_name_length_limit 16
-  @role_limit 5
+  @name_limit 16
   @language_limit 5
-  @champion_limit 3
+  @comment_char_limit 100
 
   # This module relies on the atoms defined in the Riot api module,
   # Load_atoms ensues that these are loaded before we use the module
@@ -27,7 +25,7 @@ defmodule BuddyMatching.Players.Player do
   @doc """
   id => A unique identifier for the player
   name => The player's name
-  region => The player's region
+  server => The player's server
   voice =>  [true] -> use voice, [false] -> don't use, [true, false] -> don't care
   age_group =>  The player's age group
   leagues =>  A map with the player's queue type, tier and rank
@@ -37,12 +35,13 @@ defmodule BuddyMatching.Players.Player do
   """
   defstruct id: nil,
             name: nil,
-            game: :lol,
+            game: nil,
+            server: nil,
             voice: [],
             languages: [],
             age_group: [],
-            criteria: %{},
             comment: nil,
+            criteria: %{},
             game_info: %{}
 
   # Sort the languages alphabetically, but ensure that english is first
@@ -68,17 +67,11 @@ defmodule BuddyMatching.Players.Player do
   """
   def player_from_json(data) do
     cond do
-      String.length(data["name"]) > @riot_name_length_limit ->
+      String.length(data["name"]) > @name_limit ->
         {:error, "Name too long"}
-
-      map_size(data["userInfo"]["selectedRoles"]) > @role_limit ->
-        {:error, "Too many roles selected"}
 
       length(data["userInfo"]["languages"]) > @language_limit ->
         {:error, "Too many langauges"}
-
-      length(data["champions"]) > @champion_limit ->
-        {:error, "Too many champions"}
 
       data["userInfo"]["comment"] != nil &&
           String.length(data["userInfo"]["comment"]) > @comment_char_limit ->
@@ -89,6 +82,7 @@ defmodule BuddyMatching.Players.Player do
          %BuddyMatching.Players.Player{
            id: data["userInfo"]["id"],
            game: String.to_existing_atom(data["game"]),
+           server: String.to_existing_atom(data["server"]),
            name: data["name"],
            voice: data["userInfo"]["voicechat"],
            languages: languages_from_json(data["userInfo"]["languages"]),

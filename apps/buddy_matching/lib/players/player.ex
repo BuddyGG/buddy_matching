@@ -86,15 +86,15 @@ defmodule BuddyMatching.Players.Player do
 
       true ->
         {:ok,
-        %BuddyMatching.Players.Player{
-          id: data["userInfo"]["id"],
-          game: String.to_existing_atom(data["game"]),
-          name: data["name"],
-          voice: data["userInfo"]["voicechat"],
-          languages: languages_from_json(data["userInfo"]["languages"]),
-          age_group: data["userInfo"]["agegroup"],
-          comment: data["userInfo"]["comment"],
-        }}
+         %BuddyMatching.Players.Player{
+           id: data["userInfo"]["id"],
+           game: String.to_existing_atom(data["game"]),
+           name: data["name"],
+           voice: data["userInfo"]["voicechat"],
+           languages: languages_from_json(data["userInfo"]["languages"]),
+           age_group: data["userInfo"]["agegroup"],
+           comment: data["userInfo"]["comment"]
+         }}
     end
   end
 

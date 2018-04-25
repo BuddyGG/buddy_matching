@@ -68,7 +68,10 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
       iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
-  def criteria_compatible?(%LolCriteria{} = criteria, %Player{game_info: player_game_info} = player) do
+  def criteria_compatible?(
+        %LolCriteria{} = criteria,
+        %Player{game_info: player_game_info} = player
+      ) do
     lists_intersect?(criteria.voice, player.voice) &&
       lists_intersect?(criteria.positions, player_game_info.positions) &&
       Enum.member?(criteria.age_groups, player.age_group)

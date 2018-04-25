@@ -8,7 +8,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   alias BuddyMatching.Players
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.PlayerServer.RegionMapper
+  alias BuddyMatching.PlayerServer.ServerMapper
   alias BuddyMatchingWeb.Endpoint
   alias BuddyMatchingWeb.Presence
   alias BuddyMatchingWeb.Presence.LeaveTracker
@@ -71,11 +71,11 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   old state, and its new state. Returns the list of the Player's updated matches.
   """
   def update_criteria(current_player, updated_player) do
-    region_players = RegionMapper.get_players(current_player.game_info)
-    current_matches = Players.get_matches(current_player, region_players)
+    server_players = ServerMapper.get_players(current_player.server)
+    current_matches = Players.get_matches(current_player, server_players)
 
-    RegionMapper.update_player(updated_player)
-    updated_matches = Players.get_matches(updated_player, region_players)
+    ServerMapper.update_player(updated_player)
+    updated_matches = Players.get_matches(updated_player, server_players)
 
     # broadcast new_player to newly matched players
     (updated_matches -- current_matches)
@@ -122,9 +122,9 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   """
   def handle_info({:on_join, _msg}, socket) do
     Task.start(fn ->
-      case RegionMapper.add_player(socket.assigns.user) do
+      case ServerMapper.add_player(socket.assigns.user) do
         :ok ->
-          players = RegionMapper.get_players(socket.assigns.user.game_info)
+          players = ServerMapper.get_players(socket.assigns.user.server)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
           push(socket, @initial_matches_event, %{players: matches})
@@ -149,9 +149,9 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   """
   def handle_info(:after_join, socket) do
     # Presence has to track some metadata, and in our case we track the name and the
-    # region, as we need these to remove the Player from the correct PlayerServer
+    # server, as we need these to remove the Player from the correct PlayerServer
     # when they leave.
-    tracked = %{name: socket.assigns.user.name, game_info: socket.assigns.user.game_info}
+    tracked = %{name: socket.assigns.user.name, server: socket.assigns.user.server}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
     track_player_id(socket.assigns.user)
     {:noreply, socket}

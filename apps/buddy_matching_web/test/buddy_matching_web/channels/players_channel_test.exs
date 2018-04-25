@@ -34,8 +34,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval1",
     criteria: @broad_criteria,
     comment: "Never dies on Vayne",
+    server: :euw,
     game_info: %Info{
-      region: :euw,
       positions: [:marksman],
       leagues: @diamond1,
       champions: ["Vayne", "Ezreal", "Caitlyn"]
@@ -51,8 +51,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval1",
     criteria: @narrow_criteria,
     comment: "Never dies on Vayne",
+    server: :euw,
     game_info: %Info{
-      region: :euw,
       positions: [:marksman],
       leagues: @diamond1,
       champions: ["Vayne", "Ezreal", "Caitlyn"]
@@ -68,8 +68,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     age_group: "interval3",
     criteria: @narrow_criteria,
     comment: "Apparently I play Riven",
+    server: :euw,
     game_info: %Info{
-      region: :euw,
       positions: [:top],
       leagues: @diamond1,
       champions: ["Cho'Gath", "Renekton", "Riven"]
@@ -93,7 +93,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
         "marksman"
       ],
       "name":"Lethly",
-      "region":"euw",
+      "server":"euw",
       "game":"lol",
       "userInfo":{
         "criteria": {
@@ -423,6 +423,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
+  @tag :only
   test "update criteria sends unmatch events when no longer matching, and match event
   when matching again" do
     {socket1, player1, topic1} = setup_socket(@base_player1)

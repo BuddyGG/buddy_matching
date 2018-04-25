@@ -75,7 +75,7 @@ defmodule BuddyMatching.PlayerServer do
   #
   # Otherwise if Player wasn't in state, returns:
   # Returns {:reply, :error, <state>}
-  def handle_call({:update, player}, _from, state) do
+  def handle_call({:update, %Player{} = player}, _from, state) do
     case Map.fetch(state, player.name) do
       {:ok, _} -> {:reply, :ok, Map.put(state, player.name, player)}
       _ -> {:reply, :error, state}

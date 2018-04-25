@@ -30,12 +30,12 @@ defmodule BuddyMatching.Players.Criteria.LolCriteria do
 
       true ->
         {:ok,
-        %BuddyMatching.Players.Criteria.LolCriteria{
-          positions: LolInfo.positions_from_json(data["positions"]),
-          voice: voice_from_json(data["voiceChat"]),
-          age_groups: age_groups_from_json(data["ageGroups"]),
-          ignore_language: data["ignoreLanguage"]
-        }}
+         %BuddyMatching.Players.Criteria.LolCriteria{
+           positions: LolInfo.positions_from_json(data["positions"]),
+           voice: voice_from_json(data["voiceChat"]),
+           age_groups: age_groups_from_json(data["ageGroups"]),
+           ignore_language: data["ignoreLanguage"]
+         }}
     end
   end
 

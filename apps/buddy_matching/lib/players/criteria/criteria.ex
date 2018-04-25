@@ -5,5 +5,5 @@ defmodule BuddyMatching.Players.Criteria do
   """
 
   @doc "Function creating a given struct from a map of data."
-  @callback from_json(Map) :: {:ok, Struct} | {:error, String.t}
+  @callback from_json(Map) :: {:ok, Struct} | {:error, String.t()}
 end

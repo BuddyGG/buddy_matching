@@ -29,6 +29,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     name: "Lethly",
     voice: [false],
     id: "1",
+    game: :lol,
     languages: ["danish"],
     age_group: "interval1",
     criteria: @broad_criteria,
@@ -45,6 +46,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     name: "Trolleren",
     voice: [false],
     id: "2",
+    game: :lol,
     languages: ["danish"],
     age_group: "interval1",
     criteria: @narrow_criteria,
@@ -61,6 +63,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     name: "hansp",
     voice: [false],
     id: "3",
+    game: :lol,
     languages: ["danish", "english"],
     age_group: "interval3",
     criteria: @narrow_criteria,
@@ -333,7 +336,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       payload: %{players: [^player2]}
     }
 
-    broad_criteria_parsed = Criteria.from_json(broad_criteria)
+    {:ok, broad_criteria_parsed} = Criteria.from_json(broad_criteria)
     broad_player1 = %{player1 | criteria: broad_criteria_parsed}
 
     assert_receive %Phoenix.Socket.Message{
@@ -373,6 +376,16 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
+    # assert player 1 got player2
+    assert_receive(
+      %Phoenix.Socket.Message{
+        topic: ^topic1,
+        event: @new_match_event,
+        payload: ^player2
+      },
+      2000
+    )
+
     narrow_criteria = %{
       "positions" => %{
         "top" => true,
@@ -398,7 +411,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    narrow_criteria_parsed = Criteria.from_json(narrow_criteria)
+    {:ok, narrow_criteria_parsed} = Criteria.from_json(narrow_criteria)
     narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
 
     assert_receive(
@@ -463,7 +476,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    narrow_criteria_parsed = Criteria.from_json(narrow_criteria)
+    {:ok, narrow_criteria_parsed} = Criteria.from_json(narrow_criteria)
     narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
 
     assert_receive(
@@ -496,7 +509,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    broad_criteria_parsed = Criteria.from_json(broad_criteria)
+    {:ok, broad_criteria_parsed} = Criteria.from_json(broad_criteria)
     broad_player1 = %{player1 | criteria: broad_criteria_parsed}
 
     assert_receive(

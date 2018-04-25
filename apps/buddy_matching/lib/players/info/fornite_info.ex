@@ -3,8 +3,8 @@ defmodule BuddyMatching.Players.Info.FortniteInfo do
   Struct with Fortnite game info
   """
 
-  alias BuddyMatching.Players.Info
-  @behaviour Info
+  alias BuddyMatching.Players.FromJsonBehaviour
+  @behaviour FromJsonBehaviour
 
   defstruct platform: nil
 

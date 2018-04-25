@@ -3,11 +3,11 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   Struct with League of Legends game info
   """
 
+  alias BuddyMatching.Players.FromJsonBehaviour
+  @behaviour FromJsonBehaviour
+
   @role_limit 5
   @champion_limit 3
-
-  alias BuddyMatching.Players.Info
-  @behaviour Info
 
   defstruct positions: [],
             leagues: nil,

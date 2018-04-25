@@ -3,9 +3,8 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   Struct definining the possible criterias with which Fortnite
   Players can filter their matches.
   """
-  alias BuddyMatching.Players.Info.FortniteInfo
-  alias BuddyMatching.Players.Criteria
-  @behaviour Criteria
+  alias BuddyMatching.Players.FromJsonBehaviour
+  @behaviour FromJsonBehaviour
 
   defstruct positions: [], voice: [], age_groups: [], ignore_language: false
 
@@ -13,7 +12,7 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   Parses the checkbox format the frontend uses for criteria
   into the criteria struct used in the backend.
   """
-  def from_json(data) do
+  def from_json(_data) do
     {:ok, %BuddyMatching.Players.Criteria.FortniteCriteria{}}
   end
 end

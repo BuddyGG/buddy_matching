@@ -9,6 +9,9 @@ defmodule BuddyMatching.Players.Player do
   alias BuddyMatching.Players.Criteria.FortniteCriteria
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Info.FortniteInfo
+  alias BuddyMatching.Players.FromJsonBehaviour
+
+  @behaviour FromJsonBehaviour
 
   @name_limit 16
   @language_limit 5

@@ -1,4 +1,4 @@
-defmodule BuddyMatching.Players.Matching do
+defmodule BuddyMatching.Players.MatchingBehaviour do
   @moduledoc """
   Defines the behavior necessary for implementing player matching.
   """

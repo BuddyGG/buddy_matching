@@ -62,6 +62,7 @@ defmodule BuddyMatching.Criteria.LolCriteriaTest do
     data = Poison.Parser.parse!(@criteria)
     bad_data = Map.update!(data, "voiceChat", &Map.put(&1, "MAYBE", true))
 
-    assert {:error, "Too many values for voice chat in criteria"} == LolCriteria.from_json(bad_data)
+    assert {:error, "Too many values for voice chat in criteria"} ==
+             LolCriteria.from_json(bad_data)
   end
 end

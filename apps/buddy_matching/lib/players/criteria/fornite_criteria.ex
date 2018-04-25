@@ -6,7 +6,7 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
-  defstruct positions: [], voice: [], age_groups: [], ignore_language: false
+  defstruct positions: []
 
   @doc """
   Parses the checkbox format the frontend uses for criteria

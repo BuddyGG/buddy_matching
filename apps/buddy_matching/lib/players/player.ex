@@ -5,6 +5,7 @@ defmodule BuddyMatching.Players.Player do
 
   require OK
 
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
   alias BuddyMatching.Players.Criteria.LolCriteria
   alias BuddyMatching.Players.Criteria.FortniteCriteria
   alias BuddyMatching.Players.Info.LolInfo
@@ -97,8 +98,9 @@ defmodule BuddyMatching.Players.Player do
 
   def info_from_json(:lol, data), do: LolInfo.from_json(data)
   def info_from_json(:fortnite, data), do: FortniteInfo.from_json(data)
-  def criteria_from_json(:lol, data), do: LolCriteria.from_json(data)
-  def criteria_from_json(:fortnite, data), do: FortniteCriteria.from_json(data)
+
+  def game_criteria_from_json(:lol, data), do: LolCriteria.from_json(data)
+  def game_criteria_from_json(:fortnite, data), do: FortniteCriteria.from_json(data)
 
   @doc """
   Parses an entire player from json into the Player struct used in the backend,
@@ -111,6 +113,15 @@ defmodule BuddyMatching.Players.Player do
       criteria <- criteria_from_json(player.game, data["userInfo"]["criteria"])
     after
       %BuddyMatching.Players.Player{player | game_info: game_info, criteria: criteria}
+    end
+  end
+
+  def criteria_from_json(game, data) do
+    OK.for do
+      criteria <- PlayerCriteria.from_json(data)
+      game_criteria <- game_criteria_from_json(game, data)
+    after
+      %PlayerCriteria{criteria | game_criteria: game_criteria}
     end
   end
 end

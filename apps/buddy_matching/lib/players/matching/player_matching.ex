@@ -3,6 +3,7 @@ defmodule BuddyMatching.Players.Matching.PlayerMatching do
   Module containing all logic for matching of the general case Player.
   """
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
   alias BuddyMatching.Players.MatchingBehaviour
   @behaviour MatchingBehaviour
 
@@ -19,6 +20,11 @@ defmodule BuddyMatching.Players.Matching.PlayerMatching do
     !MapSet.disjoint?(MapSet.new(a), MapSet.new(b))
   end
 
+  def criteria_compatible?(%PlayerCriteria{} = criteria, %Player{} = candidate) do
+    lists_intersect?(criteria.voice, candidate.voice) &&
+      Enum.member?(criteria.age_groups, candidate.age_group)
+  end
+
   @doc """
   Returns a boolean representing whether Player 'player' and Player 'candidate'
   are able to play together and fit eachother's criteria.
@@ -33,6 +39,10 @@ defmodule BuddyMatching.Players.Matching.PlayerMatching do
     false
   """
   def match?(%Player{} = player, %Player{} = candidate) do
-    player.server == candidate.server && lists_intersect?(player.languages, candidate.languages)
+    player.server == candidate.server &&
+      (lists_intersect?(player.languages, candidate.languages) ||
+         (player.criteria.ignore_language && candidate.criteria.ignore_language)) &&
+      criteria_compatible?(player.criteria, candidate) &&
+      criteria_compatible?(candidate.criteria, player)
   end
 end

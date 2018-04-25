@@ -4,8 +4,8 @@ defmodule BuddyMatching.Players.Criteria.LolCriteria do
   filter their matches.
   """
   alias BuddyMatching.Players.Info.LolInfo
-  alias BuddyMatching.Players.Criteria
-  @behaviour Criteria
+  alias BuddyMatching.Players.FromJsonBehaviour
+  @behaviour FromJsonBehaviour
 
   @position_limit 5
   @voice_limit 2

@@ -32,8 +32,8 @@ defmodule BuddyMatching.Matching.LolMatchingTest do
       age_group: "interval1",
       criteria: broad_criteria,
       comment: "Never dies on Vayne",
+      server: :euw,
       game_info: %Info{
-        region: :euw,
         positions: [:marksman],
         leagues: diamond1,
         champions: ["Vayne", "Ezreal", "Caitlyn"]
@@ -48,8 +48,8 @@ defmodule BuddyMatching.Matching.LolMatchingTest do
       age_group: "interval3",
       criteria: narrow_criteria,
       comment: "Apparently I play Riven",
+      server: :euw,
       game_info: %Info{
-        region: :euw,
         positions: [:top],
         leagues: diamond1,
         champions: ["Cho'Gath", "Renekton", "Riven"]
@@ -66,7 +66,7 @@ defmodule BuddyMatching.Matching.LolMatchingTest do
   end
 
   ### --- Player matching tests --- ###
-  test "players with matching criteria and valid leagues/regions are matching", context do
+  test "players with matching criteria and valid leagues/servers are matching", context do
     assert Matching.match?(context[:player1], context[:player2])
   end
 
@@ -79,11 +79,8 @@ defmodule BuddyMatching.Matching.LolMatchingTest do
     refute Matching.match?(context[:player1], context[:player1])
   end
 
-  test "player with compatible criteria but bad regions are not matching", context do
-    player2 = %Player{
-      context[:player2]
-      | game_info: %Info{context[:player2].game_info | region: :br}
-    }
+  test "player with compatible criteria but bad servers are not matching", context do
+    player2 = %Player{context[:player2] | server: :br}
 
     refute Matching.match?(context[:player1], player2)
   end

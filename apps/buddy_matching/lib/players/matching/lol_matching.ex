@@ -21,11 +21,11 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria1 = %Criteria{positions: [:top, :support], voice: [false, true], age_groups: [1]}
       iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
+      iex> player = %Player{id: 1, name: "Lethly", server: :euw, voice: [false],
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria1, comment: "Great player, promise"}
-      iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: [false],
+      iex> candidate = %Player{id: 2, name: "hansp", server: :euw, voice: [false],
         languages: ["danish", "english"], age_group: 1, positions: [:top],
         leagues: diamond1, champions: ["Cho'Gath", "Renekton", "Riven"],
         criteria: criteria2, comment: "Ok player, promise"}
@@ -47,10 +47,13 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
 
   # helper for extracting solo queue and determining if it is possible for
   # two players to queue together
-  defp can_queue?(%Player{game_info: player_game_info}, %Player{game_info: candidate_game_info}) do
-    case player_game_info.region == candidate_game_info.region do
+  defp can_queue?(%Player{server: server1, game_info: info1}, %Player{
+         server: server2,
+         game_info: info2
+       }) do
+    case server1 == server2 do
       false -> false
-      _ -> tier_compatible?(player_game_info.leagues, candidate_game_info.leagues)
+      _ -> tier_compatible?(info1.leagues, info2.leagues)
     end
   end
 
@@ -61,7 +64,7 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
+      iex> player = %Player{id: 1, name: "Lethly", server: :euw, voice: [false],
         languages: ["danish"], age_group: 1, positions: [:marksman],
         leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
         criteria: criteria, comment: "Fantastic player"}

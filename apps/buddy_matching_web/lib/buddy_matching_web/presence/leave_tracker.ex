@@ -7,7 +7,7 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
   use GenServer
   require Logger
   alias BuddyMatching.Players
-  alias BuddyMatching.PlayerServer.RegionMapper
+  alias BuddyMatching.PlayerServer.ServerMapper
   alias BuddyMatchingWeb.Endpoint
   alias BuddyMatchingWeb.PlayersChannel
   alias Phoenix.Socket.Broadcast
@@ -46,12 +46,12 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
   # remove him from the state. In a separate process alert all the matches
   # he may have had, that he has left.
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
-    [{name, game_info} | _] =
+    [{name, server} | _] =
       leaves
       |> Map.values()
-      |> Enum.map(fn %{metas: [%{name: name, game_info: game_info}]} -> {name, game_info} end)
+      |> Enum.map(fn %{metas: [%{name: name, server: server}]} -> {name, server} end)
 
-    result = RegionMapper.remove_player(name, game_info)
+    result = ServerMapper.remove_player(name, server)
 
     unless result == :error do
       {:ok, player} = result
@@ -59,10 +59,10 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
       Task.start(fn ->
         [topic | _] = Map.keys(leaves)
         Endpoint.unsubscribe("players:" <> topic)
-        region_players = RegionMapper.get_players(player.game_info)
+        server_players = ServerMapper.get_players(player.server)
 
         player
-        |> Players.get_matches(region_players)
+        |> Players.get_matches(server_players)
         |> PlayersChannel.broadcast_unmatches(player)
       end)
     end

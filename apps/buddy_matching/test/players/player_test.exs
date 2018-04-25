@@ -21,7 +21,7 @@ defmodule BuddyMatching.PlayerTest do
     ],
     "name":"Lethly",
     "game":"lol",
-    "region":"euw",
+    "server":"euw",
     "userInfo":{
       "criteria": {
         "positions":{
@@ -71,13 +71,14 @@ defmodule BuddyMatching.PlayerTest do
       ignore_language: false
     },
     id: 1,
+    server: :euw,
     languages: ["EN", "DA", "KO"],
     name: "Lethly",
+    game: :lol,
     game_info: %LolInfo{
       leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
       positions: [:jungle, :top],
-      champions: ["Vayne", "Caitlyn", "Ezreal"],
-      region: :euw
+      champions: ["Vayne", "Caitlyn", "Ezreal"]
     },
     voice: [true],
     comment: "test"
@@ -199,11 +200,12 @@ defmodule BuddyMatching.PlayerTest do
          id: 1,
          languages: ["EN", "DA", "KO"],
          name: "Lethly",
+         game: :lol,
+         server: :euw,
          game_info: %LolInfo{
            champions: ["Vayne", "Caitlyn", "Ezreal"],
            leagues: %{rank: nil, tier: "GOLD", type: "RANKED_SOLO_5x5"},
-           positions: [:jungle, :top],
-           region: :euw
+           positions: [:jungle, :top]
          },
          voice: [true],
          comment: "test"

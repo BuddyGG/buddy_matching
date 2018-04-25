@@ -3,20 +3,27 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   Struct with League of Legends game info
   """
 
+  @role_limit 5
+  @champion_limit 3
+
   alias BuddyMatching.Players.Info
   @behaviour Info
 
-  defstruct region: nil,
-            positions: [],
+  defstruct positions: [],
             leagues: nil,
             champions: []
 
   def from_json(data) do
     cond do
+      map_size(data["userInfo"]["selectedRoles"]) > @role_limit ->
+        {:error, "Too many roles selected"}
+
+      length(data["champions"]) > @champion_limit ->
+        {:error, "Too many champions"}
+
       true ->
         {:ok,
          %BuddyMatching.Players.Info.LolInfo{
-           region: String.to_existing_atom(data["region"]),
            positions: positions_from_json(data["userInfo"]["selectedRoles"]),
            leagues: leagues_from_json(data["leagues"]),
            champions: data["champions"]

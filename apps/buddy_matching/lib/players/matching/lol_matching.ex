@@ -8,8 +8,8 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
   """
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Criteria.LolCriteria
-  alias BuddyMatching.Players.Matching
-  @behaviour Matching
+  alias BuddyMatching.Players.MatchingBehaviour
+  @behaviour MatchingBehaviour
 
   @loose_tiers ["UNRANKED", "BRONZE", "SILVER", "GOLD", "PLATINUM"]
 

@@ -34,6 +34,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "numero uno",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:mid],
         leagues: challenger,
@@ -50,6 +51,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "Haha DDOS Frogger",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:mid],
         leagues: master,
@@ -66,6 +68,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "Never dies on Vayne",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:marksman],
         leagues: diamond1,
@@ -82,6 +85,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "Apparently plays Riven",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:top],
         leagues: platinum2,
@@ -98,6 +102,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "Lul, I'm only Platinum 4",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:jungle],
         leagues: gold3,
@@ -114,6 +119,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "That's okay guys, I'll hit the next one",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:support],
         leagues: silver4,
@@ -130,6 +136,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "Am in elo hell, but am good",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:mid, :marksman],
         leagues: bronze5,
@@ -146,6 +153,7 @@ defmodule BuddyMatching.PlayersTest do
       criteria: broad_criteria,
       comment: "I don't play very much",
       server: :euw,
+      game: :lol,
       game_info: %LolInfo{
         positions: [:jungle],
         leagues: unranked,

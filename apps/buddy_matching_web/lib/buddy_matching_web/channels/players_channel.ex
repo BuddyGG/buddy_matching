@@ -7,7 +7,6 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   require Logger
 
   alias BuddyMatching.Players
-  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
   alias BuddyMatching.Players.Player
   alias BuddyMatching.PlayerServer.RegionMapper
   alias BuddyMatchingWeb.Endpoint
@@ -67,6 +66,29 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
   def parse_player_payload(%{} = player), do: Player.from_json(player)
 
+  @doc """
+  Send necessary match/unmatch events to new/old matches given a Player's
+  old state, and its new state. Returns the list of the Player's updated matches.
+  """
+  def update_criteria(current_player, updated_player) do
+    region_players = RegionMapper.get_players(current_player.game_info)
+    current_matches = Players.get_matches(current_player, region_players)
+
+    RegionMapper.update_player(updated_player)
+    updated_matches = Players.get_matches(updated_player, region_players)
+
+    # broadcast new_player to newly matched players
+    (updated_matches -- current_matches)
+    |> broadcast_matches(updated_player)
+
+    # broadcast remove_player to players who are no longer matched
+    (current_matches -- updated_matches)
+    |> broadcast_unmatches(updated_player)
+
+    # send the full list of updated matches on the socket
+    Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
+    updated_matches
+  end
 
   @doc """
   Each clients joins their own player channel players:session_id
@@ -170,41 +192,18 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   end
 
   @doc """
-  Send necessary match/unmatch events to new/old matches given a Player's
-  old state, and its new state. Returns the list of the Player's updated matches.
-  """
-  def update_criteria(current_player, updated_player) do
-    region_players = RegionMapper.get_players(current_player.game_info)
-    current_matches = Players.get_matches(current_player, region_players)
-
-    RegionMapper.update_player(updated_player)
-    updated_matches = Players.get_matches(updated_player, region_players)
-
-    # broadcast new_player to newly matched players
-    (updated_matches -- current_matches)
-    |> broadcast_matches(updated_player)
-
-    # broadcast remove_player to players who are no longer matched
-    (current_matches -- updated_matches)
-    |> broadcast_unmatches(updated_player)
-
-    # send the full list of updated matches on the socket
-    Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
-    updated_matches
-  end
-
-  @doc """
   When update criteria is received with a new criteria for the player bound to the socket,
   we broadcast a 'new_player'
   """
   def handle_in("update_criteria", criteria, socket) do
     current_player = socket.assigns.user
-
     criteria_result = Player.criteria_from_json(current_player.game, criteria)
+
     case criteria_result do
       {:ok, updated_criteria} ->
-        updated_player = %{socket.assigns.user | criteria: updated_criteria}
+        updated_player = %{current_player | criteria: updated_criteria}
         socket = assign(socket, :user, updated_player)
+
         Task.start(fn ->
           updated_matches = update_criteria(current_player, updated_player)
           push(socket, @initial_matches_event, %{players: updated_matches})
@@ -212,8 +211,9 @@ defmodule BuddyMatchingWeb.PlayersChannel do
         end)
 
         {:noreply, socket}
-      {:error, _reason} -> {:noreply, socket}
+
+      {:error, _reason} ->
+        {:noreply, socket}
     end
   end
-
 end

@@ -63,26 +63,25 @@ defmodule BuddyMatching.PlayerTest do
  })
 
   @player_struct %Player{
-         age_group: "interval2",
-         criteria: %LolCriteria{
-           age_groups: ["interval1", "interval2", "interval3"],
-           positions: [:jungle, :marksman, :mid, :support, :top],
-           voice: [false, true],
-           ignore_language: false
-         },
-         id: 1,
-         languages: ["EN", "DA", "KO"],
-         name: "Lethly",
-         game_info: %LolInfo{
-           leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
-           positions: [:jungle, :top],
-           champions: ["Vayne", "Caitlyn", "Ezreal"],
-           region: :euw
-         },
-         voice: [true],
-         comment: "test"
-       }
-
+    age_group: "interval2",
+    criteria: %LolCriteria{
+      age_groups: ["interval1", "interval2", "interval3"],
+      positions: [:jungle, :marksman, :mid, :support, :top],
+      voice: [false, true],
+      ignore_language: false
+    },
+    id: 1,
+    languages: ["EN", "DA", "KO"],
+    name: "Lethly",
+    game_info: %LolInfo{
+      leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+      positions: [:jungle, :top],
+      champions: ["Vayne", "Caitlyn", "Ezreal"],
+      region: :euw
+    },
+    voice: [true],
+    comment: "test"
+  }
 
   test "entire player is correctly parsed from json" do
     data = Poison.Parser.parse!(@player_json)
@@ -167,7 +166,7 @@ defmodule BuddyMatching.PlayerTest do
       |> Map.put("languages", too_many_languages)
 
     bad_data = Map.put(data, "userInfo", bad_user_info)
-    assert  {:error, "Too many langauges"} == Player.from_json(bad_data)
+    assert {:error, "Too many langauges"} == Player.from_json(bad_data)
   end
 
   test "too long player name is invalid" do

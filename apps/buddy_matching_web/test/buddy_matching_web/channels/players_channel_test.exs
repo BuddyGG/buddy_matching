@@ -180,6 +180,22 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket, %{player | id: session_id}, "players:#{session_id}"}
   end
 
+  test "get_player_id works for both player struct and json map" do
+    player_struct = %Player{id: 1}
+    player_map = %{"id" => 1}
+
+    assert 1 == PlayersChannel.get_player_id(player_struct)
+    assert 1 == PlayersChannel.get_player_id(player_map)
+  end
+
+  test "parse_player_payload json map, both wrapped in payload and not" do
+    player = Poison.Parser.parse!(generate_player(1))
+    player_wrapped = %{"payload" => player}
+
+    assert {:ok, %Player{}} = PlayersChannel.parse_player_payload(player)
+    assert {:ok, %Player{}} = PlayersChannel.parse_player_payload(player_wrapped)
+  end
+
   test "returns other matching players when joining channel and broadcast self as new player" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)

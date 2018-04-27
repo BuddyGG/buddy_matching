@@ -1,12 +1,12 @@
 defmodule BuddyMatching.Players.Matching.LolMatching do
   @moduledoc """
-  Module containing all logic for matching players with other players.
-  This included handling whether or not they can play with eachother based on Riot's
-  own rules on the matter:
+  Module containing all logic for matching lol players with other players.
+  This included handling whether or not they can play with eachother based
+  on Riot's own rules on the matter:
     https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
   and whether Players criterias' are mutually compatible.
   """
-  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Criteria.LolCriteria
   alias BuddyMatching.Players.MatchingBehaviour
   @behaviour MatchingBehaviour
@@ -32,10 +32,10 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
       iex> BuddyMatching.Players.Matching.match?(player, candidate)
       true
   """
-  def match?(%Player{} = player, %Player{} = candidate) do
-    player.id != candidate.id && can_queue?(player, candidate) &&
-      criteria_compatible?(player.criteria, candidate) &&
-      criteria_compatible?(candidate.criteria, player)
+  def match?(%LolInfo{} = player_info, %LolInfo{} = candidate_info) do
+    can_queue?(player_info, candidate_info) &&
+      criteria_compatible?(player_info.game_criteria, candidate_info) &&
+      criteria_compatible?(candidate_info.game_criteria, player_info)
   end
 
   # convert two lists to MapSets and see if they intersect?
@@ -45,20 +45,18 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
 
   # helper for extracting solo queue and determining if it is possible for
   # two players to queue together
-  defp can_queue?(%Player{server: server1, game_info: info1}, %Player{
-         server: server2,
-         game_info: info2
-       }) do
-    case server1 == server2 do
-      false -> false
-      _ -> tier_compatible?(info1.leagues, info2.leagues)
+  defp can_queue?(%LolInfo{} = info1, %LolInfo{} = info2) do
+    if info1.region == info2.region do
+      tier_compatible?(info1.leagues, info2.leagues)
+    else
+      false
     end
   end
 
   @doc """
   Returns a boolean representing whether the Player 'player'
   conforms to the Criteria 'criteria'
-PlayerCriteria
+
   ## Examples
       iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
       iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
@@ -69,10 +67,8 @@ PlayerCriteria
       iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
       true
   """
-  def criteria_compatible?(%{game_criteria: %LolCriteria{} = game_criteria}, %Player{
-        game_info: player_game_info
-      }) do
-    lists_intersect?(game_criteria.positions, player_game_info.positions)
+  def criteria_compatible?(%LolCriteria{} = criteria, %LolInfo{} = info) do
+    lists_intersect?(criteria.positions, info.positions)
   end
 
   # This function assumes high isn't in @loose_tiers and that

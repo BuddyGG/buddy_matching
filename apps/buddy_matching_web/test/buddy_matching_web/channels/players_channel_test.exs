@@ -2,8 +2,9 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
   use BuddyMatchingWeb.ChannelCase
   alias BuddyMatchingWeb.PlayersChannel
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Info.LolInfo, as: Info
-  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
+  alias BuddyMatching.Players.Criteria.LolCriteria
   alias BuddyMatchingWeb.PlayerSocket
   alias BuddyMatchingWeb.Auth
   alias Poison
@@ -15,122 +16,160 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
   @request_response_event "request_response"
   @already_signed_up_event "already_signed_up"
 
-  @broad_criteria %Criteria{
-    positions: [:marksman, :top, :jungle, :top, :support],
-    voice: [false],
-    age_groups: ["interval1", "interval2", "interval3"]
+  @player_broad_criteria %PlayerCriteria{
+    voice: [false, true],
+    age_groups: ["interval1", "interval2", "interval3"],
+    ignore_language: true
   }
 
-  @narrow_criteria %Criteria{positions: [:marksman], voice: [false], age_groups: ["interval1"]}
+  @lol_broad_criteria %LolCriteria{
+    positions: [:marksman, :top, :jungle, :top, :support]
+  }
+  @broad_criteria_payload %{
+    "gameCriteria" => %{
+      "positions" => %{
+        "top" => true,
+        "jungle" => true,
+        "mid" => true,
+        "marksman" => true,
+        "support" => true
+      }
+    },
+    "playerCriteria" => %{
+      "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
+      "voiceChat" => %{"YES" => true, "NO" => true},
+      "ignoreLanguage" => true
+    }
+  }
+
+  @lol_narrow_criteria %LolCriteria{positions: [:marksman]}
+
+  @narrow_criteria_payload %{
+    "gameCriteria" => %{
+      "positions" => %{
+        "top" => false,
+        "jungle" => false,
+        "mid" => false,
+        "marksman" => true,
+        "support" => false
+      }
+    },
+    "playerCriteria" => %{
+      "ageGroups" => %{"interval1" => true, "interval2" => false, "interval3" => false},
+      "voiceChat" => %{"YES" => false, "NO" => true},
+      "ignoreLanguage" => false
+    }
+  }
 
   @diamond1 %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
   @base_player1 %Player{
     name: "Lethly",
-    voice: [false],
     id: "1",
     game: :lol,
-    languages: ["danish"],
     age_group: "interval1",
-    criteria: @broad_criteria,
-    comment: "Never dies on Vayne",
-    server: :euw,
-    game_info: %Info{
-      positions: [:marksman],
-      leagues: @diamond1,
-      champions: ["Vayne", "Ezreal", "Caitlyn"]
-    }
-  }
-
-  @narrow_player1 %Player{
-    name: "Trolleren",
+    languages: ["danish"],
     voice: [false],
-    id: "2",
-    game: :lol,
-    languages: ["danish"],
-    age_group: "interval1",
-    criteria: @narrow_criteria,
-    comment: "Never dies on Vayne",
-    server: :euw,
-    game_info: %Info{
-      positions: [:marksman],
+    comment: "Great player",
+    criteria: @player_broad_criteria,
+    game_info: %LolInfo{
+      icon_id: 512,
+      region: :euw,
+      game_criteria: @lol_broad_criteria,
       leagues: @diamond1,
-      champions: ["Vayne", "Ezreal", "Caitlyn"]
+      positions: [:marksman],
+      champions: ["Vayne", "Caitlyn", "Ezreal"]
     }
   }
 
   @base_player2 %Player{
     name: "hansp",
-    voice: [false],
-    id: "3",
+    id: "2",
     game: :lol,
+    age_group: "interval2",
     languages: ["danish", "english"],
-    age_group: "interval3",
-    criteria: @narrow_criteria,
+    voice: [false],
     comment: "Apparently I play Riven",
-    server: :euw,
-    game_info: %Info{
-      positions: [:top],
+    criteria: @player_broad_criteria,
+    game_info: %LolInfo{
+      icon_id: 512,
+      region: :euw,
+      game_criteria: @lol_narrow_criteria,
       leagues: @diamond1,
+      positions: [:top],
       champions: ["Cho'Gath", "Renekton", "Riven"]
     }
   }
 
   def generate_player(id) do
     ~s({
-      "champions":[
+    "name": "Lethly",
+    "id": "#{id}",
+    "game": "lol",
+    "voiceChat": [
+      true
+    ],
+    "ageGroup": "interval2",
+    "comment": "test",
+    "languages": [
+      "DA",
+      "KO",
+      "EN"
+    ],
+    "criteria": {
+      "ageGroups": {
+        "interval1": true,
+        "interval2": true,
+        "interval3": true
+      },
+      "voiceChat": {
+        "YES": true,
+        "NO": true
+      },
+      "ignoreLanguage": false
+    },
+    "gameInfo": {
+      "iconId": 512,
+      "region": "euw",
+      "champions": [
         "Vayne",
         "Caitlyn",
         "Ezreal"
       ],
-      "icon_id":512,
       "leagues": {
-        "type":"RANKED_SOLO_5x5",
-        "tier":"GOLD",
-        "rank":"I"
+        "type": "RANKED_SOLO_5x5",
+        "tier": "GOLD",
+        "rank": 1
       },
-      "positions":[
-        "marksman"
-      ],
-      "name":"Lethly",
-      "server":"euw",
-      "game":"lol",
-      "userInfo":{
-        "criteria": {
-          "positions":{
-            "top":true,
-            "jungle":true,
-            "mid":true,
-            "marksman":true,
-            "support":true
-          },
-          "ageGroups":{
-            "interval1":true,
-            "interval2":true,
-            "interval3":true
-          },
-          "voiceChat":{
-            "YES":true,
-            "NO":true
-          },
-          "ignoreLanguage": false
-        },
-        "id" : "#{id}",
-        "selectedRoles":{
-          "top":true,
-          "jungle":true,
-          "mid":false,
-          "marksman":false,
-          "support":false
-        },
-        "languages":[
-          "DA"
-        ],
-        "voicechat":[true],
-        "agegroup":"interval2",
-        "comment":"test"
+      "selectedRoles": {
+        "top": true,
+        "jungle": true,
+        "mid": false,
+        "marksman": false,
+        "support": false
+      },
+      "gameCriteria": {
+        "positions": {
+          "top": true,
+          "jungle": true,
+          "mid": false,
+          "marksman": false,
+          "support": false
+        }
       }
-    })
+    }
+  })
+  end
+
+  def parse_criteria_payload(payload) do
+    {:ok, player_criteria} = PlayerCriteria.from_json(payload["playerCriteria"])
+    {:ok, game_criteria} = LolCriteria.from_json(payload["gameCriteria"])
+    {player_criteria, game_criteria}
+  end
+
+  def update_player_criteria(player, player_criteria, game_criteria) do
+    updated_player = %Player{player | criteria: player_criteria}
+    Kernel.put_in(updated_player.game_info.game_criteria, game_criteria)
   end
 
   # Setup a socket with an authorized player, returns the socket, the player and the proposed topic to join on
@@ -192,7 +231,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket, auth_player, topic} = setup_socket(%{id: 1})
     player = generate_player(auth_player.id)
     data = Poison.Parser.parse!(player)
-    data = Map.put(data, "name", "a_too_god_damn_long_name_for_riot")
+    data = Map.put(data, "name", "a_too_god_damn_long_name_my_good_friend")
 
     {:error, _} = socket |> subscribe_and_join(PlayersChannel, topic, data)
   end
@@ -262,6 +301,12 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
+    assert_receive %Phoenix.Socket.Message{
+      topic: ^topic1,
+      event: @new_match_event,
+      payload: ^player2
+    }
+
     :ok = close(channel1)
 
     assert_receive %Phoenix.Socket.Message{
@@ -293,8 +338,9 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
+  @tag :only
   test "update criteria returns updated match list" do
-    {socket1, player1, topic1} = setup_socket(@narrow_player1)
+    {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
@@ -311,38 +357,25 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: @initial_matches_event,
-      payload: %{players: []}
-    }
-
-    broad_criteria = %{
-      "positions" => %{
-        "top" => true,
-        "jungle" => true,
-        "mid" => true,
-        "marksman" => true,
-        "support" => true
-      },
-      "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
-      "voiceChat" => %{"YES" => true, "NO" => true},
-      "ignoreLanguage" => true
+      payload: %{players: [^player1]}
     }
 
     # update player 1's criteria to a less strict one
-    push(channel1, "update_criteria", broad_criteria)
+    push(channel1, "update_criteria", @narrow_criteria_payload)
+
+    {player_criteria, game_criteria} = parse_criteria_payload(@narrow_criteria_payload)
+    narrow_player1 = update_player_criteria(player1, player_criteria, game_criteria)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
       event: @initial_matches_event,
-      payload: %{players: [^player2]}
+      payload: %{players: []}
     }
-
-    {:ok, broad_criteria_parsed} = Criteria.from_json(broad_criteria)
-    broad_player1 = %{player1 | criteria: broad_criteria_parsed}
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
-      event: @new_match_event,
-      payload: ^broad_player1
+      event: @unmatch_event,
+      payload: ^narrow_player1
     }
 
     :ok = close(channel1)
@@ -386,21 +419,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    narrow_criteria = %{
-      "positions" => %{
-        "top" => true,
-        "jungle" => true,
-        "mid" => true,
-        "marksman" => true,
-        "support" => true
-      },
-      "ageGroups" => %{"interval1" => true, "interval2" => false, "interval3" => false},
-      "voiceChat" => %{"YES" => false, "NO" => true},
-      "ignoreLanguage" => false
-    }
-
     # update player 1's criteria to a stricter version
-    push(channel1, "update_criteria", narrow_criteria)
+    push(channel1, "update_criteria", @narrow_criteria_payload)
 
     assert_receive(
       %Phoenix.Socket.Message{
@@ -411,8 +431,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    {:ok, narrow_criteria_parsed} = Criteria.from_json(narrow_criteria)
-    narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
+    {player_criteria, game_criteria} = parse_criteria_payload(@narrow_criteria_payload)
+    narrow_player1 = update_player_criteria(player1, player_criteria, game_criteria)
 
     assert_receive(
       %Phoenix.Socket.Message{topic: ^topic2, event: @unmatch_event, payload: ^narrow_player1},
@@ -423,11 +443,12 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
-  @tag :only
   test "update criteria sends unmatch events when no longer matching, and match event
   when matching again" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
-    {socket2, player2, topic2} = setup_socket(%Player{@base_player2 | criteria: @broad_criteria})
+
+    {socket2, player2, topic2} =
+      setup_socket(%Player{@base_player2 | criteria: @player_broad_criteria})
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
     {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
@@ -452,21 +473,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    narrow_criteria = %{
-      "positions" => %{
-        "top" => false,
-        "jungle" => false,
-        "mid" => false,
-        "marksman" => false,
-        "support" => false
-      },
-      "ageGroups" => %{"interval1" => false, "interval2" => false, "interval3" => false},
-      "voiceChat" => %{"YES" => false, "NO" => true},
-      "ignoreLanguage" => false
-    }
-
     # update player 1's criteria to a stricter version
-    push(channel1, "update_criteria", narrow_criteria)
+    push(channel1, "update_criteria", @narrow_criteria_payload)
 
     assert_receive(
       %Phoenix.Socket.Message{
@@ -477,29 +485,16 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    {:ok, narrow_criteria_parsed} = Criteria.from_json(narrow_criteria)
-    narrow_player1 = %{player1 | criteria: narrow_criteria_parsed}
+    {player_criteria, game_criteria} = parse_criteria_payload(@narrow_criteria_payload)
+    narrow_player1 = update_player_criteria(player1, player_criteria, game_criteria)
 
     assert_receive(
       %Phoenix.Socket.Message{topic: ^topic2, event: @unmatch_event, payload: ^narrow_player1},
       2000
     )
 
-    broad_criteria = %{
-      "positions" => %{
-        "top" => true,
-        "jungle" => true,
-        "mid" => true,
-        "marksman" => true,
-        "support" => true
-      },
-      "ageGroups" => %{"interval1" => true, "interval2" => true, "interval3" => true},
-      "voiceChat" => %{"YES" => true, "NO" => true},
-      "ignoreLanguage" => true
-    }
-
     # update player 1's criteria to a stricter version
-    push(channel1, "update_criteria", broad_criteria)
+    push(channel1, "update_criteria", @broad_criteria_payload)
 
     assert_receive(
       %Phoenix.Socket.Message{
@@ -510,8 +505,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       2000
     )
 
-    {:ok, broad_criteria_parsed} = Criteria.from_json(broad_criteria)
-    broad_player1 = %{player1 | criteria: broad_criteria_parsed}
+    {player_criteria, game_criteria} = parse_criteria_payload(@broad_criteria_payload)
+    broad_player1 = update_player_criteria(player1, player_criteria, game_criteria)
 
     assert_receive(
       %Phoenix.Socket.Message{topic: ^topic2, event: @new_match_event, payload: ^broad_player1},

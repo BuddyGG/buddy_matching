@@ -7,19 +7,40 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   """
 
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Info.LolInfo
-  alias BuddyMatching.Players.Info.FortniteInfo
   alias BuddyMatching.PlayerServer
+  alias BuddyMatching.PlayerServer.ServerExtractor
+
+  # Utility method for finding a given Player's Server.
+  defp server_from_player(%Player{} = player) do
+    player
+    |> ServerExtractor.server_from_player()
+    |> :global.whereis_name()
+  end
+
+  @doc """
+  Returns all players from the server associated with the given player
+
+  ## Examples
+  iex> player = %Player{game_info: %LolInfo{region: euw}}
+  iex> BuddyMatching.ServerMapper.get_players(player)
+        [%{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}},
+         %{id: 2, name: "hansp", game_info: %LolInfo{region: :euw}}]
+  """
+  def get_players(%Player{} = player) do
+    player
+    |> server_from_player()
+    |> PlayerServer.read()
+  end
 
   @doc """
   Returns all players currently stored for the given server
 
   ## Examples
-      iex> BuddyMatching.ServerMapper.get_players(:euw)
-        [%{id: 1, name: "Lethly", server: :euw},
-         %{id: 2, name: "hansp", server: :euw}]
+    iex> BuddyMatching.ServerMapper.get_players(:euw)
+    [%{id: 1, name: "Lethly", server: :euw},
+     %{id: 2, name: "hansp", server: :euw}]
   """
-  def get_players(server) do
+  def get_players(server) when is_atom(server) do
     server
     |> :global.whereis_name()
     |> PlayerServer.read()
@@ -47,9 +68,9 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
       iex> BuddyMatching.ServerMapper.add_player(player)
         :ok
   """
-  def add_player(%Player{server: server} = player) do
-    server
-    |> :global.whereis_name()
+  def add_player(%Player{} = player) do
+    player
+    |> server_from_player()
     |> PlayerServer.add(player)
   end
 
@@ -63,9 +84,9 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
       iex> BuddyMatching.ServerMapper.remove_player(player)
         :ok
   """
-  def remove_player(%Player{name: name, server: server} = player) do
-    server
-    |> :global.whereis_name()
+  def remove_player(%Player{name: name} = player) do
+    player
+    |> server_from_player
     |> PlayerServer.remove(name)
   end
 
@@ -100,9 +121,9 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
       iex> BuddyMatching.ServerMapper.update(player1)
         :ok
   """
-  def update_player(%Player{server: server} = player) do
-    server
-    |> :global.whereis_name()
+  def update_player(%Player{} = player) do
+    player
+    |> server_from_player
     |> PlayerServer.update(player)
   end
 end

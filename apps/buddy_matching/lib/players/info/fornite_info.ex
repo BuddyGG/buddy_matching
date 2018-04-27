@@ -6,9 +6,12 @@ defmodule BuddyMatching.Players.Info.FortniteInfo do
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
-  defstruct platform: nil
+  defstruct game_criteria: nil, platform: nil
 
-  def from_json(_data) do
-    {:ok, %BuddyMatching.Players.Info.FortniteInfo{}}
+  def from_json(data) do
+    {:ok,
+     %BuddyMatching.Players.Info.FortniteInfo{
+       platform: String.to_existing_atom(data["platform"])
+     }}
   end
 end

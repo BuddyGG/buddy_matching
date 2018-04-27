@@ -59,7 +59,7 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
       Task.start(fn ->
         [topic | _] = Map.keys(leaves)
         Endpoint.unsubscribe("players:" <> topic)
-        server_players = ServerMapper.get_players(player.server)
+        server_players = ServerMapper.get_players(player)
 
         player
         |> Players.get_matches(server_players)

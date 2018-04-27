@@ -5,10 +5,13 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   use BuddyMatchingWeb, :channel
   require Logger
+  require OK
 
   alias BuddyMatching.Players
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
   alias BuddyMatching.PlayerServer.ServerMapper
+  alias BuddyMatching.PlayerServer.ServerExtractor
   alias BuddyMatchingWeb.Endpoint
   alias BuddyMatchingWeb.Presence
   alias BuddyMatchingWeb.Presence.LeaveTracker
@@ -71,7 +74,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   old state, and its new state. Returns the list of the Player's updated matches.
   """
   def update_criteria(current_player, updated_player) do
-    server_players = ServerMapper.get_players(current_player.server)
+    server_players = ServerMapper.get_players(current_player)
     current_matches = Players.get_matches(current_player, server_players)
 
     ServerMapper.update_player(updated_player)
@@ -124,7 +127,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     Task.start(fn ->
       case ServerMapper.add_player(socket.assigns.user) do
         :ok ->
-          players = ServerMapper.get_players(socket.assigns.user.server)
+          players = ServerMapper.get_players(socket.assigns.user)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
           push(socket, @initial_matches_event, %{players: matches})
@@ -151,7 +154,8 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     # Presence has to track some metadata, and in our case we track the name and the
     # server, as we need these to remove the Player from the correct PlayerServer
     # when they leave.
-    tracked = %{name: socket.assigns.user.name, server: socket.assigns.user.server}
+    server = ServerExtractor.server_from_player(socket.assigns.user)
+    tracked = %{name: socket.assigns.user.name, server: server}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
     track_player_id(socket.assigns.user)
     {:noreply, socket}
@@ -197,22 +201,26 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   """
   def handle_in("update_criteria", criteria, socket) do
     current_player = socket.assigns.user
-    criteria_result = Player.criteria_from_json(current_player.game, criteria)
+    game = current_player.game
 
-    case criteria_result do
-      {:ok, updated_criteria} ->
-        updated_player = %{current_player | criteria: updated_criteria}
-        socket = assign(socket, :user, updated_player)
+    OK.try do
+      game_criteria <- Player.game_criteria_from_json(game, criteria["gameCriteria"])
+      player_criteria <- PlayerCriteria.from_json(criteria["playerCriteria"])
+    after
+      updated_player = %{current_player | criteria: player_criteria}
+      updated_player = Kernel.put_in(updated_player.game_info.game_criteria, game_criteria)
+      socket = assign(socket, :user, updated_player)
 
-        Task.start(fn ->
-          updated_matches = update_criteria(current_player, updated_player)
-          push(socket, @initial_matches_event, %{players: updated_matches})
-          send(socket.transport_pid, :garbage_collect)
-        end)
+      Task.start(fn ->
+        updated_matches = update_criteria(current_player, updated_player)
+        push(socket, @initial_matches_event, %{players: updated_matches})
+        send(socket.transport_pid, :garbage_collect)
+      end)
 
-        {:noreply, socket}
-
-      {:error, _reason} ->
+      {:noreply, socket}
+    rescue
+      _ ->
+        push(socket, "Bad criteria", %{reason: "The given criteria payload could not be parsed"})
         {:noreply, socket}
     end
   end

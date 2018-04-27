@@ -7,7 +7,10 @@ defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
-  defstruct voice: [], age_groups: [], ignore_language: false, game_criteria: %{}
+  @voice_limit 2
+  @age_group_limit 3
+
+  defstruct voice: [], age_groups: [], ignore_language: false
 
   @doc """
   Parses the checkbox format the frontend uses for criteria
@@ -15,14 +18,14 @@ defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
   """
   def from_json(data) do
     cond do
-      map_size(data["positions"]) > @position_limit ->
-        {:error, "Too many positions in criteria"}
-
       map_size(data["ageGroups"]) > @age_group_limit ->
         {:error, "Too many age groups in criteria"}
 
       map_size(data["voiceChat"]) > @voice_limit ->
         {:error, "Too many values for voice chat in criteria"}
+
+      !Map.has_key?(data, "ignoreLanguage") ->
+        {:error, "Missing ignoreLanguage field"}
 
       true ->
         {:ok,
@@ -33,8 +36,6 @@ defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
          }}
     end
   end
-
-
 
   defp voice_parse("YES"), do: true
   defp voice_parse("NO"), do: false

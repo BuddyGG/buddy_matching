@@ -1,11 +1,11 @@
 defmodule BuddyMatching.Players.Matching.FortniteMatching do
   @moduledoc false
 
-  alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Info.FortniteInfo
   alias BuddyMatching.Players.MatchingBehaviour
   @behaviour MatchingBehaviour
 
-  def match?(%Player{} = player, %Player{} = candidate) do
-    player != candidate
+  def match?(%FortniteInfo{} = player, %FortniteInfo{} = candidate) do
+    player.platform == candidate.platform
   end
 end

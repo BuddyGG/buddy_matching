@@ -2,9 +2,11 @@ defmodule BuddyMatching.StatsControllerTest do
   use BuddyMatchingWeb.ConnCase
   alias BuddyMatching.PlayerServer.ServerMapper
   alias BuddyMatching.Players.Player
+  alias BuddyMatching.Players.Info.LolInfo
 
   test "1 connected player to a euw server returns 1 player" do
-    player = %Player{id: "1", name: "foo", server: :euw}
+    info = %LolInfo{region: :euw}
+    player = %Player{id: "1", name: "foo", game_info: info}
     ServerMapper.add_player(player)
 
     conn = build_conn()
@@ -28,7 +30,8 @@ defmodule BuddyMatching.StatsControllerTest do
   end
 
   test "1 connected player to a br server returns 1 player" do
-    player = %Player{id: "1", name: "foo", server: :br}
+    info = %LolInfo{region: :br}
+    player = %Player{id: "1", name: "foo", game_info: info}
     ServerMapper.add_player(player)
 
     conn = build_conn()

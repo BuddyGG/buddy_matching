@@ -236,7 +236,7 @@ defmodule BuddyMatching.PlayersTest do
     narrow_game_criteria = %LolCriteria{positions: [:support]}
     narrow_criteria = %PlayerCriteria{voice: [true], age_groups: [3]}
     narrow_s4 = %Player{context[:s4_player] | criteria: narrow_criteria}
-    narrow_s4 = Kernel.put_in(narrow_s4.game_info.game_criteria, narrow_game_criteria)
+    narrow_s4 = put_in(narrow_s4.game_info.game_criteria, narrow_game_criteria)
     matches = Players.get_matches(narrow_s4, context[:all_players])
     assert Enum.empty?(matches)
   end

@@ -66,7 +66,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   else we parse the payload as json
   """
   def parse_player_payload(%Player{} = player), do: {:ok, player}
-  def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
+  def parse_player_payload(%{"payload" => player}), do: Player.from_json(player)
   def parse_player_payload(%{} = player), do: Player.from_json(player)
 
   @doc """

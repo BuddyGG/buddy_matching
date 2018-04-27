@@ -11,13 +11,20 @@ defmodule BuddyMatching.Players do
   alias BuddyMatching.Players.Matching.PlayerMatching
   alias BuddyMatching.Players.Matching.LolMatching
   alias BuddyMatching.Players.Matching.FortniteMatching
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Info.FortniteInfo
 
-  defp game_match?(%Player{game: :fortnite} = player, %Player{game: :fortnite} = candidate) do
-    FortniteMatching.match?(player, candidate)
-  end
+  defp game_match?(player, candidate) do
+    case {player.game_info, candidate.game_info} do
+      {%LolInfo{}, %LolInfo{}} ->
+        LolMatching.match?(player.game_info, candidate.game_info)
 
-  defp game_match?(%Player{game: :lol} = player, %Player{game: :lol} = candidate) do
-    LolMatching.match?(player, candidate)
+      {%FortniteInfo{}, %FortniteInfo{}} ->
+        FortniteMatching.match?(player.game_info, candidate.game_info)
+
+      _otherwise ->
+        false
+    end
   end
 
   def match?(%Player{} = player, %Player{} = candidate) do

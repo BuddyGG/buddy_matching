@@ -2,44 +2,48 @@ defmodule BuddyMatching.PlayerServer.ServerMapperTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.PlayerServer
   alias BuddyMatching.PlayerServer.ServerMapper
+  alias BuddyMatching.PlayerServer.ServerExtractor
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
+  alias BuddyMatching.Players.Info.LolInfo
 
   setup do
     # Prepare two servers for our server mapper to use
     server1 = :server1
     server2 = :server2
+    info1 = %LolInfo{region: server1}
+    info2 = %LolInfo{region: server2}
+    player1 = %Player{game_info: info1}
+    player2 = %Player{game_info: info2}
+
     {:ok, _} = PlayerServer.start_link(name: {:global, server1})
     {:ok, _} = PlayerServer.start_link(name: {:global, server2})
-    %{server1: server1, server2: server2}
+
+    %{server1: server1, server2: server2, player1: player1, player2: player2}
   end
 
-  test "player is added to server specific server", %{server1: server} do
-    player = %Player{id: "1", name: "foo", server: server}
+  test "player is added to server specific server", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
     ServerMapper.add_player(player)
 
     assert [^player] = ServerMapper.get_players(server)
   end
 
-  test "player is not accessible from other servers", %{server1: server1, server2: server2} do
-    player = %Player{id: "1", name: "foo", server: server1}
+  test "player is not accessible from other servers", %{player1: player, server2: other_server} do
     ServerMapper.add_player(player)
-
-    assert [] = ServerMapper.get_players(server2)
+    assert [] = ServerMapper.get_players(other_server)
   end
 
-  test "multiple players may be added to same server", %{server1: server} do
-    player1 = %Player{id: "1", name: "bar", server: server}
-    player2 = %Player{id: "2", name: "foo", server: server}
+  test "multiple players may be added to same server", %{player1: player1} do
+    server = ServerExtractor.server_from_player(player1)
+    player2 = %Player{player1 | name: "othername", id: "otherid"}
     ServerMapper.add_player(player1)
     ServerMapper.add_player(player2)
 
     assert 2 = length(ServerMapper.get_players(server))
   end
 
-  test "players can be removed from server", %{server1: server} do
-    player = %Player{id: "1", name: "foo", server: server}
-
+  test "players can be removed from server", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
     ServerMapper.add_player(player)
     assert [^player] = ServerMapper.get_players(server)
 
@@ -47,9 +51,8 @@ defmodule BuddyMatching.PlayerServer.ServerMapperTest do
     assert [] = ServerMapper.get_players(server)
   end
 
-  test "players can be removed from server using name and server", %{server1: server} do
-    player = %Player{id: "1", name: "foo", server: server}
-
+  test "players can be removed from server using name and server", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
     ServerMapper.add_player(player)
     assert [^player] = ServerMapper.get_players(server)
 
@@ -57,9 +60,9 @@ defmodule BuddyMatching.PlayerServer.ServerMapperTest do
     assert [] = ServerMapper.get_players(server)
   end
 
-  test "remove_player removes correct player", %{server1: server} do
-    player1 = %Player{id: "1", name: "foo", server: server}
-    player2 = %Player{id: "2", name: "bar", server: server}
+  test "remove_player removes correct player", %{player1: player1} do
+    server = ServerExtractor.server_from_player(player1)
+    player2 = %Player{player1 | name: "othername", id: "otherid"}
 
     ServerMapper.add_player(player1)
     ServerMapper.add_player(player2)
@@ -69,41 +72,36 @@ defmodule BuddyMatching.PlayerServer.ServerMapperTest do
     assert [^player1] = ServerMapper.get_players(server)
   end
 
-  test "update player updates player in server", %{server1: server} do
+  test "update player updates player in server", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
     assert ServerMapper.get_players(server) == []
 
-    c1 = %Criteria{positions: [:marksman]}
-    c2 = %Criteria{positions: [:jungle]}
-    player = %Player{id: "0", name: "bar", criteria: c1, server: server}
-    updated_player = %{player | criteria: c2}
+    updated_player = Kernel.put_in(player.game_info.positions, [:jungle])
 
     # player is added
     ServerMapper.add_player(player)
     assert [^player] = ServerMapper.get_players(server)
 
-    # player is removed
+    # player is updated
     ServerMapper.update_player(updated_player)
     assert [^updated_player] = ServerMapper.get_players(server)
   end
 
-  test "updating a player that isn't in server has no effect", %{server1: server} do
-    assert ServerMapper.get_players(server) == []
-
-    c1 = %Criteria{positions: [:marksman]}
-    player = %Player{id: "0", name: "bar", criteria: c1, server: server}
+  test "updating a player that isn't in server has no effect", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
+    assert [] == ServerMapper.get_players(server)
 
     # player should not get added because not already present
     ServerMapper.update_player(player)
     assert [] = ServerMapper.get_players(server)
   end
 
-  test "count counts the number of players on the server", %{server1: server} do
+  test "count_players/1 counts the number of players on the server", %{player1: player} do
+    server = ServerExtractor.server_from_player(player)
     assert ServerMapper.count_players(server) == 0
 
     # player is added
-    player = %Player{id: "1", name: "foo", server: server}
     ServerMapper.add_player(player)
-
     assert ServerMapper.count_players(server) == 1
   end
 end

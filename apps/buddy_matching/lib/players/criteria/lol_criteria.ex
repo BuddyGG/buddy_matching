@@ -16,15 +16,13 @@ defmodule BuddyMatching.Players.Criteria.LolCriteria do
   into the criteria struct used in the backend.
   """
   def from_json(data) do
-    cond do
-      map_size(data["positions"]) > @position_limit ->
-        {:error, "Too many positions in criteria"}
-
-      true ->
-        {:ok,
-         %BuddyMatching.Players.Criteria.LolCriteria{
-           positions: LolInfo.positions_from_json(data["positions"])
-         }}
+    if map_size(data["positions"]) > @position_limit do
+      {:error, "Too many positions in criteria"}
+    else
+      {:ok,
+       %BuddyMatching.Players.Criteria.LolCriteria{
+         positions: LolInfo.positions_from_json(data["positions"])
+       }}
     end
   end
 end

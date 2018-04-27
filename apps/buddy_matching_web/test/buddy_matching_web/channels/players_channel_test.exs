@@ -398,6 +398,37 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
+  test "update criteria sends error if criteria can't be parsed" do
+    {socket1, player1, topic1} = setup_socket(@base_player1)
+
+    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+
+    assert_receive(
+      %Phoenix.Socket.Message{
+        topic: ^topic1,
+        event: @initial_matches_event,
+        payload: %{players: []}
+      },
+      2000
+    )
+
+    bad_criteria_payload =
+      put_in(@narrow_criteria_payload["playerCriteria"]["ageGroups"]["interval100"], true)
+
+    push(channel1, "update_criteria", bad_criteria_payload)
+
+    assert_receive(
+      %Phoenix.Socket.Message{
+        topic: ^topic1,
+        event: "bad criteria",
+        payload: %{reason: "The given criteria payload could not be parsed"}
+      },
+      2000
+    )
+
+    :ok = close(channel1)
+  end
+
   test "update criteria sends unmatch events when no longer matching" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)

@@ -208,7 +208,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
       player_criteria <- PlayerCriteria.from_json(criteria["playerCriteria"])
     after
       updated_player = %{current_player | criteria: player_criteria}
-      updated_player = Kernel.put_in(updated_player.game_info.game_criteria, game_criteria)
+      updated_player = put_in(updated_player.game_info.game_criteria, game_criteria)
       socket = assign(socket, :user, updated_player)
 
       Task.start(fn ->

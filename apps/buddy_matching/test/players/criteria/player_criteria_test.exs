@@ -47,7 +47,7 @@ defmodule BuddyMatching.Criteria.PlayerCriteriaTest do
 
   test "too many voice chat values is invalid" do
     data = Poison.Parser.parse!(@criteria)
-    bad_data = Kernel.put_in(data["voiceChat"]["MAYBE"], true)
+    bad_data = put_in(data["voiceChat"]["MAYBE"], true)
 
     assert {:error, "Too many values for voice chat in criteria"} ==
              PlayerCriteria.from_json(bad_data)

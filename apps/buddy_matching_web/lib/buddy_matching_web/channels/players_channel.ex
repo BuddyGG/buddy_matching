@@ -220,7 +220,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
       {:noreply, socket}
     rescue
       _ ->
-        push(socket, "Bad criteria", %{reason: "The given criteria payload could not be parsed"})
+        push(socket, "bad criteria", %{reason: "The given criteria payload could not be parsed"})
         {:noreply, socket}
     end
   end

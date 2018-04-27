@@ -169,7 +169,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
 
   def update_player_criteria(player, player_criteria, game_criteria) do
     updated_player = %Player{player | criteria: player_criteria}
-    Kernel.put_in(updated_player.game_info.game_criteria, game_criteria)
+    put_in(updated_player.game_info.game_criteria, game_criteria)
   end
 
   # Setup a socket with an authorized player, returns the socket, the player and the proposed topic to join on

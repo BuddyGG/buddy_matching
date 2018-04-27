@@ -65,14 +65,14 @@ defmodule BuddyMatching.Info.LolInfoTest do
 
   test "too many selected roles is invalid" do
     data = Poison.Parser.parse!(@info_json)
-    bad_info = Kernel.put_in(data["selectedRoles"]["a"], "b")
+    bad_info = put_in(data["selectedRoles"]["a"], "b")
     assert {:error, "Too many roles selected"} == LolInfo.from_json(bad_info)
   end
 
   test "lolinfo with null rank is valid json" do
     info = String.replace(@info_json, "\"rank\": 1", "\"rank\": null")
     data = Poison.Parser.parse!(info)
-    expected_info = Kernel.put_in(@info_struct.leagues.rank, nil)
+    expected_info = put_in(@info_struct.leagues.rank, nil)
     assert {:ok, expected_info} == LolInfo.from_json(data)
   end
 end

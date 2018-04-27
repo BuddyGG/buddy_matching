@@ -49,7 +49,7 @@ defmodule BuddyMatching.Matching.LolMatchingTest do
 
   test "player with compatible criteria but unable to queue are not matching", context do
     player2 = context[:player2]
-    player2 = Kernel.put_in(player2.leagues.rank, 5)
+    player2 = put_in(player2.leagues.rank, 5)
     refute Matching.match?(context[:player1], player2)
   end
 

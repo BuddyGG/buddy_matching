@@ -76,7 +76,7 @@ defmodule BuddyMatching.PlayerServer.ServerMapperTest do
     server = ServerExtractor.server_from_player(player)
     assert ServerMapper.get_players(server) == []
 
-    updated_player = Kernel.put_in(player.game_info.positions, [:jungle])
+    updated_player = put_in(player.game_info.positions, [:jungle])
 
     # player is added
     ServerMapper.add_player(player)

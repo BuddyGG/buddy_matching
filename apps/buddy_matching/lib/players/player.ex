@@ -5,9 +5,9 @@ defmodule BuddyMatching.Players.Player do
 
   require OK
 
-  alias BuddyMatching.Players.Criteria.PlayerCriteria
   alias BuddyMatching.Players.Criteria.LolCriteria
   alias BuddyMatching.Players.Criteria.FortniteCriteria
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Info.FortniteInfo
   alias BuddyMatching.Players.FromJsonBehaviour
@@ -29,21 +29,20 @@ defmodule BuddyMatching.Players.Player do
   @doc """
   id => A unique identifier for the player
   name => The player's name
-  server => The player's server
+  game => Atom representing the game the player is matching for, eg. :lol
   voice =>  [true] -> use voice, [false] -> don't use, [true, false] -> don't care
-  age_group =>  The player's age group
-  leagues =>  A map with the player's queue type, tier and rank
-  champions => A list of the player's played champions
-  criteria => The given player's %Critera{}
+  languages => A list of the player's spoken languages
+  age_group => The given player's current age group
   comment => Potential remarks from the player
+  criteria => The given player's %PlayerCritera{}
+  game_info => The given player's game specific info. Eg. %LolInfo{}.
   """
   defstruct id: nil,
             name: nil,
             game: nil,
-            server: nil,
             voice: [],
             languages: [],
-            age_group: [],
+            age_group: nil,
             comment: nil,
             criteria: %{},
             game_info: %{}
@@ -74,33 +73,31 @@ defmodule BuddyMatching.Players.Player do
       String.length(data["name"]) > @name_limit ->
         {:error, "Name too long"}
 
-      length(data["userInfo"]["languages"]) > @language_limit ->
+      length(data["languages"]) > @language_limit ->
         {:error, "Too many langauges"}
 
-      data["userInfo"]["comment"] != nil &&
-          String.length(data["userInfo"]["comment"]) > @comment_char_limit ->
+      data["comment"] != nil && String.length(data["comment"]) > @comment_char_limit ->
         {:error, "Comment too long"}
 
       true ->
         {:ok,
          %BuddyMatching.Players.Player{
-           id: data["userInfo"]["id"],
-           game: String.to_existing_atom(data["game"]),
-           server: String.to_existing_atom(data["server"]),
+           id: data["id"],
            name: data["name"],
-           voice: data["userInfo"]["voicechat"],
-           languages: languages_from_json(data["userInfo"]["languages"]),
-           age_group: data["userInfo"]["agegroup"],
-           comment: data["userInfo"]["comment"]
+           game: String.to_existing_atom(data["game"]),
+           voice: data["voiceChat"],
+           languages: languages_from_json(data["languages"]),
+           age_group: data["ageGroup"],
+           comment: data["comment"]
          }}
     end
   end
 
-  def info_from_json(:lol, data), do: LolInfo.from_json(data)
-  def info_from_json(:fortnite, data), do: FortniteInfo.from_json(data)
+  def info_from_json(:fortnite, gameInfo), do: FortniteInfo.from_json(gameInfo)
+  def info_from_json(:lol, gameInfo), do: LolInfo.from_json(gameInfo)
 
-  def game_criteria_from_json(:lol, data), do: LolCriteria.from_json(data)
-  def game_criteria_from_json(:fortnite, data), do: FortniteCriteria.from_json(data)
+  def game_criteria_from_json(:fortnite, criteria), do: FortniteCriteria.from_json(criteria)
+  def game_criteria_from_json(:lol, criteria), do: LolCriteria.from_json(criteria)
 
   @doc """
   Parses an entire player from json into the Player struct used in the backend,
@@ -109,19 +106,10 @@ defmodule BuddyMatching.Players.Player do
   def from_json(data) do
     OK.for do
       player <- player_from_json(data)
-      game_info <- info_from_json(player.game, data)
-      criteria <- criteria_from_json(player.game, data["userInfo"]["criteria"])
+      game_info <- info_from_json(player.game, data["gameInfo"])
+      player_criteria <- PlayerCriteria.from_json(data["criteria"])
     after
-      %BuddyMatching.Players.Player{player | game_info: game_info, criteria: criteria}
-    end
-  end
-
-  def criteria_from_json(game, data) do
-    OK.for do
-      criteria <- PlayerCriteria.from_json(data)
-      game_criteria <- game_criteria_from_json(game, data)
-    after
-      %PlayerCriteria{criteria | game_criteria: game_criteria}
+      %BuddyMatching.Players.Player{player | game_info: game_info, criteria: player_criteria}
     end
   end
 end

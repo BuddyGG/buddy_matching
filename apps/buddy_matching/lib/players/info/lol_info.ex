@@ -3,19 +3,24 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   Struct with League of Legends game info
   """
 
+  require OK
+  alias BuddyMatching.Players.Criteria.LolCriteria
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
   @role_limit 5
   @champion_limit 3
 
-  defstruct positions: [],
+  defstruct game_criteria: nil,
+            positions: [],
+            icon_id: nil,
+            region: nil,
             leagues: nil,
             champions: []
 
-  def from_json(data) do
+  def lol_info_from_json(data) do
     cond do
-      map_size(data["userInfo"]["selectedRoles"]) > @role_limit ->
+      map_size(data["selectedRoles"]) > @role_limit ->
         {:error, "Too many roles selected"}
 
       length(data["champions"]) > @champion_limit ->
@@ -24,10 +29,21 @@ defmodule BuddyMatching.Players.Info.LolInfo do
       true ->
         {:ok,
          %BuddyMatching.Players.Info.LolInfo{
-           positions: positions_from_json(data["userInfo"]["selectedRoles"]),
+           positions: positions_from_json(data["selectedRoles"]),
+           icon_id: data["iconId"],
            leagues: leagues_from_json(data["leagues"]),
+           region: String.to_existing_atom(data["region"]),
            champions: data["champions"]
          }}
+    end
+  end
+
+  def from_json(data) do
+    OK.for do
+      info <- lol_info_from_json(data)
+      criteria <- LolCriteria.from_json(data["gameCriteria"])
+    after
+      %BuddyMatching.Players.Info.LolInfo{info | game_criteria: criteria}
     end
   end
 

@@ -65,7 +65,7 @@ defmodule FortniteApi.AccessServerMockTest do
       Poison.encode!(%{
         "access_token" => @token,
         "refresh_token" => refresh_token,
-        "expires_at" => DateTime.utc_now()
+        "expires_at" => Timex.now()
       })
 
     with_mock HTTPoison,
@@ -98,7 +98,7 @@ defmodule FortniteApi.AccessServerMockTest do
       Poison.encode!(%{
         "access_token" => @token,
         "refresh_token" => new_refresh,
-        "expires_at" => DateTime.utc_now()
+        "expires_at" => Timex.now()
       })
 
     with_mock(
@@ -114,9 +114,9 @@ defmodule FortniteApi.AccessServerMockTest do
     refresh = "REFRESH_TOKEN"
     new_refresh = "NEW_NEW_REFRESH"
     new_token = "NEW_TOKEN"
-    today = DateTime.utc_now()
-    tmrw = %{today | day: today.day + 1}
-    tmrw_tmrw = %{tmrw | day: tmrw.day + 1}
+    today = Timex.now()
+    tmrw = Timex.shift(today, days: 1)
+    tmrw_tmrw = Timex.shift(tmrw, days: 1)
     header = AccessServer.get_headers_basic(@key_client)
 
     body1 =
@@ -150,8 +150,8 @@ defmodule FortniteApi.AccessServerMockTest do
 
   test "get token returns immediately if not expired" do
     refresh = "NEW_REFRESH"
-    today = DateTime.utc_now()
-    tmrw = %{today | day: today.day + 1}
+    today = Timex.now()
+    tmrw = Timex.shift(today, days: 1)
     header = AccessServer.get_headers_basic(@key_client)
 
     body =

@@ -53,7 +53,8 @@ defmodule FortniteApi.Mixfile do
       {:httpoison, "~> 0.13"},
       {:ok, "~> 1.9"},
       {:conform, "~> 2.2"},
-      {:mock, "~> 0.3.0", only: :test}
+      {:mock, "~> 0.3.0", only: :test},
+      {:timex, "~> 3.1"}
     ]
   end
 end

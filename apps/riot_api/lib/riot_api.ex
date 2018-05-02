@@ -84,7 +84,8 @@ defmodule RiotApi do
   to get matches for any queue and returns these as a result tuple.
   """
   def fetch_recent_matches(account_id, region) do
-    fetch_recent_matches_for_queue(account_id, 20, @solo, region)
+    account_id
+    |> fetch_recent_matches_for_queue(20, @solo, region)
     |> case do
       {:ok, %{"matches" => matches} = res} when length(matches) >= 3 ->
         {:ok, res}

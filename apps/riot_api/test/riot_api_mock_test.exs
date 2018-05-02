@@ -28,8 +28,14 @@ defmodule RiotApi.ApiMockTest do
 
     summoner_url = RiotApi.format_url("/lol/summoner/v3/summoners/by-name/#{name}", region)
 
-    matchlist_url =
-      RiotApi.format_url("/lol/match/v3/matchlists/by-account/#{account_id}/recent", region)
+    matchlist_solo_url =
+      RiotApi.format_url(
+        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=20",
+        region
+      )
+
+    matchlist_any_url =
+      RiotApi.format_url("/lol/match/v3/matchlists/by-account/#{account_id}?endIndex=20", region)
 
     leagues_url = RiotApi.format_url("/lol/league/v3/positions/by-summoner/#{id}", region)
 
@@ -43,6 +49,7 @@ defmodule RiotApi.ApiMockTest do
 
     summoner_json = File.read!("test/mock_json/summoner.json")
     matchlist_json = File.read!("test/mock_json/matchlist.json")
+    short_matchlist_json = File.read!("test/mock_json/short_matchlist.json")
     leagues_json = File.read!("test/mock_json/leagues.json")
     leagues_unranked_json = File.read!("test/mock_json/leagues_unranked.json")
     solo_match_json = File.read!("test/mock_json/solo_match.json")
@@ -57,12 +64,14 @@ defmodule RiotApi.ApiMockTest do
       icon_id: icon_id,
       match_id: icon_id,
       summoner_url: summoner_url,
-      matchlist_url: matchlist_url,
+      matchlist_solo_url: matchlist_solo_url,
+      matchlist_any_url: matchlist_any_url,
       leagues_url: leagues_url,
       solo_match_url: solo_match_url,
       match_url: match_url,
       summoner_json: summoner_json,
       matchlist_json: matchlist_json,
+      short_matchlist_json: short_matchlist_json,
       leagues_json: leagues_json,
       leagues_unranked_json: leagues_unranked_json,
       solo_match_json: solo_match_json,
@@ -156,7 +165,7 @@ defmodule RiotApi.ApiMockTest do
 
   test "recent_roles_and_champions happy path integration test", context do
     account_id = context[:account_id]
-    url = context[:matchlist_url]
+    url = context[:matchlist_solo_url]
     region = context[:region]
     response = context[:matchlist_json]
 
@@ -169,13 +178,33 @@ defmodule RiotApi.ApiMockTest do
     end
   end
 
+  test "recent_roles_and_champions too few solo queue games integration test", context do
+    account_id = context[:account_id]
+    solo_url = context[:matchlist_solo_url]
+    any_url = context[:matchlist_any_url]
+    region = context[:region]
+    solo_response = context[:short_matchlist_json]
+    any_response = context[:matchlist_json]
+
+    with_mock(
+      HTTPoison,
+      get: fn
+        ^solo_url -> success_response(solo_response)
+        ^any_url -> success_response(any_response)
+      end
+    ) do
+      assert {:ok, {["Vayne", "Tristana", "Ezreal"], [:marksman, :mid]}} =
+               RiotApi.recent_champions_and_roles(account_id, region)
+    end
+  end
+
   test "fetch_summoner_info integration test", context do
     name = context[:name]
     region = context[:region]
 
     summoner_url = context[:summoner_url]
     leagues_url = context[:leagues_url]
-    matchlist_url = context[:matchlist_url]
+    matchlist_url = context[:matchlist_solo_url]
 
     summoner_response = context[:summoner_json]
     leagues_response = context[:leagues_json]
@@ -207,7 +236,7 @@ defmodule RiotApi.ApiMockTest do
 
     summoner_url = context[:summoner_url]
     leagues_url = context[:leagues_url]
-    matchlist_url = context[:matchlist_url]
+    matchlist_url = context[:matchlist_solo_url]
 
     summoner_response = context[:summoner_json]
     leagues_response = context[:leagues_json]

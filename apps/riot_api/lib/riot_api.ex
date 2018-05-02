@@ -77,11 +77,13 @@ defmodule RiotApi do
   end
 
   @doc """
-  A specialized fetch_recent_matches function for retrieving matches used
-  for determining champion's played by a summoner.  It first tries to
-  find last 20 solo queue matches, and returns these if there are more
-  than as long as there are at least 3. If less than 3 are found, it attempts
-  to get matches for any queue and returns these as a result tuple.
+  A specialized fetch_recent_matches function for retrieving matches when
+  determining champions played by a summoner.
+  It first tries to find the last 20 solo queue matches.
+  If it finds 3-20 of these, they are returned.
+  If it finds less than 3, it attemps to fetch 20 matches from any queue and returns these.
+
+  Returns `{:ok, matches} || {:error, error}`
   """
   def fetch_recent_matches(account_id, region) do
     account_id

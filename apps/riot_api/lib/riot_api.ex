@@ -56,17 +56,6 @@ defmodule RiotApi do
     |> request(region)
   end
 
-  # Fetches the last 20 matches of any queue type for given account id
-  defp fetch_recent_matches(account_id, region) do
-    "/lol/match/v3/matchlists/by-account/#{account_id}/recent"
-    |> request(region)
-  end
-
-  defp fetch_matches_for_queue(account_id, queue, region) do
-    "/lol/match/v3/matchlists/by-account/#{account_id}?queue=#{queue}&endIndex=1"
-    |> request(region)
-  end
-
   defp fetch_match(match_id, region) do
     "/lol/match/v3/matches/#{match_id}"
     |> request(region)
@@ -75,6 +64,37 @@ defmodule RiotApi do
   defp fetch_leagues(id, region) do
     "/lol/league/v3/positions/by-summoner/#{id}"
     |> request(region)
+  end
+
+  defp fetch_recent_matches_any_queue(account_id, amount, region) do
+    "/lol/match/v3/matchlists/by-account/#{account_id}?endIndex=#{amount}"
+    |> request(region)
+  end
+
+  defp fetch_recent_matches_for_queue(account_id, amount, queue, region) do
+    "/lol/match/v3/matchlists/by-account/#{account_id}?queue=#{queue}&endIndex=#{amount}"
+    |> request(region)
+  end
+
+  @doc """
+  A specialized fetch_recent_matches function for retrieving matches used
+  for determining champion's played by a summoner.  It first tries to
+  find last 20 solo queue matches, and returns these if there are more
+  than as long as there are at least 3. If less than 3 are found, it attempts
+  to get matches for any queue and returns these as a result tuple.
+  """
+  def fetch_recent_matches(account_id, region) do
+    fetch_recent_matches_for_queue(account_id, 20, @solo, region)
+    |> case do
+      {:ok, %{"matches" => matches} = res} when length(matches) >= 3 ->
+        {:ok, res}
+
+      {:ok, _matches} ->
+        fetch_recent_matches_any_queue(account_id, 20, region)
+
+      error ->
+        error
+    end
   end
 
   defp name_from_id(id), do: Champions.find_by_id(id).name
@@ -237,7 +257,7 @@ defmodule RiotApi do
   """
   def fetch_last_solo_match(account_id, region) do
     OK.for do
-      %{"matches" => matches} <- fetch_matches_for_queue(account_id, @solo, region)
+      %{"matches" => matches} <- fetch_recent_matches_for_queue(account_id, 1, @solo, region)
       first = List.first(matches)["gameId"]
       last_game <- fetch_match(first, region)
     after

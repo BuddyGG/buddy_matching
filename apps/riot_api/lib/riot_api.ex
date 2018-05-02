@@ -248,7 +248,8 @@ defmodule RiotApi do
   defp fetch_recent_matches(id, region) do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
 
-    (Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}")
+    (Regions.endpoint(region) <>
+       "/lol/match/v3/matchlists/by-account/#{id}?endIndex=20&api_key=#{key}")
     |> parse_json
   end
 

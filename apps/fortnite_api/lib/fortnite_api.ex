@@ -88,9 +88,7 @@ defmodule FortniteApi do
     OK.for do
       platform <- validate_platform(platform)
       access_token <- AccessServer.get_token()
-      account_info <- fetch_account_id(name, access_token)
-      account_id <- Map.fetch(account_info, "id")
-      display_name <- Map.fetch(account_info, "displayName")
+      %{"id" => account_id, "displayName" => display_name} <- fetch_account_id(name, access_token)
       stats <- fetch_br_stats(account_id, access_token)
     after
       stats

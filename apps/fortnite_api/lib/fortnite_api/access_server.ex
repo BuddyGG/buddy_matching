@@ -120,27 +120,23 @@ defmodule FortniteApi.AccessServer do
   # retrieve a new access token.
   defp fetch_access_tokens() do
     OK.for do
-      oauth <- fetch_oauth()
-      access_token <- Map.fetch(oauth, "access_token")
-      exchange <- fetch_oauth_exchange(access_token)
-      exchange_code <- Map.fetch(exchange, "code")
+      %{"access_token" => access_token} <- fetch_oauth()
+      %{"code" => exchange_code} <- fetch_oauth_exchange(access_token)
       res <- fetch_oauth(exchange_code)
     after
       res
     end
   end
 
-  # Returns a result tuple with the res from fetch_access_tokens/0
-  # or refresh_token/0 parsed and formatted as the state
-  defp res_to_state(res) do
-    OK.for do
-      access <- Map.fetch(res, "access_token")
-      refresh <- Map.fetch(res, "refresh_token")
-      expiration_string <- Map.fetch(res, "expires_at")
-      {:ok, expiration, _} = DateTime.from_iso8601(expiration_string)
-    after
-      {access, refresh, expiration}
-    end
+  # Returns the new state for the AccessServer given a result
+  # from a access token query.
+  defp res_to_state(%{
+         "access_token" => access,
+         "refresh_token" => refresh,
+         "expires_at" => expiration_string
+       }) do
+    {:ok, expiration, _} = DateTime.from_iso8601(expiration_string)
+    {access, refresh, expiration}
   end
 
   @doc """
@@ -174,7 +170,7 @@ defmodule FortniteApi.AccessServer do
   defp try_get_access_tokens(state) do
     OK.try do
       res <- fetch_access_tokens()
-      new_state <- res_to_state(res)
+      new_state = res_to_state(res)
     after
       {:reply, {:ok, elem(new_state, 0)}, new_state}
     rescue
@@ -189,7 +185,7 @@ defmodule FortniteApi.AccessServer do
   defp try_refresh_tokens({_, refresh, _} = state) do
     OK.try do
       res <- fetch_refreshed_tokens(refresh)
-      new_state <- res_to_state(res)
+      new_state = res_to_state(res)
     after
       {:reply, {:ok, elem(new_state, 0)}, new_state}
     rescue

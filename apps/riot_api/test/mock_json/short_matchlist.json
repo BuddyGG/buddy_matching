@@ -1,0 +1,27 @@
+{
+  "matches": [
+    {
+      "platformId": "EUW1",
+      "gameId": 3412307012,
+      "champion": 96,
+      "queue": 420,
+      "season": 11,
+      "timestamp": 1517872970404,
+      "role": "DUO_CARRY",
+      "lane": "BOTTOM"
+    },
+    {
+      "platformId": "EUW1",
+      "gameId": 3519875372,
+      "champion": 67,
+      "queue": 420,
+      "season": 11,
+      "timestamp": 1517871086573,
+      "role": "DUO_CARRY",
+      "lane": "BOTTOM"
+    }
+  ],
+  "startIndex": 0,
+  "endIndex": 20,
+  "totalGames": 133
+}

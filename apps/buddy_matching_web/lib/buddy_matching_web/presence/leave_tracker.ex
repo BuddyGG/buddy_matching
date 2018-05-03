@@ -13,14 +13,16 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
   alias Phoenix.Socket.Broadcast
 
   @doc """
-  Starts the LeaveTracker with potential options.
-  These are described here:
-  https://hexdocs.pm/elixir/GenServer.html#start_link/3
+  Starts the LeaveTracker as a singleton registered
+  with the name of the module.
+
   ## Examples
   iex> {:ok, pid} = BuddyMatching.LeaveTracker.start_link
+  {:ok, #PID<0.246.0>}
+
   """
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+  def start_link() do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   # Called automatically by start_link
@@ -82,7 +84,7 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
   ## Examples
   iex> BuddyMatching.PlayerServer.track(123)
   """
-  def track(pid, id) do
-    GenServer.call(pid, {:track, id})
+  def track(id) do
+    GenServer.call(__MODULE__, {:track, id})
   end
 end

@@ -45,15 +45,6 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     end)
   end
 
-  # Private utility function for telling the LeaveTracker
-  # to keep track of this player, such that they may be removed
-  # from their PlayerServer at a later time.
-  defp track_player_id(player) do
-    :leave_tracker
-    |> :global.whereis_name()
-    |> LeaveTracker.track(player.id)
-  end
-
   # HACK - to correctly get id for various types. Mostly to make tests work.
   # Tests should probably be adapted or it should be handled in a cleaner way.
   # Generally due to 'other_player' being currently not being possible to parse
@@ -157,7 +148,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
     server = ServerExtractor.server_from_player(socket.assigns.user)
     tracked = %{name: socket.assigns.user.name, server: server}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
-    track_player_id(socket.assigns.user)
+    LeaveTracker.track(socket.assigns.user.id)
     {:noreply, socket}
   end
 

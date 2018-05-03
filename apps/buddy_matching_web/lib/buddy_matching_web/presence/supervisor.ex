@@ -31,12 +31,7 @@ defmodule BuddyMatchingWeb.Presence.Supervisor do
   """
 
   def init(:ok) do
-    children = [
-      Supervisor.child_spec(
-        {LeaveTracker, name: {:global, :leave_tracker}},
-        id: :worker_leave_tracker
-      )
-    ]
+    children = [worker(LeaveTracker, [])]
 
     # only restart the the single broken processor
     Supervisor.init(children, strategy: :one_for_one)

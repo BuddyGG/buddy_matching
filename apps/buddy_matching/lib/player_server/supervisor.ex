@@ -12,7 +12,6 @@ defmodule BuddyMatching.PlayerServer.Supervisor do
   Default constructor for PlayerServer, in which case
   we name the PlayerServer based on the module
   """
-
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -21,7 +20,6 @@ defmodule BuddyMatching.PlayerServer.Supervisor do
   Define all the child specs for the various regions
   and start them all with one_for_one strategy.
   """
-
   def init(:ok) do
     children = [
       Supervisor.child_spec({PlayerServer, name: {:global, :br}}, id: :worker_br),

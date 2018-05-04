@@ -25,28 +25,40 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  # Called automatically by start_link
-  # Returns :ok and initial state of GenServer
-  # -- Since we only want to use this GenServer for keeping track
-  # of Phoenix Presence, we let the state be nil.
+  @doc """
+  The LeaveTracker's init function.
+  Called automatically by `start_link`.
+  Returns :ok and initial state of GenServer.
+  Since we only want to use this GenServer for keeping track
+  of Phoenix Presence, we let the state be nil.
+  """
   def init(:ok) do
     {:ok, nil}
   end
 
+  @doc """
+  Call event for tracking a given channel, from the given id.
+  """
   def handle_call({:track, id}, _from, state) do
     :ok = Endpoint.subscribe("players:" <> id, [])
     {:reply, :ok, state}
   end
 
-  # When we get a 'presence_diff' with no leaves, we do nothing.
+  @doc """
+  Handles presence_diff events with no leaves.
+  When there's no leaves in the given event, there's nothing to do be done.
+  """
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: %{} = leaves}}, state)
       when leaves == %{} do
     {:noreply, state}
   end
 
-  # When a player leaves the channel, we unsubscribe to his topic,
-  # remove him from the state. In a separate process alert all the matches
-  # he may have had, that he has left.
+  @doc """
+  Handles presence_diff events with leaves.
+  When a player leaves the channel, we unsubscribe to his topic, and
+  remove him from the state.
+  In a new process we alert all the matches he may have had, that he has left.
+  """
   def handle_info(%Broadcast{event: "presence_diff", payload: %{leaves: leaves}}, state) do
     [{name, server} | _] =
       leaves
@@ -72,15 +84,15 @@ defmodule BuddyMatchingWeb.Presence.LeaveTracker do
     {:noreply, state}
   end
 
-  # We ignore all other messages
+  @doc false
   def handle_info(_, state) do
     {:noreply, state}
   end
 
   @doc """
-  Tracks the given player such that we from within the
-  LeaveTracker will be notified if the user has dropped their
-  connection.
+  Tracks the given player such that we from within the LeaveTracker
+  will be notified if the user has dropped their connection, and
+  can do the necessary cleaning up.
   ## Examples
   iex> BuddyMatching.PlayerServer.track(123)
   """

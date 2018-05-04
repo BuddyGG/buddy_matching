@@ -1,7 +1,9 @@
 defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
   @moduledoc """
-  Struct definining the possible criterias with which Fortnite
-  Players can filter their matches.
+  Struct definining the possible criterias for which the general case
+  Player can filter their matches.
+
+  Implements `FromJsonBehaviour`.
   """
 
   alias BuddyMatching.Players.FromJsonBehaviour
@@ -13,8 +15,10 @@ defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
   defstruct voice: [], age_groups: [], ignore_language: false
 
   @doc """
-  Parses the checkbox format the frontend uses for criteria
-  into the criteria struct used in the backend.
+  Parses the checkbox format the frontend uses for Player criteria
+  information, into the Player Criteria structure used in the backend.
+
+  Returns `%{:ok, %PlayerCriteria{}}` || `{:error, reason}`.
   """
   def from_json(data) do
     cond do
@@ -58,9 +62,9 @@ defmodule BuddyMatching.Players.Criteria.PlayerCriteria do
   we merely return keys for which the value is true
 
   ## Examples
-  iex> age_groups = {"interval1" => true, "interval2" -> true, "interval3" -> false}
-  iex> age_groups_from_json(age_groups)
-  ["interval1", "interval2"]
+    iex> age_groups = {"interval1" => true, "interval2" -> true, "interval3" -> false}
+    iex> age_groups_from_json(age_groups)
+    ["interval1", "interval2"]
   """
   def age_groups_from_json(age_groups), do: for({val, true} <- age_groups, do: val)
 end

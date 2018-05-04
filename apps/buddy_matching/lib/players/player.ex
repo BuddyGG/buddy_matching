@@ -1,6 +1,8 @@
 defmodule BuddyMatching.Players.Player do
   @moduledoc """
-  Struct handling a player including json parsing
+  Module representing a Player struct, including JSON parsing thereof.
+
+  Implements `FromJsonBehaviour`.
   """
 
   require OK
@@ -27,15 +29,15 @@ defmodule BuddyMatching.Players.Player do
   end
 
   @doc """
-  id => A unique identifier for the player
-  name => The player's name
-  game => Atom representing the game the player is matching for, eg. :lol
-  voice =>  [true] -> use voice, [false] -> don't use, [true, false] -> don't care
-  languages => A list of the player's spoken languages
-  age_group => The given player's current age group
-  comment => Potential remarks from the player
-  criteria => The given player's %PlayerCritera{}
-  game_info => The given player's game specific info. Eg. %LolInfo{}.
+  id        = > Unique identifier for the player. Used for channels.
+  name      = > The Player's name.
+  game      = > Atom representing  game of Player. :lol, :fortnite etc.
+  voice     = > List of voice options. Can be list with, true, false or both.
+  languages = > A list of the Player's spoken languages.
+  age_group = > The given Player's age group.
+  comment   = > Potential remarks from the Player.
+  criteria  = > The Player's %PlayerCritera{}
+  game_info = > The Player's game specific info. Eg. %LolInfo{}.
   """
   defstruct id: nil,
             name: nil,
@@ -47,7 +49,7 @@ defmodule BuddyMatching.Players.Player do
             criteria: %{},
             game_info: %{}
 
-  # Sort the languages alphabetically, but ensure that english is first
+  # Sort alphabetically, but ensure that English is first if present.
   def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
 
   defp sorter(_, "EN"), do: false
@@ -64,9 +66,6 @@ defmodule BuddyMatching.Players.Player do
   generally be avoided in the frontend.
   We additionally don't bother checking things that will be caught
   by crashes in from_json/1.
-
-  Names should adhere to Riot's guidelines:
-  https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
   """
   def player_from_json(data) do
     cond do
@@ -93,15 +92,22 @@ defmodule BuddyMatching.Players.Player do
     end
   end
 
+  @doc """
+  Map a parsed JSON of game_info to the corresponding game_info parser given a game.
+  """
   def info_from_json(:fortnite, gameInfo), do: FortniteInfo.from_json(gameInfo)
   def info_from_json(:lol, gameInfo), do: LolInfo.from_json(gameInfo)
 
+  @doc """
+  Map a parsed JSON of criteria to the corresponding criteria parser given a game.
+  """
   def game_criteria_from_json(:fortnite, criteria), do: FortniteCriteria.from_json(criteria)
   def game_criteria_from_json(:lol, criteria), do: LolCriteria.from_json(criteria)
 
   @doc """
-  Parses an entire player from json into the Player struct used in the backend,
-  including parsing for Criteria into its struct
+  Parses an entire Player from JSON into the Player.
+  This includes game specific parsing, which will be passed along to the
+  responsible module based on the `:game` of the Player.
   """
   def from_json(data) do
     OK.for do

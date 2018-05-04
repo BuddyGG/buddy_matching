@@ -1,6 +1,8 @@
 defmodule BuddyMatching.Players.Info.LolInfo do
   @moduledoc """
-  Struct with League of Legends game info
+  Struct with League of Legends game info.
+
+  Implements `FromJsonBehaviour`.
   """
 
   require OK
@@ -11,6 +13,14 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   @role_limit 5
   @champion_limit 3
 
+  @doc """
+  game_criteria => The Player's %LolCriteria.
+  positions => A list of the positions the Player plays, eg. [:marksman]
+  icon_id => The id of the Player's summoner icon. Used by frontend.
+  region => The Player's region as an atom, eg. :euw.
+  leagues => The Player's league information.
+  champions => The Player's list of champions, eg. ["Vayne", "Caitlyn", "Ezreal"]
+  """
   defstruct game_criteria: nil,
             positions: [],
             icon_id: nil,
@@ -18,6 +28,12 @@ defmodule BuddyMatching.Players.Info.LolInfo do
             leagues: nil,
             champions: []
 
+  @doc """
+  Validates the given JSON map, and passes the %LolInfo portion thereof.
+  As such, the returned %LolInfo, will have `nil` for :game_criteria.
+
+  Returns `%{:ok, %LolInfo{}}` || `{:error, reason}`.
+  """
   def lol_info_from_json(data) do
     cond do
       map_size(data["selectedRoles"]) > @role_limit ->
@@ -38,6 +54,15 @@ defmodule BuddyMatching.Players.Info.LolInfo do
     end
   end
 
+  @doc """
+  Parses a %LolInfo{} struct from a parsed JSON map.
+  This includes the the underlying %LolCriteria.
+  If the given map does not conform to expected structure,
+  or contains invalid values for the expected fields,
+  an error will be returned indicating this.
+
+  Returns `{:ok, %LolInfo{}}` || `{:error, reason}`
+  """
   def from_json(data) do
     OK.for do
       info <- lol_info_from_json(data)

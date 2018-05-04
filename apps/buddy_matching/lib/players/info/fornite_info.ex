@@ -1,6 +1,8 @@
 defmodule BuddyMatching.Players.Info.FortniteInfo do
   @moduledoc """
-  Struct with Fortnite game info
+  Struct with Fortnite game specific info.
+
+  Implements `FromJsonBehaviour`.
   """
 
   alias BuddyMatching.Players.FromJsonBehaviour

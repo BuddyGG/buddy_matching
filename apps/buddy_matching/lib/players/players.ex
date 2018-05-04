@@ -14,6 +14,9 @@ defmodule BuddyMatching.Players do
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.Info.FortniteInfo
 
+  # Handles game specific matches, by passing long
+  # the player and candidate to the responsible matching module
+  # based on the type of the game_info.
   defp game_match?(player, candidate) do
     case {player.game_info, candidate.game_info} do
       {%LolInfo{}, %LolInfo{}} ->

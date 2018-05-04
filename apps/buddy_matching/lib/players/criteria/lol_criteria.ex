@@ -1,7 +1,9 @@
 defmodule BuddyMatching.Players.Criteria.LolCriteria do
   @moduledoc """
-  Struct definining the possible criterias with which Players can
-  filter their matches.
+  Struct definining the possible criterias with which
+  Lol Players can filter their matches.
+
+  Implements `FromJsonBehaviour`.
   """
   alias BuddyMatching.Players.Info.LolInfo
   alias BuddyMatching.Players.FromJsonBehaviour
@@ -13,7 +15,9 @@ defmodule BuddyMatching.Players.Criteria.LolCriteria do
 
   @doc """
   Parses the checkbox format the frontend uses for criteria
-  into the criteria struct used in the backend.
+  into the criteria struct used in for lol players in the backend.
+
+  Returns `%{:ok, %LolCriteria{}}` || `{:error, reason}`.
   """
   def from_json(data) do
     if map_size(data["positions"]) > @position_limit do

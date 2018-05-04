@@ -25,18 +25,16 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   @already_signed_up_event "already_signed_up"
 
   @doc """
-  Broadcasts a @new_match_event of the given player to the given list
-  of matches for that player.
+  Broadcasts a @new_match_event of the given player to the given list of matches.
   """
   def broadcast_matches(matches, player), do: broadcast_event(matches, player, @new_match_event)
 
   @doc """
-  Broadcasts a @unmatch_event of the given player to the given list
-  of matches for that player.
+  Broadcasts a @unmatch_event of the given player to the given list of matches.
   """
   def broadcast_unmatches(matches, player), do: broadcast_event(matches, player, @unmatch_event)
 
-  # Utility method for broadcasting the given player as given event
+  # Utility method for broadcasting the given player as with the given event
   # to all players in the given list of matches.
   defp broadcast_event(matches, player, event) do
     matches
@@ -71,7 +69,8 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   @doc """
   Send necessary match/unmatch events to new/old matches given a Player's
-  old state, and its new state. Returns the list of the Player's updated matches.
+  old state, and its new state.
+  Returns the list of the Player's updated matches.
   """
   def update_criteria(current_player, updated_player) do
     server_players = ServerMapper.get_players(current_player)
@@ -146,14 +145,13 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   end
 
   @doc """
-  After joining, let Presence track when a certain user joins the channel.
+  After joining, let Presence track when the joining user's channel.
   This has the added benefit of allowing Presence to track the channel and handle
-  potential crashes.
+  potential crashes, in combination with the `LeaveTracker`.
+  We track Player's name and their server, which is determined by the `ServerExtractor`.
+  This combination of values allows us to clean up, should the Player's channel crash.
   """
   def handle_info(:after_join, socket) do
-    # Presence has to track some metadata, and in our case we track the name and the
-    # server, as we need these to remove the Player from the correct PlayerServer
-    # when they leave.
     server = ServerExtractor.server_from_player(socket.assigns.user)
     tracked = %{name: socket.assigns.user.name, server: server}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
@@ -172,7 +170,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   @doc """
   When a player requests a match, we get the reqested player's id.
-  We then send the requested player a "match_requested", who is accepted to send back
+  We then send the requested player a "match_requested", who is expected to send back
   a confirmation response, saying whether he received the request and was available,
   or whether he was busy. This is handled in the frontend using the "respond_to_request" event.
   """
@@ -197,7 +195,10 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   @doc """
   When update criteria is received with a new criteria for the player bound to the socket,
-  we broadcast a 'new_player'
+  we broadcast a 'new_match' event to any new matches, and an 'umatch_event' to player's
+  with whom the updated player matched with before, but no longer does. Additionally,
+  the updated player receives a new 'initial_matches' event with all his current matches,
+  given the updated criteria.
   """
   def handle_in("update_criteria", criteria, socket) do
     current_player = socket.assigns.user

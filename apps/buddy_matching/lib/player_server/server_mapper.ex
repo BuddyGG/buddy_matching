@@ -1,9 +1,9 @@
 defmodule BuddyMatching.PlayerServer.ServerMapper do
   @moduledoc """
-  The interface from which access to PlayerServers should be handled.
+  The interface from which access to PlayerServers should be accessed.
   Since players are stored in PlayerServers separated by server, this
-  module unifies the access by mapping functions on PlayerServers to the correct
-  PlayerServer, based on the given Player's server.
+  module unifies the access by mapping functions on PlayerServers to
+  the correct PlayerServer, given a player to act on.
   """
 
   alias BuddyMatching.Players.Player
@@ -21,10 +21,10 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   Returns all players from the server associated with the given player
 
   ## Examples
-  iex> player = %Player{game_info: %LolInfo{region: euw}}
-  iex> BuddyMatching.ServerMapper.get_players(player)
-        [%{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}},
-         %{id: 2, name: "hansp", game_info: %LolInfo{region: :euw}}]
+    iex> player = %Player{game_info: %LolInfo{region: euw}}
+    iex> BuddyMatching.ServerMapper.get_players(player)
+    [%{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}},
+     %{id: 2, name: "hansp", game_info: %LolInfo{region: :euw}}]
   """
   def get_players(%Player{} = player) do
     player
@@ -37,8 +37,8 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
 
   ## Examples
     iex> BuddyMatching.ServerMapper.get_players(:euw)
-    [%{id: 1, name: "Lethly", server: :euw},
-     %{id: 2, name: "hansp", server: :euw}]
+    [%{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}},
+     %{id: 2, name: "hansp", game_info: %LolInfo{region: :euw}}]
   """
   def get_players(server) when is_atom(server) do
     server
@@ -50,8 +50,8 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   Returns the amount of players in the given server
 
   ## Examples
-      iex> BuddyMatching.ServerMapper.count_players(:euw)
-      10
+    iex> BuddyMatching.ServerMapper.count_players(:euw)
+    10
   """
   def count_players(server) do
     server
@@ -64,9 +64,9 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   on his server.
 
   ## Examples
-      iex> player = %{id: 1, name: "Lethly", server: :some_server}
-      iex> BuddyMatching.ServerMapper.add_player(player)
-        :ok
+    iex> player = %{id: 1, name: "Lethly", server: :some_server}
+    iex> BuddyMatching.ServerMapper.add_player(player)
+    :ok
   """
   def add_player(%Player{} = player) do
     player
@@ -78,11 +78,11 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   Removes the given player from its server's PlayerServer
 
   ## Examples
-      iex> player = %{id: 1, name: "Lethly", server: :non_existent_regoin}
-      iex> BuddyMatching.ServerMapper.add_player(player)
-        :ok
-      iex> BuddyMatching.ServerMapper.remove_player(player)
-        :ok
+    iex> player = %{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}}
+    iex> BuddyMatching.ServerMapper.add_player(player)
+    :ok
+    iex> BuddyMatching.ServerMapper.remove_player(player)
+    :ok
   """
   def remove_player(%Player{name: name} = player) do
     player
@@ -94,11 +94,11 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   Removes a player given their server and their name.
 
   ## Examples
-      iex> player = %{id: 1, name: "Lethly", server: :server}
-      iex> BuddyMatching.ServerMapper.add_player(player)
-        :ok
-      iex> BuddyMatching.ServerMapper.remove_player("Lethly", :server)
-        :ok
+    iex> player = %{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}}
+    iex> BuddyMatching.ServerMapper.add_player(player)
+    :ok
+    iex> BuddyMatching.ServerMapper.remove_player("Lethly", :euw)
+    :ok
   """
   def remove_player(name, server) do
     server
@@ -107,19 +107,18 @@ defmodule BuddyMatching.PlayerServer.ServerMapper do
   end
 
   @doc """
-  Updates the given player from its server's PlayerServer
+  Updates the given player on its PlayerServer
   This will have no effect if the player isn't already in the PlayerServer.
 
   ## Examples
-      iex> c1 = %Criteria{positions: [:marksman]}
-      iex> player = %{id: 1, name: "Lethly", server: :server,
-        criteria: c1}
-      iex> BuddyMatching.ServerMapper.add(player)
-        :ok
-      iex> c2 = %Criteria{positions: [:jungle]}
-      iex> player1 = %{player | criteria: c2}
-      iex> BuddyMatching.ServerMapper.update(player1)
-        :ok
+    iex> info = %LolInfo{region: euw, positions: [:marksman]}
+    iex> player = %{id: 1, name: "Lethly", game_info: info}
+    iex> BuddyMatching.ServerMapper.add(player)
+    :ok
+    iex> updated_info = %LolInfo{region: euw, positions: [:jungle]}
+    iex> player1 = %{player | game_info: updated_info}
+    iex> BuddyMatching.ServerMapper.update(player1)
+    :ok
   """
   def update_player(%Player{} = player) do
     player

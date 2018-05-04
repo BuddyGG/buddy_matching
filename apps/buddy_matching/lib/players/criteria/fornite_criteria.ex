@@ -2,6 +2,8 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   @moduledoc """
   Struct definining the possible criterias with which Fortnite
   Players can filter their matches.
+
+  Implements `FromJsonBehaviour`.
   """
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour

@@ -96,8 +96,8 @@ defmodule BuddyMatching.PlayerServer do
   #
   ## Examples
     iex> BuddyMatching.PlayerServer.read(:euw)
-    [%Player{id: 1, name: "Lethly", game_info: %LolInfo{...},
-     %Player{id: 2, name: "Trolleren, game_info: %LolInfo{...}}]
+    [%Player{id: 1, name: "Lethly", game_info: %LolInfo{region: :euw}},
+     %Player{id: 2, name: "Trolleren, game_info: %LolInfo{region: :euw}}]
   """
   def read(pid) do
     GenServer.call(pid, {:read})

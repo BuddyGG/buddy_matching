@@ -34,6 +34,7 @@ defmodule FortniteApi.Stats do
   defp get_solo_stats(stats, platform) do
     top10 = Map.get(stats, "br_placetop10_#{platform}_m0_#{@solo}", 0)
     top25 = Map.get(stats, "br_placetop25_#{platform}_m0_#{@solo}", 0)
+
     stats
     |> get_shared_queue_stats(@solo, platform)
     |> Map.put("top10finishes", top10)
@@ -43,6 +44,7 @@ defmodule FortniteApi.Stats do
   defp get_duo_stats(stats, platform) do
     top5 = Map.get(stats, "br_placetop5_#{platform}_m0_#{@duo}", 0)
     top12 = Map.get(stats, "br_placetop12_#{platform}_m0_#{@duo}", 0)
+
     stats
     |> get_shared_queue_stats(@duo, platform)
     |> Map.put("top5finishes", top5)
@@ -52,6 +54,7 @@ defmodule FortniteApi.Stats do
   defp get_squad_stats(stats, platform) do
     top3 = Map.get(stats, "br_placetop3_#{platform}_m0_#{@squad}", 0)
     top6 = Map.get(stats, "br_placetop6_#{platform}_m0_#{@squad}", 0)
+
     stats
     |> get_shared_queue_stats(@squad, platform)
     |> Map.put("top3finishes", top3)
@@ -99,6 +102,7 @@ defmodule FortniteApi.Stats do
     squad_stats = get_squad_stats(stats, platform)
     total_games = solo_stats["gamesPlayed"] + duo_stats["gamesPlayed"] + squad_stats["gamesWon"]
     total_wins = solo_stats["gamesWon"] + duo_stats["gamesWon"] + squad_stats["gamesWon"]
+
     %{
       "total" => %{
         "totalGamesPlayed" => total_games,

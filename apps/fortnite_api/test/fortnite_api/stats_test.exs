@@ -2,165 +2,78 @@ defmodule FortniteApi.StatsTest do
   alias FortniteApi.Stats
   use ExUnit.Case, async: true
 
-  # @solo "p2"
-  @duo "p10"
-  # @squad "p9"
+  setup_all do
+    stats =
+      "test/mock_json/stats.json"
+      |> File.read!()
+      |> Poison.decode!()
 
-  @fortnite_stats [
-    %{
-      "name" => "br_score_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 703,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_score_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 2669,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 5,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_score_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 678,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 1_521_842_991,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1_521_834_802,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 14,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop1_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 20,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop12_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 1_521_986_670,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop10_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop25_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 6,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop6_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 3,
-      "window" => "alltime"
-    }
-  ]
+    [stats: stats]
+  end
 
-  test "format_stats/1 formats correctly" do
+  test "format_stats/1 formats correctly", context do
+    stats = context[:stats]
+
     expected_output = %{
-      "br_kills_pc_m0_p10" => 6,
-      "br_kills_pc_m0_p2" => 2,
-      "br_kills_pc_m0_p9" => 14,
-      "br_lastmodified_pc_m0_p10" => 1_521_986_670,
-      "br_lastmodified_pc_m0_p2" => 1_521_834_802,
-      "br_lastmodified_pc_m0_p9" => 1_521_842_991,
-      "br_matchesplayed_pc_m0_p10" => 5,
-      "br_matchesplayed_pc_m0_p2" => 2,
-      "br_matchesplayed_pc_m0_p9" => 20,
-      "br_placetop10_pc_m0_p2" => 1,
-      "br_placetop12_pc_m0_p10" => 2,
-      "br_placetop1_pc_m0_p2" => 1,
-      "br_placetop25_pc_m0_p2" => 1,
-      "br_placetop6_pc_m0_p9" => 3,
-      "br_score_pc_m0_p10" => 703,
-      "br_score_pc_m0_p2" => 678,
-      "br_score_pc_m0_p9" => 2669
+      "br_kills_pc_m0_p10" => 20129,
+      "br_kills_pc_m0_p2" => 26746,
+      "br_kills_pc_m0_p9" => 10133,
+      "br_lastmodified_pc_m0_p10" => 1_526_704_368,
+      "br_lastmodified_pc_m0_p2" => 1_526_660_886,
+      "br_lastmodified_pc_m0_p9" => 1_526_719_560,
+      "br_matchesplayed_pc_m0_p10" => 2769,
+      "br_matchesplayed_pc_m0_p2" => 3458,
+      "br_matchesplayed_pc_m0_p9" => 1613,
+      "br_placetop10_pc_m0_p2" => 1562,
+      "br_placetop12_pc_m0_p10" => 1626,
+      "br_placetop1_pc_m0_p2" => 1190,
+      "br_placetop25_pc_m0_p2" => 1876,
+      "br_placetop6_pc_m0_p9" => 553,
+      "br_score_pc_m0_p10" => 1_190_306,
+      "br_score_pc_m0_p2" => 1_142_038,
+      "br_score_pc_m0_p9" => 447_601,
+      "br_minutesplayed_pc_m0_p10" => 17407,
+      "br_minutesplayed_pc_m0_p2" => 24386,
+      "br_minutesplayed_pc_m0_p9" => 8298,
+      "br_placetop1_pc_m0_p10" => 1181,
+      "br_placetop1_pc_m0_p9" => 361,
+      "br_placetop3_pc_m0_p9" => 457,
+      "br_placetop5_pc_m0_p10" => 1386
     }
 
-    actual_output = Stats.format_stats(@fortnite_stats)
+    actual_output = Stats.format_stats(stats)
     assert expected_output == actual_output
   end
 
-  test "get_stats_for_queue/3 fetches correct results" do
-    stats = Stats.format_stats(@fortnite_stats)
-    {games, kills, wins, top3, top5} = Stats.get_stats_for_queue(stats, "pc", @duo)
+  test "get_stats/2 correctly extracts and formats pc stats from all stats", context do
+    stats = context[:stats]
 
-    assert 5 == games
-    assert 6 == kills
-    assert 0 == wins
-    assert 0 == top3
-    assert 0 == top5
-  end
-
-  test "get_duo_stats/2 correctly extracts and  formats duo pc stats from all stats" do
     expected_output = %{
       "duo" => %{
-        "gamesPlayed" => 5,
-        "gamesWon" => 0,
-        "killDeathRatio" => 1.2,
-        "top1finishes" => 0,
-        "top3finishes" => 0,
-        "top5finishes" => 0
+        "gamesPlayed" => 2769,
+        "gamesWon" => 1181,
+        "killDeathRatio" => 12.675692695214106,
+        "top12finishes" => 1626,
+        "top5finishes" => 1386
       },
-      "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1}
+      "solo" => %{
+        "gamesPlayed" => 3458,
+        "gamesWon" => 1190,
+        "killDeathRatio" => 11.792768959435627,
+        "top10finishes" => 1562,
+        "top25finishes" => 1876
+      },
+      "squad" => %{
+        "gamesPlayed" => 1613,
+        "gamesWon" => 361,
+        "killDeathRatio" => 8.093450479233226,
+        "top3finishes" => 457,
+        "top6finishes" => 553
+      },
+      "total" => %{"totalGamesPlayed" => 6588, "totalGamesWon" => 2732}
     }
 
-    actual_output = Stats.get_duo_stats(@fortnite_stats, "pc")
+    actual_output = Stats.get_stats(stats, "pc")
     assert expected_output == actual_output
   end
 end

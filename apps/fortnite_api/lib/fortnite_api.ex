@@ -70,14 +70,16 @@ defmodule FortniteApi do
 
     iex> FortniteApi.fetch_stats("Trollerenn", "PC")
     {:ok,
-      %{"duo" => %{
-       "gamesPlayed" => 5,
-       "gamesWon" => 0,
-       "killDeathRatio" => 1.2,
-       "top1finishes" => 0,
-       "top3finishes" => 0,
-       "top5finishes" => 0
+      %{"solo" => %{
+       "gamesPlayed" => 20,
+       "gamesWon" => 2,
+       "killDeathRatio" => 4.9,
+       "top1finishes" => 2,
+       "top10finishes" => 5,
+       "top25finishes" => 10
      },
+     "duo" => %{..},
+     "squad" => %{..},
      "platform" => "pc",
      "total" => %{"gamesPlayed" => 27, "gamesWon" => 1},
      "username" => "trollerenn"

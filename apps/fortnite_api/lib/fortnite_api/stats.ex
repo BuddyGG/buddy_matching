@@ -8,20 +8,6 @@ defmodule FortniteApi.Stats do
   @duo "p10"
   @squad "p9"
 
-  @doc """
-  Formats the list of maps returned by Fornite's API
-  as a Map of %{"stat_type" => "value}.
-
-  ## Examples:
-
-    iex> format_stats([%{"name" => "br_score_pc_m0_p10", "value" => 703}])
-    %{"br_score_pc_m0_p10" => 703}
-
-  """
-  def format_stats(stats) do
-    Enum.reduce(stats, %{}, fn x, acc -> Map.put(acc, x["name"], x["value"]) end)
-  end
-
   defp get_shared_queue_stats(stats, queue, platform) do
     games = Map.get(stats, "br_matchesplayed_#{platform}_m0_#{queue}", 0)
     wins = Map.get(stats, "br_placetop1_#{platform}_m0_#{queue}", 0)
@@ -59,6 +45,20 @@ defmodule FortniteApi.Stats do
     |> get_shared_queue_stats(@squad, platform)
     |> Map.put("top3finishes", top3)
     |> Map.put("top6finishes", top6)
+  end
+
+  @doc """
+  Formats the list of maps returned by Fornite's API
+  as a Map of %{"stat_type" => "value}.
+
+  ## Examples:
+
+    iex> format_stats([%{"name" => "br_score_pc_m0_p10", "value" => 703}])
+    %{"br_score_pc_m0_p10" => 703}
+
+  """
+  def format_stats(stats) do
+    Enum.reduce(stats, %{}, fn x, acc -> Map.put(acc, x["name"], x["value"]) end)
   end
 
   @doc """

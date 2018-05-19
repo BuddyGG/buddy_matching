@@ -5,195 +5,120 @@ defmodule FortniteApi.MockTest do
 
   import Mock
 
-  @token "MOCK_TOKEN"
-  @fortnite_stats [
-    %{
-      "name" => "br_score_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 703,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_score_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 2669,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 5,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_score_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 678,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 1_521_842_991,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1_521_834_802,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 14,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop1_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_matchesplayed_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 20,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop12_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 2,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_lastmodified_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 1_521_986_670,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop10_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop25_pc_m0_p2",
-      "ownerType" => 1,
-      "value" => 1,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_kills_pc_m0_p10",
-      "ownerType" => 1,
-      "value" => 6,
-      "window" => "alltime"
-    },
-    %{
-      "name" => "br_placetop6_pc_m0_p9",
-      "ownerType" => 1,
-      "value" => 3,
-      "window" => "alltime"
-    }
-  ]
+  setup_all do
+    token = "MOCK_TOKEN"
+    username = "Ninja"
+    platform = "PC"
+    account_id = "123456789"
+    account_id_json = File.read!("test/mock_json/account_id.json")
+    stats_json = File.read!("test/mock_json/stats.json")
+
+    account_id_url =
+      "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
+        username
+      }"
+
+    stats_url =
+      "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/#{
+        account_id
+      }/bulk/window/alltime"
+
+    [
+      username: username,
+      platform: platform,
+      token: token,
+      account_id: account_id,
+      stats_json: stats_json,
+      account_id_json: account_id_json,
+      stats_url: stats_url,
+      account_id_url: account_id_url
+    ]
+  end
 
   defp success_response(value), do: {:ok, %{status_code: 200, body: value}}
   defp error_response(value), do: {:error, %{status_code: 404, body: value}}
 
-  defp account_id_url(username) do
-    "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=#{
-      username
-    }"
-  end
-
-  defp br_stats_url(account_id) do
-    "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/#{
-      account_id
-    }/bulk/window/alltime"
-  end
-
-  test "fetch_stats with correct access returns expected stats" do
-    headers = AccessServer.get_headers_bearer(@token)
-    username = "trollerenn"
-    platform = "pc"
-    account_id = "123456789"
-    account_id_url = account_id_url(username)
-    stats_url = br_stats_url(account_id)
-
-    id_response = Poison.encode!(%{"id" => account_id, "displayName" => username})
-    stats_response = Poison.encode!(@fortnite_stats)
+  test "fetch_stats with correct access returns expected stats", context do
+    token = context[:token]
+    headers = AccessServer.get_headers_bearer(token)
+    username = context[:username]
+    platform = context[:platform]
+    account_id_url = context[:account_id_url]
+    stats_url = context[:stats_url]
+    stats_response = context[:stats_json]
+    account_id_response = context[:account_id_json]
 
     expected_output =
       {:ok,
        %{
-         "username" => username,
-         "platform" => platform,
+         "username" => "Ninja",
          "duo" => %{
-           "gamesPlayed" => 5,
-           "gamesWon" => 0,
-           "killDeathRatio" => 1.2,
-           "top1finishes" => 0,
-           "top3finishes" => 0,
-           "top5finishes" => 0
+           "gamesPlayed" => 2769,
+           "gamesWon" => 1181,
+           "killDeathRatio" => 12.675692695214106,
+           "top5finishes" => 1386,
+           "top12finishes" => 1626
          },
-         "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1}
+         "platform" => "pc",
+         "total" => %{"totalGamesPlayed" => 6588, "totalGamesWon" => 2732},
+         "solo" => %{
+           "gamesPlayed" => 3458,
+           "gamesWon" => 1190,
+           "killDeathRatio" => 11.792768959435627,
+           "top10finishes" => 1562,
+           "top25finishes" => 1876
+         },
+         "squad" => %{
+           "gamesPlayed" => 1613,
+           "gamesWon" => 361,
+           "killDeathRatio" => 8.093450479233226,
+           "top3finishes" => 457,
+           "top6finishes" => 553
+         }
        }}
 
     with_mocks([
       {HTTPoison, [],
        [
          get: fn
-           ^account_id_url, ^headers -> success_response(id_response)
+           ^account_id_url, ^headers -> success_response(account_id_response)
            ^stats_url, ^headers -> success_response(stats_response)
          end
        ]},
-      {AccessServer, [:passthrough], [get_token: fn -> {:ok, @token} end]}
+      {AccessServer, [:passthrough], [get_token: fn -> {:ok, token} end]}
     ]) do
       assert expected_output == FortniteApi.fetch_stats(username, platform)
     end
   end
 
-  test "fetch_stats with unsuccesful token requests returns error tuple" do
+  test "fetch_stats with unsuccesful token requests returns error tuple", context do
+    username = context[:username]
+    platform = context[:platform]
     error_message = "Failed to get token"
 
     with_mock(AccessServer, get_token: fn -> {:error, error_message} end) do
-      assert {:error, ^error_message} = FortniteApi.fetch_stats("trollerenn", "pc")
+      assert {:error, ^error_message} = FortniteApi.fetch_stats(username, platform)
     end
   end
 
-  test "fetch_stats with unsuccesful web request returns error tuple" do
-    headers = AccessServer.get_headers_bearer(@token)
-    username = "trollerenn"
-    platform = "pc"
-    account_id = "123456789"
-    account_id_url = account_id_url(username)
-    stats_url = br_stats_url(account_id)
-
-    id_response = Poison.encode!(%{"id" => account_id, "displayName" => username})
+  test "fetch_stats with unsuccesful web request returns error tuple", context do
+    token = context[:token]
+    headers = AccessServer.get_headers_bearer(token)
+    username = context[:username]
+    platform = context[:platform]
+    account_id_url = context[:account_id_url]
+    stats_url = context[:stats_url]
+    account_id_response = context[:account_id_json]
 
     with_mocks([
       {HTTPoison, [],
        [
          get: fn
-           ^account_id_url, ^headers -> success_response(id_response)
+           ^account_id_url, ^headers -> success_response(account_id_response)
            ^stats_url, ^headers -> error_response("Couldn't get stats")
          end
        ]},
-      {AccessServer, [:passthrough], [get_token: fn -> {:ok, @token} end]}
+      {AccessServer, [:passthrough], [get_token: fn -> {:ok, token} end]}
     ]) do
       assert {:error, "Couldn't get stats"} = FortniteApi.fetch_stats(username, platform)
     end

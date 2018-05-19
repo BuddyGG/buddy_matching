@@ -22,29 +22,44 @@ defmodule FortniteApi.Stats do
     Enum.reduce(stats, %{}, fn x, acc -> Map.put(acc, x["name"], x["value"]) end)
   end
 
-  @doc """
-  Extracts specific stats from a formatted stats map, a platform
-  and a queue type and returns them as a tuple.
-
-  ## Examples:
-
-    iex> stats = %{"br_placetop1_p2_pc" => 1, "br_placetop3_p2" => 3...}
-    iex> get_stats_for_queue(stats, "pc", "p2")
-    {5, 10, 1, 3, 7}
-
-  """
-  def get_stats_for_queue(stats, platform, queue) do
-    wins = Map.get(stats, "br_placetop1_#{platform}_m0_#{queue}", 0)
-    top3 = Map.get(stats, "br_placetop3_#{platform}_m0_#{queue}", 0)
-    top5 = Map.get(stats, "br_placetop5_#{platform}_m0_#{queue}", 0)
+  defp get_shared_queue_stats(stats, queue, platform) do
     games = Map.get(stats, "br_matchesplayed_#{platform}_m0_#{queue}", 0)
+    wins = Map.get(stats, "br_placetop1_#{platform}_m0_#{queue}", 0)
     kills = Map.get(stats, "br_kills_#{platform}_m0_#{queue}", 0)
+    deaths = games - wins
+    kdr = if deaths != 0, do: kills / deaths, else: 0
+    %{"gamesPlayed" => games, "gamesWon" => wins, "killDeathRatio" => kdr}
+  end
 
-    {games, kills, wins, top3, top5}
+  defp get_solo_stats(stats, platform) do
+    top10 = Map.get(stats, "br_placetop10_#{platform}_m0_#{@solo}", 0)
+    top25 = Map.get(stats, "br_placetop25_#{platform}_m0_#{@solo}", 0)
+    stats
+    |> get_shared_queue_stats(@solo, platform)
+    |> Map.put("top10finishes", top10)
+    |> Map.put("top25finishes", top25)
+  end
+
+  defp get_duo_stats(stats, platform) do
+    top5 = Map.get(stats, "br_placetop5_#{platform}_m0_#{@duo}", 0)
+    top12 = Map.get(stats, "br_placetop12_#{platform}_m0_#{@duo}", 0)
+    stats
+    |> get_shared_queue_stats(@duo, platform)
+    |> Map.put("top5finishes", top5)
+    |> Map.put("top12finishes", top12)
+  end
+
+  defp get_squad_stats(stats, platform) do
+    top3 = Map.get(stats, "br_placetop3_#{platform}_m0_#{@squad}", 0)
+    top6 = Map.get(stats, "br_placetop6_#{platform}_m0_#{@squad}", 0)
+    stats
+    |> get_shared_queue_stats(@squad, platform)
+    |> Map.put("top3finishes", top3)
+    |> Map.put("top6finishes", top6)
   end
 
   @doc """
-  Extracts and format stats for the the duo bracket from the given
+  Extracts and format stats for the all brackets from the given
   stats returned by Fortnite API and the given platform.
 
   ## Examples:
@@ -63,46 +78,35 @@ defmodule FortniteApi.Stats do
         "window" => "alltime"
       }...]
     iex> Stats.get_duo_stats(stats, "pc")
-    %{"duo" => %{
+    %{"solo" => %{
       "gamesPlayed" => 5,
       "gamesWon" => 0,
       "killDeathRatio" => 1.2,
       "top1finishes" => 0,
       "top3finishes" => 0,
       "top5finishes" => 0
-    },
-      "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1},
+    }
+      "duo" => %{..},
+      "squad" => %{..},
+      "total" => %{"totalGamesPlayed" => 27, "totalGamesWon" => 1}
     }
 
   """
-  def get_duo_stats(stats, platform) do
+  def get_stats(stats, platform) do
     stats = format_stats(stats)
-
-    {games_solo, _, wins_solo, _, _} = get_stats_for_queue(stats, platform, @solo)
-
-    {games_duo, kills_duo, wins_duo, top3_duo, top5_duo} =
-      get_stats_for_queue(stats, platform, @duo)
-
-    {games_squad, _, wins_squad, _, _} = get_stats_for_queue(stats, platform, @squad)
-
-    deaths_duo = games_duo - wins_duo
-    kdr_duo = if deaths_duo != 0, do: kills_duo / deaths_duo, else: 0
-    total_games = games_solo + games_duo + games_squad
-    total_wins = wins_solo + wins_duo + wins_squad
-
+    solo_stats = get_solo_stats(stats, platform)
+    duo_stats = get_duo_stats(stats, platform)
+    squad_stats = get_squad_stats(stats, platform)
+    total_games = solo_stats["gamesPlayed"] + duo_stats["gamesPlayed"] + squad_stats["gamesWon"]
+    total_wins = solo_stats["gamesWon"] + duo_stats["gamesWon"] + squad_stats["gamesWon"]
     %{
       "total" => %{
         "totalGamesPlayed" => total_games,
         "totalGamesWon" => total_wins
       },
-      "duo" => %{
-        "gamesPlayed" => games_duo,
-        "gamesWon" => wins_duo,
-        "top1finishes" => wins_duo,
-        "top3finishes" => top3_duo,
-        "top5finishes" => top5_duo,
-        "killDeathRatio" => kdr_duo
-      }
+      "solo" => solo_stats,
+      "duo" => duo_stats,
+      "squad" => squad_stats
     }
   end
 end

@@ -48,7 +48,7 @@ defmodule FortniteApi do
     iex> FortniteApi.validate_platform("PC")
     {:ok, "pc"}
     iex> FortniteApi.validate_platform("GAMEBOY")
-    {:error, "Bad paltform. Should be xb1/ps4/pc."}
+    {:error, "Bad platform. Should be xb1/ps4/pc."}
 
   """
   def validate_platform(platform) do
@@ -92,7 +92,7 @@ defmodule FortniteApi do
       stats <- fetch_br_stats(account_id, access_token)
     after
       stats
-      |> Stats.get_duo_stats(platform)
+      |> Stats.get_stats(platform)
       |> Map.put("username", display_name)
       |> Map.put("platform", platform)
     end

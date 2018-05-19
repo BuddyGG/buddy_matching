@@ -22,7 +22,7 @@ defmodule BuddyMatching.PlayerServer do
   end
 
   @doc """
-  The LeaveTracker's init function.
+  The PlayerServer's init function.
   Called automatically by `start_link`.
   Returns :ok and initial state of GenServer, which
   in this case is the empty map.

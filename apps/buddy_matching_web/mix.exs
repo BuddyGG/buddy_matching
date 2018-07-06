@@ -51,11 +51,11 @@ defmodule BuddyMatchingWeb.Mixfile do
     [
       {:riot_api, in_umbrella: true},
       {:buddy_matching, in_umbrella: true},
+      {:fortnite_api, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:httpoison, "~> 0.13"},
       {:cors_plug, "~> 1.3"},
       {:ok, "~> 1.9"},
       {:uuid, "~> 1.1"},

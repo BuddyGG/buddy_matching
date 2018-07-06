@@ -1,61 +1,37 @@
-defmodule BuddyMatching.MatchingTest do
+defmodule BuddyMatching.Matching.LolMatchingTest do
   use ExUnit.Case, async: true
-  alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Matching
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Matching.LolMatching, as: Matching
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
+  alias BuddyMatching.Players.Info.LolInfo, as: Info
 
   # setup some bases for criteria and players that can be used in relation
   # to custom definitions for testing
   setup_all do
-    broad_criteria = %Criteria{
-      positions: [:top, :jungle, :mid, :marksman, :support],
-      voice: [true, false],
-      age_groups: ["interval1", "interval2", "interval3"],
-      ignore_language: false
-    }
-
-    narrow_criteria = %Criteria{
-      positions: [:marksman],
-      voice: [false],
-      age_groups: ["interval1"],
-      ignore_language: false
-    }
-
+    broad_criteria = %Criteria{positions: [:top, :jungle, :mid, :marksman, :support]}
+    narrow_criteria = %Criteria{positions: [:marksman]}
     diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
 
-    base_player1 = %Player{
-      id: 1,
-      name: "Lethly",
+    base_player1 = %Info{
       region: :euw,
-      voice: [false],
-      languages: ["danish"],
-      age_group: "interval1",
+      game_criteria: broad_criteria,
       positions: [:marksman],
       leagues: diamond1,
-      champions: ["Vayne", "Ezreal", "Caitlyn"],
-      criteria: broad_criteria,
-      comment: "Never dies on Vayne"
+      champions: ["Vayne", "Ezreal", "Caitlyn"]
     }
 
-    base_player2 = %Player{
-      id: 2,
-      name: "hansp",
+    base_player2 = %Info{
       region: :euw,
-      voice: [false],
-      languages: ["danish", "english"],
-      age_group: "interval3",
+      game_criteria: narrow_criteria,
       positions: [:top],
       leagues: diamond1,
-      champions: ["Cho'Gath", "Renekton", "Riven"],
-      criteria: narrow_criteria,
-      comment: "Apparently I play Riven"
+      champions: ["Cho'Gath", "Renekton", "Riven"]
     }
 
     [
       player1: base_player1,
-      broad_criteria: broad_criteria,
-      diamond1: diamond1,
       player2: base_player2,
+      diamond1: diamond1,
+      broad_criteria: broad_criteria,
       narrow_criteria: narrow_criteria
     ]
   end
@@ -65,118 +41,37 @@ defmodule BuddyMatching.MatchingTest do
     assert Matching.match?(context[:player1], context[:player2])
   end
 
-  test "players with matching criteria but no language intersection don't match", context do
-    gibberishian = %Player{context[:player2] | languages: ["gibberish"]}
-    refute Matching.match?(context[:player1], gibberishian)
-  end
-
-  test "player does not match himself", context do
-    refute Matching.match?(context[:player1], context[:player1])
-  end
-
   test "player with compatible criteria but bad regions are not matching", context do
-    player2 = Map.put(context[:player2], :region, :br)
+    player2 = %Info{context[:player2] | region: :br}
+
     refute Matching.match?(context[:player1], player2)
   end
 
   test "player with compatible criteria but unable to queue are not matching", context do
-    diamond5 = Map.put(context[:diamond1], :rank, 5)
-    player2 = Map.put(context[:player2], :leagues, diamond5)
+    player2 = context[:player2]
+    player2 = put_in(player2.leagues.rank, 5)
     refute Matching.match?(context[:player1], player2)
-  end
-
-  test "player with incompatible languages match if they ignore languages", context do
-    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
-    swe_player = %Player{context[:player1] | languages: ["swe"], criteria: ignore_lang}
-    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
-    assert Matching.match?(swe_player, dk_player)
-  end
-
-  test "player with incompatible languages match don't match if they don't ignore languages",
-       context do
-    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
-    swe_player = %Player{context[:player1] | languages: ["swe"], criteria: ignore_lang}
-    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
-    refute Matching.match?(swe_player, dk_player)
-  end
-
-  test "player with compatible languages match still match if they ignore_language", context do
-    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: true}
-    swe_player = %Player{context[:player1] | languages: ["dk"], criteria: ignore_lang}
-    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
-    assert Matching.match?(swe_player, dk_player)
-  end
-
-  test "player with compatible languages match still match if they don't ignore_language",
-       context do
-    ignore_lang = %Criteria{context[:broad_criteria] | ignore_language: false}
-    swe_player = %Player{context[:player1] | languages: ["dk"], criteria: ignore_lang}
-    dk_player = %Player{context[:player2] | languages: ["dk"], criteria: ignore_lang}
-    assert Matching.match?(swe_player, dk_player)
   end
 
   ### --- Criteria compatibility tests --- ###
   test "test that 1:1 criteria/player fit is compatible", context do
-    perfect_criteria = %Criteria{
-      positions: [:marksman],
-      voice: [false],
-      age_groups: ["interval1"]
-    }
-
+    perfect_criteria = %Criteria{positions: [:marksman]}
     assert Matching.criteria_compatible?(perfect_criteria, context[:player1])
   end
 
-  test "test that voice criteria, for no voice player is incompatible", context do
-    voice_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: ["interval1"]}
-    refute Matching.criteria_compatible?(voice_criteria, context[:player1])
-  end
-
-  test "test that don't care voice option, matches both false and true voice criteria", context do
-    dont_care_player = %Player{context[:player1] | voice: [true, false]}
-    voice_criteria = %Criteria{positions: [:marksman], voice: [true], age_groups: ["interval1"]}
-
-    no_voice_criteria = %Criteria{
-      positions: [:marksman],
-      voice: [false],
-      age_groups: ["interval1"]
-    }
-
-    assert Matching.criteria_compatible?(voice_criteria, dont_care_player)
-    assert Matching.criteria_compatible?(no_voice_criteria, dont_care_player)
-  end
-
-  test "test that age_group criteria doesn't match with bad age groups for player", context do
-    age_criteria = %Criteria{
-      positions: [:marksman],
-      voice: [true],
-      age_groups: ["interval2", "interval3"]
-    }
-
-    refute Matching.criteria_compatible?(age_criteria, context[:player1])
-  end
-
   test "test that positions criteria doesn't match with other positions", context do
-    positions_criteria = %Criteria{
-      positions: [:jungle, :mid, :support, :top],
-      voice: [true, false],
-      age_groups: ["interval1", "interval2", "interval3"]
-    }
+    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top]}
 
     refute Matching.criteria_compatible?(positions_criteria, context[:player1])
   end
 
   test "test that compatible positions criteria matches", context do
-    positions_criteria = %Criteria{
-      positions: [:jungle, :mid, :support, :top, :marksman],
-      voice: [true, false],
-      age_groups: ["interval1", "interval2", "interval3"]
-    }
-
+    positions_criteria = %Criteria{positions: [:jungle, :mid, :support, :top, :marksman]}
     assert Matching.criteria_compatible?(positions_criteria, context[:player1])
   end
 
   test "test that entirely wrong criteria/player combination is incompatible", context do
-    bad_criteria = %Criteria{positions: [:support], voice: [true], age_groups: ["interval3"]}
+    bad_criteria = %Criteria{positions: [:support]}
     refute Matching.criteria_compatible?(bad_criteria, context[:player1])
   end
 
@@ -247,6 +142,12 @@ defmodule BuddyMatching.MatchingTest do
     platinum3 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 3}
     diamond5 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 5}
     assert Matching.tier_compatible?(platinum3, diamond5)
+  end
+
+  test "diamond3 and plat1 are compatible" do
+    platinum1 = %{type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}
+    diamond3 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}
+    assert Matching.tier_compatible?(platinum1, diamond3)
   end
 
   test "diamond4 and plat3 are incompatible" do

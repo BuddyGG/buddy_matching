@@ -1,75 +1,70 @@
-defmodule BuddyMatching.Players.Matching do
+defmodule BuddyMatching.Players.Matching.LolMatching do
   @moduledoc """
-  Module containing all logic for matching players with other players.
-  This included handling whether or not they can play with eachother based on Riot's
-  own rules on the matter:
+  Module containing all logic for determining whether two %LolInfo{}'s match.
+  This included handling whether or not they can play with eachother based
+  on Riot's own rules on the matter:
     https://support.riotgames.com/hc/en-us/articles/204010760-Ranked-Play-FAQ
-  and whether Players criterias' are mutually compatible.
+  and whether LolInfo's LolCriteria are mutually compatible.
+
+  Implements `MatchingBehaviour`.
   """
-  alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Criteria.LolCriteria
+  alias BuddyMatching.Players.MatchingBehaviour
+  @behaviour MatchingBehaviour
 
   @loose_tiers ["UNRANKED", "BRONZE", "SILVER", "GOLD", "PLATINUM"]
 
   @doc """
-  Returns a boolean representing whether Player 'player' and Player 'candidate'
+  Returns a boolean representing whether LolInfo's 'player' and 'candidate'
   are able to play together and fit eachother's criteria.
 
   ## Examples
-      iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
-      iex> criteria1 = %Criteria{positions: [:top, :support], voice: [false, true], age_groups: [1]}
-      iex> criteria2 = %Criteria{positions: [:marksman, :top], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
-        languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
-        criteria: criteria1, comment: "Great player, promise"}
-      iex> candidate = %Player{id: 2, name: "hansp", region: :euw, voice: [false],
-        languages: ["danish", "english"], age_group: 1, positions: [:top],
-        leagues: diamond1, champions: ["Cho'Gath", "Renekton", "Riven"],
-        criteria: criteria2, comment: "Ok player, promise"}
-      iex> BuddyMatching.Players.Matching.match?(player, candidate)
-      true
+    iex> criteria1 = %LolCriteria{positions: [:support]}
+    iex> info1 = %LolInfo{game_criteria: criteria1, positions: [:marksman],
+      leagues: %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}}
+    iex> criteria2 = %LolCriteria{positions: [:marksman]}
+    iex> info2 = %LolInfo{game_criteria: criteria2, positions: [:support],
+      leagues: %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 3}}
+    iex> BuddyMatching.Players.Matching.match(info1, info2)
+    true
+
   """
-  def match?(%Player{} = player, %Player{} = candidate) do
-    (lists_intersect?(player.languages, candidate.languages) ||
-       (player.criteria.ignore_language && candidate.criteria.ignore_language)) &&
-      player.id != candidate.id && can_queue?(player, candidate) &&
-      criteria_compatible?(player.criteria, candidate) &&
-      criteria_compatible?(candidate.criteria, player)
+  def match?(%LolInfo{} = player_info, %LolInfo{} = candidate_info) do
+    can_queue?(player_info, candidate_info) &&
+      criteria_compatible?(player_info.game_criteria, candidate_info) &&
+      criteria_compatible?(candidate_info.game_criteria, player_info)
   end
 
-  # convert two lists to MapSets and see if they intersect?
+  # Convert two lists to MapSets and see if they intersect?
   defp lists_intersect?(a, b) do
     !MapSet.disjoint?(MapSet.new(a), MapSet.new(b))
   end
 
-  # helper for extracting solo queue and determining if it is possible for
-  # two players to queue together
-  defp can_queue?(%Player{} = player, %Player{} = candidate) do
-    case player.region == candidate.region do
-      false -> false
-      _ -> tier_compatible?(player.leagues, candidate.leagues)
+  # Helper for extracting solo queue and determining if it
+  # is possible for two players to queue together
+  defp can_queue?(%LolInfo{} = info1, %LolInfo{} = info2) do
+    if info1.region == info2.region do
+      tier_compatible?(info1.leagues, info2.leagues)
+    else
+      false
     end
   end
 
   @doc """
-  Returns a boolean representing whether the Player 'player'
-  conforms to the Criteria 'criteria'
+  Returns a boolean representing whether the %LolInfo 'player'
+  conforms to the %LolCriteria 'criteria'.
 
   ## Examples
-      iex> diamond1 = %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}
-      iex> criteria = %Criteria{positions: [:marksman], voice: [false], age_groups: [1]}
-      iex> player = %Player{id: 1, name: "Lethly", region: :euw, voice: [false],
-        languages: ["danish"], age_group: 1, positions: [:marksman],
-        leagues: diamond1, champions: ["Vayne", "Caitlyn", "Ezreal"],
-        criteria: criteria, comment: "Fantastic player"}
-      iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, player)
-      true
+    iex> criteria = %LolCriteria{positions: [:marksman]}
+    iex> info = %LolInfo{game_criteria: criteria, positions: [:marksman],
+      leagues: %{type: "RANKED_SOLO_5x5", tier: "DIAMOND", rank: 1}}
+    iex> BuddyMatching.Players.Matching.criteria_compatible?(criteria, info)
+    true
+
   """
-  def criteria_compatible?(%Criteria{} = criteria, %Player{} = player) do
-    lists_intersect?(criteria.voice, player.voice) &&
-      lists_intersect?(criteria.positions, player.positions) &&
-      Enum.member?(criteria.age_groups, player.age_group)
+  def criteria_compatible?(%LolCriteria{} = criteria, %LolInfo{} = info) do
+    lists_intersect?(criteria.positions, info.positions)
   end
 
   # This function assumes high isn't in @loose_tiers and that
@@ -151,10 +146,10 @@ defmodule BuddyMatching.Players.Matching do
   If they are equal, league1 is returned as highest
 
   ## Examples
-      iex> league1 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}
-      iex> league2 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 2}
-      iex> BuddyMatching.Players.Matching.sort_leagues(league1, league2)
-      {league1, league2}
+      iex> gold1 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 1}
+      iex> gold2 = {type: "RANKED_SOLO_5x5", tier: "GOLD", rank: 2}
+      iex> BuddyMatching.Players.Matching.sort_leagues(gold1, gold2)
+      {gold1, gold2}
   """
   def sort_leagues(league1, league2) do
     tier1 = tier_to_int(league1.tier)
@@ -203,8 +198,7 @@ defmodule BuddyMatching.Players.Matching do
     end
   end
 
-  # handle players where we don't know their rank
-  # but only their league as rank 5
+  # Handle players where we don't know their rank but only their league as rank 5
   defp get_rank(%{rank: nil}), do: 5
   defp get_rank(%{rank: rank}), do: rank
 end

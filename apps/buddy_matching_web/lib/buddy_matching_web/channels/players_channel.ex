@@ -5,11 +5,13 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   use BuddyMatchingWeb, :channel
   require Logger
+  require OK
 
   alias BuddyMatching.Players
-  alias BuddyMatching.Players.Criteria
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.PlayerServer.RegionMapper
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
+  alias BuddyMatching.PlayerServer.ServerMapper
+  alias BuddyMatching.PlayerServer.ServerExtractor
   alias BuddyMatchingWeb.Endpoint
   alias BuddyMatchingWeb.Presence
   alias BuddyMatchingWeb.Presence.LeaveTracker
@@ -21,6 +23,65 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   @request_event "match_requested"
   @request_response_event "request_response"
   @already_signed_up_event "already_signed_up"
+
+  @doc """
+  Broadcasts a @new_match_event of the given player to the given list of matches.
+  """
+  def broadcast_matches(matches, player), do: broadcast_event(matches, player, @new_match_event)
+
+  @doc """
+  Broadcasts a @unmatch_event of the given player to the given list of matches.
+  """
+  def broadcast_unmatches(matches, player), do: broadcast_event(matches, player, @unmatch_event)
+
+  # Utility method for broadcasting the given player as with the given event
+  # to all players in the given list of matches.
+  defp broadcast_event(matches, player, event) do
+    matches
+    |> Enum.each(fn match ->
+      Endpoint.broadcast!("players:#{match.id}", event, player)
+    end)
+  end
+
+  # HACK - to correctly get id for various types. Mostly to make tests work.
+  # Tests should probably be adapted or it should be handled in a cleaner way.
+  # Generally due to 'other_player' being currently not being possible to parse
+  # as json, since it will not contain userInfo in given context.
+  def get_player_id(%Player{} = player), do: player.id
+  def get_player_id(%{} = player), do: player["id"]
+
+  @doc """
+  Parse player from the payload, if we get a player struct, we just return it,
+  else we parse the payload as json
+  """
+  def parse_player_payload(%Player{} = player), do: {:ok, player}
+  def parse_player_payload(%{"payload" => player}), do: Player.from_json(player)
+  def parse_player_payload(%{} = player), do: Player.from_json(player)
+
+  @doc """
+  Send necessary match/unmatch events to new/old matches given a Player's
+  old state, and its new state.
+  Returns the list of the Player's updated matches.
+  """
+  def update_criteria(current_player, updated_player) do
+    server_players = ServerMapper.get_players(current_player)
+    current_matches = Players.get_matches(current_player, server_players)
+
+    ServerMapper.update_player(updated_player)
+    updated_matches = Players.get_matches(updated_player, server_players)
+
+    # broadcast new_player to newly matched players
+    (updated_matches -- current_matches)
+    |> broadcast_matches(updated_player)
+
+    # broadcast remove_player to players who are no longer matched
+    (current_matches -- updated_matches)
+    |> broadcast_unmatches(updated_player)
+
+    # send the full list of updated matches on the socket
+    Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
+    updated_matches
+  end
 
   @doc """
   Each clients joins their own player channel players:session_id
@@ -54,9 +115,9 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   """
   def handle_info({:on_join, _msg}, socket) do
     Task.start(fn ->
-      case RegionMapper.add_player(socket.assigns.user) do
+      case ServerMapper.add_player(socket.assigns.user) do
         :ok ->
-          players = RegionMapper.get_players(socket.assigns.user.region)
+          players = ServerMapper.get_players(socket.assigns.user)
           matches = Players.get_matches(socket.assigns.user, players)
           # Send all matching players
           push(socket, @initial_matches_event, %{players: matches})
@@ -75,17 +136,17 @@ defmodule BuddyMatchingWeb.PlayersChannel do
   end
 
   @doc """
-  After joining, let Presence track when a certain user joins the channel.
+  After joining, let Presence track when the joining user's channel.
   This has the added benefit of allowing Presence to track the channel and handle
-  potential crashes.
+  potential crashes, in combination with the `LeaveTracker`.
+  We track Player's name and their server, which is determined by the `ServerExtractor`.
+  This combination of values allows us to clean up, should the Player's channel crash.
   """
   def handle_info(:after_join, socket) do
-    # Presence has to track some metadata, and in our case we track the name and the
-    # region, as we need these to remove the Player from the correct PlayerServer
-    # when they leave.
-    tracked = %{name: socket.assigns.user.name, region: socket.assigns.user.region}
+    server = ServerExtractor.server_from_player(socket.assigns.user)
+    tracked = %{name: socket.assigns.user.name, server: server}
     {:ok, _} = Presence.track(socket, socket.assigns.user.id, tracked)
-    track_player_id(socket.assigns.user)
+    LeaveTracker.track(socket.assigns.user.id)
     {:noreply, socket}
   end
 
@@ -100,7 +161,7 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   @doc """
   When a player requests a match, we get the reqested player's id.
-  We then send the requested player a "match_requested", who is accepted to send back
+  We then send the requested player a "match_requested", who is expected to send back
   a confirmation response, saying whether he received the request and was available,
   or whether he was busy. This is handled in the frontend using the "respond_to_request" event.
   """
@@ -125,84 +186,34 @@ defmodule BuddyMatchingWeb.PlayersChannel do
 
   @doc """
   When update criteria is received with a new criteria for the player bound to the socket,
-  we broadcast a 'new_player'
+  we broadcast a 'new_match' event to any new matches, and an 'umatch_event' to player's
+  with whom the updated player matched with before, but no longer does. Additionally,
+  the updated player receives a new 'initial_matches' event with all his current matches,
+  given the updated criteria.
   """
   def handle_in("update_criteria", criteria, socket) do
     current_player = socket.assigns.user
-    updated_criteria = Criteria.from_json(criteria)
-    updated_player = %{socket.assigns.user | criteria: updated_criteria}
-    socket = assign(socket, :user, updated_player)
+    game = current_player.game
 
-    Task.start(fn ->
-      region_players = RegionMapper.get_players(current_player.region)
-      current_matches = Players.get_matches(current_player, region_players)
+    OK.try do
+      game_criteria <- Player.game_criteria_from_json(game, criteria["gameCriteria"])
+      player_criteria <- PlayerCriteria.from_json(criteria["playerCriteria"])
+    after
+      updated_player = %{current_player | criteria: player_criteria}
+      updated_player = put_in(updated_player.game_info.game_criteria, game_criteria)
+      socket = assign(socket, :user, updated_player)
 
-      RegionMapper.update_player(updated_player)
-      updated_matches = Players.get_matches(updated_player, region_players)
+      Task.start(fn ->
+        updated_matches = update_criteria(current_player, updated_player)
+        push(socket, @initial_matches_event, %{players: updated_matches})
+        send(socket.transport_pid, :garbage_collect)
+      end)
 
-      # broadcast new_player to newly matched players
-      (updated_matches -- current_matches)
-      |> broadcast_matches(updated_player)
-
-      # broadcast remove_player to players who are no longer matched
-      (current_matches -- updated_matches)
-      |> broadcast_unmatches(updated_player)
-
-      # send the full list of updated matches on the socket
-      Logger.debug(fn -> "Pushing new players: #{inspect(updated_matches)}" end)
-      push(socket, @initial_matches_event, %{players: updated_matches})
-      send(socket.transport_pid, :garbage_collect)
-    end)
-
-    {:noreply, socket}
+      {:noreply, socket}
+    rescue
+      _ ->
+        push(socket, "bad criteria", %{reason: "The given criteria payload could not be parsed"})
+        {:noreply, socket}
+    end
   end
-
-  @doc """
-  Broadcasts a @new_match_event of the given player to the given list
-  of matches for that player.
-  """
-  def broadcast_matches(matches, player) do
-    broadcast_event(matches, player, @new_match_event)
-  end
-
-  @doc """
-  Broadcasts a @unmatch_event of the given player to the given list
-  of matches for that player.
-  """
-  def broadcast_unmatches(matches, player) do
-    broadcast_event(matches, player, @unmatch_event)
-  end
-
-  # Utility method for broadcasting the given player as given event
-  # to all players in the given list of matches.
-  defp broadcast_event(matches, player, event) do
-    matches
-    |> Enum.each(fn match ->
-      Endpoint.broadcast!("players:#{match.id}", event, player)
-    end)
-  end
-
-  # Private utility function for telling the LeaveTracker
-  # to keep track of this player, such that they may be removed
-  # from their PlayerServer at a later time.
-  defp track_player_id(player) do
-    :leave_tracker
-    |> :global.whereis_name()
-    |> LeaveTracker.track(player.id)
-  end
-
-  # HACK - to correctly get id for various types. Mostly to make tests work.
-  # Tests should probably be adapted or it should be handled in a cleaner way.
-  # Generally due to 'other_player' being currently not being possible to parse
-  # as json, since it will not contain userInfo in given context.
-  def get_player_id(%Player{} = player), do: player.id
-  def get_player_id(%{} = player), do: player["id"]
-
-  @doc """
-  Parse player from the payload, if we get a player struct, we just return it,
-  else we parse the payload as json
-  """
-  def parse_player_payload(%Player{} = player), do: {:ok, player}
-  def parse_player_payload(%{"payload" => payload}), do: Player.from_json(payload)
-  def parse_player_payload(%{} = player), do: Player.from_json(player)
 end

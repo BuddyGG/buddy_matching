@@ -1,64 +1,60 @@
 defmodule BuddyMatching.Players.Player do
   @moduledoc """
-  Struct handling a player including json parsing
+  Module representing a Player struct, including JSON parsing thereof.
+
+  Implements `FromJsonBehaviour`.
   """
 
-  alias BuddyMatching.Players.Criteria
+  require OK
 
-  @comment_char_limit 100
-  @riot_name_length_limit 16
-  @role_limit 5
+  alias BuddyMatching.Players.Criteria.LolCriteria
+  alias BuddyMatching.Players.Criteria.FortniteCriteria
+  alias BuddyMatching.Players.Criteria.PlayerCriteria
+  alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Info.FortniteInfo
+  alias BuddyMatching.Players.FromJsonBehaviour
+
+  @behaviour FromJsonBehaviour
+
+  @name_limit 16
   @language_limit 5
-  @champion_limit 3
+  @comment_char_limit 100
+
+  # This module relies on the atoms defined in the Riot api module,
+  # Load_atoms ensues that these are loaded before we use the module
+  @on_load :load_atoms
+  def load_atoms() do
+    Code.ensure_loaded?(RiotApi)
+    :ok
+  end
 
   @doc """
-  id => A unique identifier for the player
-  name => The player's name
-  region => The player's region
-  voice =>  [true] -> use voice, [false] -> don't use, [true, false] -> don't care
-  age_group =>  The player's age group
-  leagues =>  A map with the player's queue type, tier and rank
-  champions => A list of the player's played champions
-  criteria => The given player's %Critera{}
-  comment => Potential remarks from the player
+  id        = > Unique identifier for the player. Used for channels.
+  name      = > The Player's name.
+  game      = > Atom representing  game of Player. :lol, :fortnite etc.
+  voice     = > List of voice options. Can be list with, true, false or both.
+  languages = > A list of the Player's spoken languages.
+  age_group = > The given Player's age group.
+  comment   = > Potential remarks from the Player.
+  criteria  = > The Player's %PlayerCritera{}
+  game_info = > The Player's game specific info. Eg. %LolInfo{}.
   """
   defstruct id: nil,
             name: nil,
-            region: nil,
+            game: nil,
             voice: [],
             languages: [],
             age_group: nil,
-            positions: [],
-            leagues: nil,
-            champions: [],
-            criteria: nil,
-            comment: nil
+            comment: nil,
+            criteria: %{},
+            game_info: %{}
 
-  @doc """
-  Parses an entire player from json into the Player struct used in the backend,
-  including parsing for Criteria into its struct
-  """
-  def from_json(data) do
-    if validate_player_json(data) do
-      player = %BuddyMatching.Players.Player{
-        id: data["userInfo"]["id"],
-        name: data["name"],
-        region: String.to_existing_atom(data["region"]),
-        voice: data["userInfo"]["voicechat"],
-        languages: languages_from_json(data["userInfo"]["languages"]),
-        age_group: data["userInfo"]["agegroup"],
-        positions: positions_from_json(data["userInfo"]["selectedRoles"]),
-        leagues: leagues_from_json(data["leagues"]),
-        champions: data["champions"],
-        criteria: Criteria.from_json(data["userInfo"]["criteria"]),
-        comment: data["userInfo"]["comment"]
-      }
+  # Sort alphabetically, but ensure that English is first if present.
+  def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
 
-      {:ok, player}
-    else
-      {:error, "bad player json"}
-    end
-  end
+  defp sorter(_, "EN"), do: false
+  defp sorter("EN", _), do: true
+  defp sorter(left, right), do: left < right
 
   @doc """
   Validates that the given player adheres to the desired structure
@@ -70,46 +66,56 @@ defmodule BuddyMatching.Players.Player do
   generally be avoided in the frontend.
   We additionally don't bother checking things that will be caught
   by crashes in from_json/1.
-
-  Names should adhere to Riot's guidelines:
-  https://support.riotgames.com/hc/en-us/articles/201752814-Summoner-Name-FAQ
   """
-  def validate_player_json(data) do
-    String.length(data["name"]) <= @riot_name_length_limit &&
-      map_size(data["userInfo"]["selectedRoles"]) <= @role_limit &&
-      length(data["champions"]) <= @champion_limit &&
-      length(data["userInfo"]["languages"]) <= @language_limit &&
-      (data["userInfo"]["comment"] == nil ||
-         String.length(data["userInfo"]["comment"]) <= @comment_char_limit) &&
-      Criteria.validate_criteria_json(data["userInfo"]["criteria"])
-  end
+  def player_from_json(data) do
+    cond do
+      String.length(data["name"]) > @name_limit ->
+        {:error, "Name too long"}
 
-  # Parses a json leagues specification of format:
-  # "leagues" => %{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}
-  # to %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}
-  defp leagues_from_json(leagues) do
-    leagues
-    |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
-    |> Enum.into(%{})
+      length(data["languages"]) > @language_limit ->
+        {:error, "Too many langauges"}
+
+      data["comment"] != nil && String.length(data["comment"]) > @comment_char_limit ->
+        {:error, "Comment too long"}
+
+      true ->
+        {:ok,
+         %BuddyMatching.Players.Player{
+           id: data["id"],
+           name: data["name"],
+           game: String.to_existing_atom(data["game"]),
+           voice: data["voiceChat"],
+           languages: languages_from_json(data["languages"]),
+           age_group: data["ageGroup"],
+           comment: data["comment"]
+         }}
+    end
   end
 
   @doc """
-  Parses positions given as json into the atom list format used for positions
-  for the Player struct.
-
-  ## Examples
-    iex> positions = {"jungle" => true, "marksman" => false,
-      "mid" => true, "support" => false, "top" => false}
-    iex> positions_from_json(positions)
-    [:jungle, :mid]
+  Map a parsed JSON of game_info to the corresponding game_info parser given a game.
   """
-  def positions_from_json(positions),
-    do: for({val, true} <- positions, do: String.to_existing_atom(val))
+  def info_from_json(:fortnite, gameInfo), do: FortniteInfo.from_json(gameInfo)
+  def info_from_json(:lol, gameInfo), do: LolInfo.from_json(gameInfo)
 
-  # Sort the languages alphabetically, but ensure that english is first
-  def languages_from_json(languages), do: Enum.sort(languages, &sorter/2)
+  @doc """
+  Map a parsed JSON of criteria to the corresponding criteria parser given a game.
+  """
+  def game_criteria_from_json(:fortnite, criteria), do: FortniteCriteria.from_json(criteria)
+  def game_criteria_from_json(:lol, criteria), do: LolCriteria.from_json(criteria)
 
-  defp sorter(_, "EN"), do: false
-  defp sorter("EN", _), do: true
-  defp sorter(left, right), do: left < right
+  @doc """
+  Parses an entire Player from JSON into the Player.
+  This includes game specific parsing, which will be passed along to the
+  responsible module based on the `:game` of the Player.
+  """
+  def from_json(data) do
+    OK.for do
+      player <- player_from_json(data)
+      game_info <- info_from_json(player.game, data["gameInfo"])
+      player_criteria <- PlayerCriteria.from_json(data["criteria"])
+    after
+      %BuddyMatching.Players.Player{player | game_info: game_info, criteria: player_criteria}
+    end
+  end
 end

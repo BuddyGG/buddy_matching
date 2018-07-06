@@ -1,0 +1,146 @@
+[
+  {
+    "name": "br_score_pc_m0_p10",
+    "value": 1190306,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_score_pc_m0_p9",
+    "value": 447601,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_matchesplayed_pc_m0_p10",
+    "value": 2769,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop3_pc_m0_p9",
+    "value": 457,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_score_pc_m0_p2",
+    "value": 1142038,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_kills_pc_m0_p2",
+    "value": 26746,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_lastmodified_pc_m0_p9",
+    "value": 1526719560,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_lastmodified_pc_m0_p2",
+    "value": 1526660886,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_matchesplayed_pc_m0_p2",
+    "value": 3458,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_kills_pc_m0_p9",
+    "value": 10133,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_minutesplayed_pc_m0_p2",
+    "value": 24386,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop1_pc_m0_p2",
+    "value": 1190,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_matchesplayed_pc_m0_p9",
+    "value": 1613,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop12_pc_m0_p10",
+    "value": 1626,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_lastmodified_pc_m0_p10",
+    "value": 1526704368,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop1_pc_m0_p10",
+    "value": 1181,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_minutesplayed_pc_m0_p10",
+    "value": 17407,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop10_pc_m0_p2",
+    "value": 1562,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_minutesplayed_pc_m0_p9",
+    "value": 8298,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop25_pc_m0_p2",
+    "value": 1876,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop5_pc_m0_p10",
+    "value": 1386,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_kills_pc_m0_p10",
+    "value": 20129,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop6_pc_m0_p9",
+    "value": 553,
+    "window": "alltime",
+    "ownerType": 1
+  },
+  {
+    "name": "br_placetop1_pc_m0_p9",
+    "value": 361,
+    "window": "alltime",
+    "ownerType": 1
+  }
+]

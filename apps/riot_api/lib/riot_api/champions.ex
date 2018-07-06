@@ -844,6 +844,12 @@ defmodule RiotApi.Champions do
       key: "Kaisa",
       name: "Kai'Sa",
       title: "Daughter of the Void"
+    },
+    %{
+      id: 555,
+      key: "Pyke",
+      name: "Pyke",
+      title: "the Bloodharbor Ripper"
     }
   ]
 

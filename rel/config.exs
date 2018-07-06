@@ -47,12 +47,13 @@ end
 # will be used by default
 
 release :buddy do
-  set version: "1.2.1"
+  set version: "1.3.0"
   plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools,
     buddy_matching: :permanent,
     buddy_matching_web: :permanent,
-    riot_api: :permanent
+    riot_api: :permanent,
+    fortnite_api: :permanent
   ]
 end

@@ -2,7 +2,7 @@ defmodule BuddyMatching.PlayerServerTest do
   use ExUnit.Case, async: true
   alias BuddyMatching.PlayerServer
   alias BuddyMatching.Players.Player
-  alias BuddyMatching.Players.Criteria
+  alias BuddyMatching.Players.Criteria.LolCriteria, as: Criteria
 
   setup do
     {:ok, server} = start_supervised(PlayerServer)
@@ -109,5 +109,15 @@ defmodule BuddyMatching.PlayerServerTest do
     # player should not get added because not already present
     PlayerServer.update(server, player)
     assert [] = PlayerServer.read(server)
+  end
+
+  test "count counts the number of players on the server", %{server: server} do
+    assert PlayerServer.count(server) == 0
+
+    # player is added
+    player = %Player{id: "1", name: "foo"}
+    PlayerServer.add(server, player)
+
+    assert PlayerServer.count(server) == 1
   end
 end

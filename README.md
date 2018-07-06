@@ -29,7 +29,7 @@ To test interactively with Riot's API in IEx, create a local dev.secret.exs from
 
 ## Development
 *Features* should be implemented on feature branches based on [development] and rebased thereinto with Pull Requests.
-New features should not add any issues to `mix credo`.
+New features should not add any issues to `mix credo` and should be formatted using `mix format`.
 
 *Releases* should be merged from [development] into [master], whereafter [master] is rebased into [development].
 
@@ -37,11 +37,15 @@ New features should not add any issues to `mix credo`.
 **Development**:  
 Branch 'development' is automatically deployed to Heroku at: https://lolbuddy.herokuapp.com/api/  
 
-Test: https://lolbuddy.herokuapp.com/api/summoner/euw/Lethly
+Examples: 
+- https://lolbuddy.herokuapp.com/api/summoner/euw/Froggen
+- https://lolbuddy.herokuapp.com/api/fortnite/pc/Ninja
 
 **Master**:  
 Branch Master is manually deployed to DO at https://api.buddy.gg/api/  
 
-Test: https://api.buddy.gg/api/summoner/euw/Lethly 
+Examples: 
+- https://api.buddy.gg/api/summoner/euw/Froggen 
+- https://api.buddy.gg/api/fortnite/pc/Ninja 
 
-Deployment is handled with [edeliver](https://github.com/edeliver/edeliver) and [conform](https://github.com/bitwalker/conform). See the respected repos for more information. 
+Deployment is handled with [edeliver](https://github.com/edeliver/edeliver), [distillery](https://github.com/bitwalker/distillery) and [conform](https://github.com/bitwalker/conform). See the respective repos for more information. 

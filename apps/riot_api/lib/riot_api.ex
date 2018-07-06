@@ -282,14 +282,6 @@ defmodule RiotApi do
     |> Map.get("highestAchievedSeasonTier")
   end
 
-  # Fetches the last 20 matches of any queue type for given account id
-  defp fetch_recent_matches(id, region) do
-    key = Application.fetch_env!(:riot_api, :riot_api_key)
-
-    (Regions.endpoint(region) <> "/lol/match/v3/matchlists/by-account/#{id}/recent?api_key=#{key}")
-    |> parse_json
-  end
-
   @doc """
   Estimates last season's highest tier in "RANKED_SOLO_5x5" for a given
   account ID.

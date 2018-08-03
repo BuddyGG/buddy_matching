@@ -5,7 +5,7 @@ defmodule FortniteApi.Mixfile do
     [
       app: :fortnite_api,
       version: auto_version(),
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",

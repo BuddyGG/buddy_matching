@@ -81,29 +81,18 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
 
     cond do
       # master and challenger have equal restrictions
-      ht == "MASTER" || ht == "CHALLENGER" ->
-        lr in 1..3
-
+      ht == "MASTER" || ht == "CHALLENGER" -> lr in 1..3
       # now we may can assume ht is diamond
       # we also know if hr is diamond, lt has to be platinum
-      hr == 1 ->
-        ht == lt && lr in 1..4
-
+      hr == 1 -> ht == lt && lr in 1..4
       # d2 can't queue with plat (shouldn't happen tho)
-      hr == 2 ->
-        false
-
+      hr == 2 -> false
       # d3 can queue with plat 1
-      hr == 3 ->
-        lr == 1
-
+      hr == 3 -> lr == 1
       # d4 can queue with plat 1/2
-      hr == 4 ->
-        lr in 1..2
-
+      hr == 4 -> lr in 1..2
       # d5 can queue with plat 1..3
-      hr == 5 ->
-        lr in 1..3
+      hr == 5 -> lr in 1..3
     end
   end
 
@@ -171,30 +160,15 @@ defmodule BuddyMatching.Players.Matching.LolMatching do
 
   defp tier_to_int(tier) do
     case tier do
-      "BRONZE" ->
-        1
-
+      "BRONZE" -> 1
       # Riot treats unrankeds like silvers
-      "UNRANKED" ->
-        2
-
-      "SILVER" ->
-        2
-
-      "GOLD" ->
-        3
-
-      "PLATINUM" ->
-        4
-
-      "DIAMOND" ->
-        5
-
-      "MASTER" ->
-        6
-
-      "CHALLENGER" ->
-        6
+      "UNRANKED" -> 2
+      "SILVER" -> 2
+      "GOLD" -> 3
+      "PLATINUM" -> 4
+      "DIAMOND" -> 5
+      "MASTER" -> 6
+      "CHALLENGER" -> 6
     end
   end
 

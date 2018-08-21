@@ -5,7 +5,7 @@
 
 Somewhat Generic player matching service built with Phoenix, utilizing GenServers and sockets to avoid having an underlying database. 
 
-The application is structered as an umbrella consisting of 3 apps.
+The application is structered as an umbrella consisting of 4 apps.
 - [riot_api](/apps/riot_api) for integration with Riot's API
 - [fortnite_api](/apps/fortnite_api) for integration with Fortnite's unofficial API
 - [buddy_matching](apps/buddy_matching) for in-memory storage of connected players and matching logic
@@ -21,7 +21,7 @@ Now you can visit localhost:4000 from your browser.
 
 To test interactively in IEx:
 - Install depedencies with `mix.deps.get`
-- Star IEx with `iex -S mix phx.server`
+- Start IEx with `iex -S mix phx.server`
 
 To test interactively with Riot's API in IEx, create a local dev.secret.exs from the [template](config/dev.secret.example.exs), and fill in your 24h API key generated at https://developer.riotgames.com/.
 ## Run tests

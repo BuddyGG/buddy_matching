@@ -18,7 +18,7 @@ defmodule BuddyMatchingWeb.PlayerSocket do
     end
   end
 
-  # If no session token and id are sent just return adn error
+  # If no session token and id are sent just return and error
   def connect(_params, _socket) do
     :error
   end

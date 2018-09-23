@@ -21,7 +21,7 @@ defmodule BuddyMatching.PlayerServer.Supervisor do
   and start them all with one_for_one strategy.
   """
   def init(:ok) do
-    children = [
+    lol_servers = [
       Supervisor.child_spec({PlayerServer, name: {:global, :br}}, id: :worker_br),
       Supervisor.child_spec({PlayerServer, name: {:global, :eune}}, id: :worker_eune),
       Supervisor.child_spec({PlayerServer, name: {:global, :euw}}, id: :worker_euw),
@@ -35,6 +35,14 @@ defmodule BuddyMatching.PlayerServer.Supervisor do
       Supervisor.child_spec({PlayerServer, name: {:global, :ru}}, id: :worker_ru),
       Supervisor.child_spec({PlayerServer, name: {:global, :pbe}}, id: :worker_pbe)
     ]
+
+    fortnite_servers = [
+      Supervisor.child_spec({PlayerServer, name: {:global, :pc}}, id: :worker_pc),
+      Supervisor.child_spec({PlayerServer, name: {:global, :ps4}}, id: :worker_ps4),
+      Supervisor.child_spec({PlayerServer, name: {:global, :xb1}}, id: :worker_xb1)
+    ]
+
+    children = lol_servers ++ fortnite_servers
 
     # only restart the the single broken processor
     Supervisor.init(children, strategy: :one_for_one)

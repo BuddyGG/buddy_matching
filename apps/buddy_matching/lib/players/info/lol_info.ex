@@ -13,6 +13,14 @@ defmodule BuddyMatching.Players.Info.LolInfo do
   @role_limit 5
   @champion_limit 3
 
+  # This module relies on the atoms defined in the Riot api module,
+  # Load_atoms ensues that these are loaded before we use the module
+  @on_load :load_atoms
+  def load_atoms() do
+    Code.ensure_loaded?(RiotApi)
+    :ok
+  end
+
   @doc """
   game_criteria => The Player's %LolCriteria.
   positions => A list of the positions the Player plays, eg. [:marksman]

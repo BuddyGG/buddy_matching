@@ -12,5 +12,6 @@ defmodule BuddyMatchingWeb.Router do
     get("/fortnite/:platform/:name", FortniteController, :show)
     get("/auth/request", AuthController, :show)
     get("/stats", StatsController, :show)
+    get("/stats/:game/:server", StatsController, :show_server)
   end
 end

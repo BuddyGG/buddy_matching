@@ -3,6 +3,7 @@ defmodule BuddyMatching.StatsControllerTest do
   alias BuddyMatching.PlayerServer.ServerMapper
   alias BuddyMatching.Players.Player
   alias BuddyMatching.Players.Info.LolInfo
+  alias BuddyMatching.Players.Info.FortniteInfo
 
   test "1 connected player to a euw server returns 1 player" do
     info = %LolInfo{region: :euw}
@@ -13,26 +14,32 @@ defmodule BuddyMatching.StatsControllerTest do
 
     players_online =
       conn
-      |> get(stats_path(conn, :show))
+      |> get(stats_path(conn, :show_server, "lol", "euw"))
       |> json_response(200)
       |> Map.get("players_online")
+
+    assert players_online == 1
 
     # players should leave again to leave no trace
     ServerMapper.remove_player(player)
 
-    assert players_online["euw"] == 1
+    players_online =
+      conn
+      |> get(stats_path(conn, :show_server, "lol", "euw"))
+      |> json_response(200)
+      |> Map.get("players_online")
 
-    # all other servers should be 0
-    players_online
-    |> Map.delete("euw")
-    |> Enum.all?(fn {_server, count} -> count == 0 end)
-    |> assert
+    assert players_online == 0
   end
 
-  test "1 connected player to a br server returns 1 player" do
-    info = %LolInfo{region: :br}
-    player = %Player{id: "1", name: "foo", game_info: info}
-    ServerMapper.add_player(player)
+  test "players online works across multiple games" do
+    lol_info = %LolInfo{region: :euw}
+    lol_player = %Player{id: "1", name: "foo", game_info: lol_info}
+
+    fortnite_info = %FortniteInfo{platform: :pc}
+    fortnite_player = %Player{id: "2", name: "bar", game_info: fortnite_info}
+    ServerMapper.add_player(lol_player)
+    ServerMapper.add_player(fortnite_player)
 
     conn = build_conn()
 
@@ -42,15 +49,7 @@ defmodule BuddyMatching.StatsControllerTest do
       |> json_response(200)
       |> Map.get("players_online")
 
-    # players should leave agin to leave no trace
-    ServerMapper.remove_player(player)
-
-    assert players_online["br"] == 1
-
-    # all other servers should be 0
-    players_online
-    |> Map.delete("br")
-    |> Enum.all?(fn {_server, count} -> count == 0 end)
-    |> assert
+    assert players_online["lol"]["euw"] == 1
+    assert players_online["fortnite"]["pc"] == 1
   end
 end

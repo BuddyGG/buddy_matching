@@ -354,7 +354,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     :ok = close(channel2)
   end
 
-  @tag :only
   test "update criteria returns updated match list" do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)

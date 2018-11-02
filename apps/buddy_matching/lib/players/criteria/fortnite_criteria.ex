@@ -8,7 +8,7 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
-  defstruct positions: []
+  defstruct min_games_played: 0
 
   @doc """
   Parses the checkbox format the frontend uses for criteria

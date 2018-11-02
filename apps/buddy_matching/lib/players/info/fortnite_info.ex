@@ -8,7 +8,9 @@ defmodule BuddyMatching.Players.Info.FortniteInfo do
   alias BuddyMatching.Players.FromJsonBehaviour
   @behaviour FromJsonBehaviour
 
-  defstruct game_criteria: nil, platform: nil
+  defstruct game_criteria: nil,
+            platform: nil,
+            games_played: 0
 
   @platforms %{"pc" => :pc, "ps4" => :ps4, "xbox" => :xb1}
 

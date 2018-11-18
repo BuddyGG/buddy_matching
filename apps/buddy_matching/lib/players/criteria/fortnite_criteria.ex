@@ -13,8 +13,13 @@ defmodule BuddyMatching.Players.Criteria.FortniteCriteria do
   @doc """
   Parses the checkbox format the frontend uses for criteria
   into the criteria struct used in the backend.
+
+  Returns `{:ok, %LolInfo{}}` || `{:error, reason}`
   """
-  def from_json(_data) do
-    {:ok, %BuddyMatching.Players.Criteria.FortniteCriteria{}}
+  def from_json(data) do
+    {:ok,
+     %BuddyMatching.Players.Criteria.FortniteCriteria{
+       min_games_played: data["minGamesPlayed"]
+     }}
   end
 end

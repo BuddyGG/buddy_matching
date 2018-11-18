@@ -37,8 +37,8 @@ defmodule BuddyMatching.Players.Info.LolInfo do
             champions: []
 
   @doc """
-  Validates the given JSON map, and passes the %LolInfo portion thereof.
-  As such, the returned %LolInfo, will have `nil` for :game_criteria.
+  Validates the given JSON map, and passes the %LolInfo{} portion thereof.
+  As such, the returned %LolInfo{}, will have `nil` for :game_criteria.
 
   Returns `%{:ok, %LolInfo{}}` || `{:error, reason}`.
   """

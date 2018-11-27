@@ -12,7 +12,11 @@ defmodule BuddyMatching.Players.Info.FortniteInfo do
 
   defstruct game_criteria: nil,
             platform: nil,
-            games_played: 0
+            games_played: 0,
+            solo: %{},
+            duo: %{},
+            squad: %{},
+            total: %{}
 
   @platforms %{"pc" => :pc, "ps4" => :ps4, "xbox" => :xb1}
 
@@ -27,7 +31,11 @@ defmodule BuddyMatching.Players.Info.FortniteInfo do
       {:ok,
        %BuddyMatching.Players.Info.FortniteInfo{
          platform: @platforms[data["platform"]],
-         games_played: data["gamesPlayed"]
+         games_played: data["gamesPlayed"],
+         solo: Map.get(data, "solo", %{}),
+         duo: Map.get(data, "duo", %{}),
+         squad: Map.get(data, "squad", %{}),
+         total: Map.get(data, "total", %{})
        }}
     else
       platforms = Map.keys(@platforms)

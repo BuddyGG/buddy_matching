@@ -41,7 +41,7 @@ defmodule RiotApi do
   in a result tuple.
 
   ## Examples
-    iex> RiotApi.request("/lol/summoner/v3/summoners/by-name/Lethly", :euw)
+    iex> RiotApi.request("/lol/summoner/v4/summoners/by-name/Lethly", :euw)
     {:ok %{"name" => "Lethly"...}}
   """
   def request(path, region) do
@@ -52,27 +52,27 @@ defmodule RiotApi do
   end
 
   defp fetch_summoner(name, region) do
-    "/lol/summoner/v3/summoners/by-name/#{name}"
+    "/lol/summoner/v4/summoners/by-name/#{name}"
     |> request(region)
   end
 
   defp fetch_match(match_id, region) do
-    "/lol/match/v3/matches/#{match_id}"
+    "/lol/match/v4/matches/#{match_id}"
     |> request(region)
   end
 
   defp fetch_leagues(id, region) do
-    "/lol/league/v3/positions/by-summoner/#{id}"
+    "/lol/league/v4/positions/by-summoner/#{id}"
     |> request(region)
   end
 
   defp fetch_recent_matches_any_queue(account_id, amount, region) do
-    "/lol/match/v3/matchlists/by-account/#{account_id}?endIndex=#{amount}"
+    "/lol/match/v4/matchlists/by-account/#{account_id}?endIndex=#{amount}"
     |> request(region)
   end
 
   defp fetch_recent_matches_for_queue(account_id, amount, queue, region) do
-    "/lol/match/v3/matchlists/by-account/#{account_id}?queue=#{queue}&endIndex=#{amount}"
+    "/lol/match/v4/matchlists/by-account/#{account_id}?queue=#{queue}&endIndex=#{amount}"
     |> request(region)
   end
 

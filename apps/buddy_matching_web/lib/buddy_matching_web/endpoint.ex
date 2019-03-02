@@ -1,7 +1,7 @@
 defmodule BuddyMatchingWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :buddy_matching_web
 
-  socket("/socket", BuddyMatchingWeb.PlayerSocket)
+  socket("/socket", BuddyMatchingWeb.PlayerSocket, websocket: [timeout: 100_000])
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -200,11 +200,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
-    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
-
-    :ok = close(channel1)
-    :ok = close(channel2)
+    {:ok, _, _channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     # assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
@@ -233,8 +230,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     player = generate_player(auth_player.id)
     data = Poison.Parser.parse!(player)
 
-    {:ok, _, channel} = socket |> subscribe_and_join(PlayersChannel, topic, data)
-    :ok = close(channel)
+    {:ok, _, _channel} = socket |> subscribe_and_join(PlayersChannel, topic, data)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic,
@@ -257,12 +253,9 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     push(channel1, "request_match", %{"player" => player2})
-
-    :ok = close(channel1)
-    :ok = close(channel2)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
@@ -277,11 +270,8 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket1, player1, topic1} = setup_socket(@base_player1)
     {socket2, player2, topic2} = setup_socket(@base_player1)
 
-    {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
-
-    :ok = close(channel1)
-    :ok = close(channel2)
+    {:ok, _, _channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
@@ -295,12 +285,9 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     push(channel1, "respond_to_request", %{"id" => player2.id, "response" => "accepted"})
-
-    :ok = close(channel1)
-    :ok = close(channel2)
 
     # player2 should recive the request response from player1
     assert_receive %Phoenix.Socket.Message{
@@ -315,7 +302,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic1,
@@ -323,15 +310,14 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       payload: ^player2
     }
 
-    :ok = close(channel1)
+    Process.unlink(channel1.channel_pid)
+    _ = leave(channel1)
 
     assert_receive %Phoenix.Socket.Message{
       topic: ^topic2,
       event: @unmatch_event,
       payload: ^player1
     }
-
-    :ok = close(channel2)
   end
 
   test "send leave event to player 2 when player 1 crashes" do
@@ -339,7 +325,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     # unlink to first to avoid test being killed as well
     Process.unlink(channel1.channel_pid)
@@ -350,8 +336,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       event: @unmatch_event,
       payload: ^player1
     }
-
-    :ok = close(channel2)
   end
 
   @tag :only
@@ -360,7 +344,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     # assert player 1 got no one else
     assert_receive %Phoenix.Socket.Message{
@@ -393,9 +377,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       event: @unmatch_event,
       payload: ^narrow_player1
     }
-
-    :ok = close(channel1)
-    :ok = close(channel2)
   end
 
   test "update criteria sends error if criteria can't be parsed" do
@@ -425,8 +406,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       },
       2000
     )
-
-    :ok = close(channel1)
   end
 
   test "update criteria sends unmatch events when no longer matching" do
@@ -434,7 +413,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     {socket2, player2, topic2} = setup_socket(@base_player2)
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     # assert player 1 got no one else
     assert_receive(
@@ -485,9 +464,6 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       %Phoenix.Socket.Message{topic: ^topic2, event: @unmatch_event, payload: ^narrow_player1},
       2000
     )
-
-    :ok = close(channel1)
-    :ok = close(channel2)
   end
 
   test "update criteria sends unmatch events when no longer matching, and match event
@@ -498,7 +474,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       setup_socket(%Player{@base_player2 | criteria: @player_broad_criteria})
 
     {:ok, _, channel1} = socket1 |> subscribe_and_join(PlayersChannel, topic1, player1)
-    {:ok, _, channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
+    {:ok, _, _channel2} = socket2 |> subscribe_and_join(PlayersChannel, topic2, player2)
 
     # assert player 1 got no one else
     assert_receive(
@@ -559,8 +535,5 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
       %Phoenix.Socket.Message{topic: ^topic2, event: @new_match_event, payload: ^broad_player1},
       2000
     )
-
-    :ok = close(channel1)
-    :ok = close(channel2)
   end
 end

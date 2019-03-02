@@ -26,26 +26,26 @@ defmodule RiotApi.ApiMockTest do
     match_id = 3_412_307_012
     Application.put_env(:riot_api, :riot_api_key, key)
 
-    summoner_url = RiotApi.format_url("/lol/summoner/v3/summoners/by-name/#{name}", region)
+    summoner_url = RiotApi.format_url("/lol/summoner/v4/summoners/by-name/#{name}", region)
 
     matchlist_solo_url =
       RiotApi.format_url(
-        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=20",
+        "/lol/match/v4/matchlists/by-account/#{account_id}?queue=420&endIndex=20",
         region
       )
 
     matchlist_any_url =
-      RiotApi.format_url("/lol/match/v3/matchlists/by-account/#{account_id}?endIndex=20", region)
+      RiotApi.format_url("/lol/match/v4/matchlists/by-account/#{account_id}?endIndex=20", region)
 
-    leagues_url = RiotApi.format_url("/lol/league/v3/positions/by-summoner/#{id}", region)
+    leagues_url = RiotApi.format_url("/lol/league/v4/positions/by-summoner/#{id}", region)
 
     solo_match_url =
       RiotApi.format_url(
-        "/lol/match/v3/matchlists/by-account/#{account_id}?queue=420&endIndex=1",
+        "/lol/match/v4/matchlists/by-account/#{account_id}?queue=420&endIndex=1",
         region
       )
 
-    match_url = RiotApi.format_url("/lol/match/v3/matches/#{match_id}", region)
+    match_url = RiotApi.format_url("/lol/match/v4/matches/#{match_id}", region)
 
     summoner_json = File.read!("test/mock_json/summoner.json")
     matchlist_json = File.read!("test/mock_json/matchlist.json")

@@ -48,7 +48,6 @@ end
 
 release :buddy do
   set version: "1.2.1"
-  plugin Conform.ReleasePlugin
   set applications: [
     :runtime_tools,
     buddy_matching: :permanent,

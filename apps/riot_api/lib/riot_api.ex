@@ -27,7 +27,7 @@ defmodule RiotApi do
   defp fetch_summoner(name, region) do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
 
-    (Regions.endpoint(region) <> "/lol/summoner/v3/summoners/by-name/#{name}?api_key=#{key}")
+    (Regions.endpoint(region) <> "/lol/summoner/v4/summoners/by-name/#{name}?api_key=#{key}")
     |> parse_json
   end
 
@@ -65,7 +65,7 @@ defmodule RiotApi do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <>
-       "/lol/champion-mastery/v3/champion-masteries/by-summoner/#{id}?api_key=#{key}")
+       "/lol/champion-mastery/v4/champion-masteries/by-summoner/#{id}?api_key=#{key}")
     |> parse_json
   end
 
@@ -214,7 +214,7 @@ defmodule RiotApi do
       %{"matches" => matches} <-
         region
         |> Regions.endpoint()
-        |> Kernel.<>("/lol/match/v3/matchlists/by-account/#{account_id}")
+        |> Kernel.<>("/lol/match/v4/matchlists/by-account/#{account_id}")
         |> Kernel.<>("?queue=420&endIndex=1&api_key=#{key}")
         |> parse_json
 
@@ -223,7 +223,7 @@ defmodule RiotApi do
       last_game <-
         region
         |> Regions.endpoint()
-        |> Kernel.<>("/lol/match/v3/matches/#{first}?api_key=#{key}")
+        |> Kernel.<>("/lol/match/v4/matches/#{first}?api_key=#{key}")
         |> parse_json
     after
       last_game
@@ -249,7 +249,7 @@ defmodule RiotApi do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
 
     (Regions.endpoint(region) <>
-       "/lol/match/v3/matchlists/by-account/#{id}?endIndex=20&api_key=#{key}")
+       "/lol/match/v4/matchlists/by-account/#{id}?endIndex=20&api_key=#{key}")
     |> parse_json
   end
 
@@ -279,7 +279,7 @@ defmodule RiotApi do
   def fetch_leagues(id, region) do
     key = Application.fetch_env!(:riot_api, :riot_api_key)
 
-    (Regions.endpoint(region) <> "/lol/league/v3/positions/by-summoner/#{id}?api_key=#{key}")
+    (Regions.endpoint(region) <> "/lol/league/v4/positions/by-summoner/#{id}?api_key=#{key}")
     |> parse_json
   end
 

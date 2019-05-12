@@ -8,6 +8,7 @@ defmodule BuddyMatchingWeb.Router do
   scope "/api", BuddyMatchingWeb do
     pipe_through(:api)
 
+    get("/healthcheck", HealthController, :check)
     get("/summoner/:region/:name", SummonerController, :show)
     get("/fortnite/:platform/:name", FortniteController, :show)
     get("/auth/request", AuthController, :show)

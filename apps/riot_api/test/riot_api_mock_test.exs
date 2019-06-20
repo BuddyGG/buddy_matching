@@ -37,7 +37,7 @@ defmodule RiotApi.ApiMockTest do
     matchlist_any_url =
       RiotApi.format_url("/lol/match/v4/matchlists/by-account/#{account_id}?endIndex=20", region)
 
-    leagues_url = RiotApi.format_url("/lol/league/v4/positions/by-summoner/#{id}", region)
+    leagues_url = RiotApi.format_url("/lol/league/v4/entries/by-summoner/#{id}", region)
 
     solo_match_url =
       RiotApi.format_url(

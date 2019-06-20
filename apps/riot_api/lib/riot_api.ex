@@ -62,7 +62,7 @@ defmodule RiotApi do
   end
 
   defp fetch_leagues(id, region) do
-    "/lol/league/v4/positions/by-summoner/#{id}"
+    "/lol/league/v4/entries/by-summoner/#{id}"
     |> request(region)
   end
 

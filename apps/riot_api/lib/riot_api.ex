@@ -116,11 +116,15 @@ defmodule RiotApi do
   # rank 1, as Riot shows this internally despite there being no such thing.
   defp parse_league(leagueInfo) do
     tier = leagueInfo["tier"]
+    rank = if tier in ["CHALLENGER", "MASTER"], do: nil, else: deromanize(leagueInfo["rank"])
 
-    rank =
-      if tier == "CHALLENGER" || tier == "MASTER", do: nil, else: deromanize(leagueInfo["rank"])
-
-    %{type: leagueInfo["queueType"], tier: tier, rank: rank}
+    %{
+      type: leagueInfo["queueType"],
+      tier: tier,
+      rank: rank,
+      wins: leagueInfo["wins"],
+      losses: leagueInfo["losses"]
+    }
   end
 
   @doc """
@@ -313,7 +317,7 @@ defmodule RiotApi do
 
   ## Examples
       iex> RiotApi.leagues(22267137, 26102926, :euw)
-      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1}}
+      {:ok, {type: "RANKED_SOLO_5x5", tier: "PLATINUM", rank: 1, wins: 5, losses: 10}}
   """
   def leagues(id, account_id, region) do
     OK.for do
@@ -338,7 +342,7 @@ defmodule RiotApi do
     iex> RiotApi.fetch_summoner_info("Lethly", :euw)
     {:ok,
       %{champions: ["Vayne", "Caitlyn", "Ezreal"], icon_id: 512,
-      leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+      leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5", wins: 5, losses: 10},
       name: "Lethly", positions: [:marksman], region: :euw}}
   """
   def fetch_summoner_info(name, region) do

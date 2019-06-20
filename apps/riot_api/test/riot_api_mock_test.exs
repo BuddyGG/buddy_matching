@@ -222,7 +222,7 @@ defmodule RiotApi.ApiMockTest do
               %{
                 champions: ["Vayne", "Tristana", "Ezreal"],
                 icon_id: 1407,
-                leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"},
+                leagues: %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5", losses: 10, wins: 10},
                 name: "Lethly",
                 positions: [:marksman, :mid],
                 region: :euw

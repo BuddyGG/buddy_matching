@@ -10,15 +10,15 @@ DELIVER_TO="/home/worker/app_release"
 
 pre_erlang_get_and_update_deps() {
   # copy it on the build host to the build directory when building
-  local _secret_config_buddy_matching_web="~/secret/buddy_matching_web.conf"
-  local _secret_config_riot_api="~/secret/riot_api.conf"
-  local _secret_config_fortnite_api="~/secret/fortnite_api.conf"
+  local _secret_config_buddy_matching_web="~/secret/buddy_matching_web.exs"
+  local _secret_config_riot_api="~/secret/riot_api.exs"
+  local _secret_config_fortnite_api="~/secret/fortnite_api.exs"
   if [ "$TARGET_MIX_ENV" = "prod" ]; then
     status "Copying secret files to build dir"
     __sync_remote " # execute on build host
-      cp $_secret_config_buddy_matching_web $BUILD_AT/apps/buddy_matching_web/config/buddy_matching_web.conf
-      cp $_secret_config_riot_api $BUILD_AT/apps/riot_api/config/riot_api.conf
-      cp $_secret_config_fortnite_api $BUILD_AT/apps/fortnite_api/config/fortnite_api.conf
+      cp $_secret_config_buddy_matching_web $BUILD_AT/apps/buddy_matching_web/config/buddy_matching_web.exs
+      cp $_secret_config_riot_api $BUILD_AT/apps/riot_api/config/riot_api.exs
+      cp $_secret_config_fortnite_api $BUILD_AT/apps/fortnite_api/config/fortnite_api.exs
     "
   fi
 }

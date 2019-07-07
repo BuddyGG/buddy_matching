@@ -7,10 +7,10 @@
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 
-use Mix.Releases.Config,
-    # This sets the default release built by `mix release`
-    default_release: :buddy,
-    # This sets the default environment used by `mix release`
+use Distillery.Releases.Config,
+    # This sets the default release built by `mix distillery.release`
+    default_release: :default,
+    # This sets the default environment used by `mix distillery.release`
     default_environment: Mix.env()
 
 # For a full list of config options for both releases
@@ -38,6 +38,7 @@ environment :prod do
   set include_erts: true
   set include_src: false
   set cookie: :"uh}JO_:x%IW@w4|u{eB&Z1dWHPEzD@g}5S_n?a*|xRN{L.cSq5Pu%DR|.yZ=3Q_i"
+  set vm_args: "rel/vm.args"
   set output_dir: "rel/buddy"
 end
 
@@ -47,8 +48,7 @@ end
 # will be used by default
 
 release :buddy do
-  set version: "1.3.1"
-  plugin Conform.ReleasePlugin
+  set version: "1.3.2"
   set applications: [
     :runtime_tools,
     buddy_matching: :permanent,

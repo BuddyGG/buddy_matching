@@ -40,6 +40,24 @@ environment :prod do
   set cookie: :"uh}JO_:x%IW@w4|u{eB&Z1dWHPEzD@g}5S_n?a*|xRN{L.cSq5Pu%DR|.yZ=3Q_i"
   set vm_args: "rel/vm.args"
   set output_dir: "rel/buddy"
+
+  set(
+    overlays: [
+      {:mkdir, "etc"},
+      {:copy, "rel/buddy_matching_web.exs", "etc/buddy_matching_web.exs"},
+      {:copy, "rel/fortnite_api.exs", "etc/fortnite_api.exs"},
+      {:copy, "rel/riot_api.exs", "etc/riot_api.exs"},
+    ]
+  )
+
+  # We use an extra config evaluated solely at runtime
+  set(
+    config_providers: [
+      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/buddy_matching_web.exs"]},
+      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/fortnite_api.exs"]},
+      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/riot_api.exs"]}
+    ]
+  )
 end
 
 # You may define one or more releases in this file.

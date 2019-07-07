@@ -82,7 +82,7 @@ defmodule BuddyMatching.Players.Info.LolInfo do
 
   # Parses a json leagues specification of format:
   # "leagues" => %{"rank" => 1, "tier" => "GOLD", "type" => "RANKED_SOLO_5x5"}
-  # to %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5"}
+  # to %{rank: 1, tier: "GOLD", type: "RANKED_SOLO_5x5", wins: 10, losses: 10}
   defp leagues_from_json(leagues) do
     leagues
     |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)

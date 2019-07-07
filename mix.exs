@@ -20,9 +20,8 @@ defmodule BuddyUmbrella.Mixfile do
 
   defp deps do
     [
-      {:edeliver, "~> 1.4.3"},
-      {:distillery, "~> 1.4"},
-      {:conform, "~> 2.2"},
+      {:edeliver, "~> 1.6"},
+      {:distillery, "~> 2.1", warn_missing: false},
       {:pre_commit, "~> 0.2.4", only: [:dev, :test]},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8", only: :test}

@@ -30,7 +30,7 @@ defmodule BuddyMatching.PlayersTest do
     player0 = %Player{
       id: 0,
       name: "Faker",
-      voice: [false],
+      voice: false,
       languages: ["danish"],
       age_group: 1,
       comment: "numero uno",
@@ -47,7 +47,7 @@ defmodule BuddyMatching.PlayersTest do
     player1 = %Player{
       id: 1,
       name: "Froggen",
-      voice: [false],
+      voice: false,
       comment: "Haha DDOS Frogger",
       languages: ["danish"],
       age_group: 1,
@@ -64,7 +64,7 @@ defmodule BuddyMatching.PlayersTest do
     player2 = %Player{
       id: 2,
       name: "Lethly",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       comment: "Never dies on Vayne",
       age_group: 1,
@@ -81,7 +81,7 @@ defmodule BuddyMatching.PlayersTest do
     player3 = %Player{
       id: 3,
       name: "hansp",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       age_group: 1,
       comment: "Apparently plays Riven",
@@ -98,7 +98,7 @@ defmodule BuddyMatching.PlayersTest do
     player4 = %Player{
       id: 4,
       name: "esow",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       age_group: 1,
       comment: "Lul, I'm only Platinum 4",
@@ -116,7 +116,7 @@ defmodule BuddyMatching.PlayersTest do
       id: 5,
       name: "UghUgh",
       age_group: 1,
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       comment: "That's okay guys, I'll hit the next one",
       criteria: broad_criteria,
@@ -132,7 +132,7 @@ defmodule BuddyMatching.PlayersTest do
     player6 = %Player{
       id: 6,
       name: "xm3m3l0rd69x",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       age_group: 1,
       comment: "Am in elo hell, but am good",
@@ -149,7 +149,7 @@ defmodule BuddyMatching.PlayersTest do
     player7 = %Player{
       id: 7,
       name: "LordOfDeathIThink",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       age_group: 1,
       comment: "I don't play very much",

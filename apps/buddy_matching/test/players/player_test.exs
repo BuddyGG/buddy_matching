@@ -9,9 +9,7 @@ defmodule BuddyMatching.PlayerTest do
     "name": "Lethly",
     "id": 1,
     "game": "lol",
-    "voiceChat": [
-      true
-    ],
+    "voiceChat": true,
     "ageGroup": "interval2",
     "comment": "test",
     "languages": [
@@ -70,7 +68,7 @@ defmodule BuddyMatching.PlayerTest do
     age_group: "interval2",
     comment: "test",
     languages: ["EN", "DA", "KO"],
-    voice: [true],
+    voice: true,
     criteria: %PlayerCriteria{
       age_groups: ["interval1", "interval2", "interval3"],
       voice: [false, true],

@@ -69,7 +69,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     game: :lol,
     age_group: "interval1",
     languages: ["danish"],
-    voice: [false],
+    voice: false,
     comment: "Great player",
     criteria: @player_broad_criteria,
     game_info: %LolInfo{
@@ -88,7 +88,7 @@ defmodule BuddyMatchingWeb.PlayersChannelTest do
     game: :lol,
     age_group: "interval2",
     languages: ["danish", "english"],
-    voice: [false],
+    voice: false,
     comment: "Apparently I play Riven",
     criteria: @player_broad_criteria,
     game_info: %LolInfo{

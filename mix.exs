@@ -23,7 +23,7 @@ defmodule BuddyUmbrella.Mixfile do
       {:edeliver, "~> 1.6"},
       {:distillery, "~> 2.1", warn_missing: false},
       {:pre_commit, "~> 0.2.4", only: [:dev, :test]},
-      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8", only: :test}
     ]
   end

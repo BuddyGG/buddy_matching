@@ -22,7 +22,7 @@ defmodule BuddyMatching.Matching.PlayerMatchingTest do
     base_player1 = %Player{
       id: 1,
       name: "Lethly",
-      voice: [false],
+      voice: false,
       languages: ["danish"],
       age_group: "interval1",
       criteria: broad_criteria,
@@ -32,7 +32,7 @@ defmodule BuddyMatching.Matching.PlayerMatchingTest do
     base_player2 = %Player{
       id: 2,
       name: "hansp",
-      voice: [false],
+      voice: false,
       languages: ["danish", "english"],
       age_group: "interval3",
       criteria: narrow_criteria,
@@ -104,19 +104,6 @@ defmodule BuddyMatching.Matching.PlayerMatchingTest do
   test "test that voice criteria, for no voice player is incompatible", context do
     voice_criteria = %Criteria{voice: [true], age_groups: ["interval1"]}
     refute Matching.criteria_compatible?(voice_criteria, context[:player1])
-  end
-
-  test "test that don't care voice option, matches both false and true voice criteria", context do
-    dont_care_player = %Player{context[:player1] | voice: [true, false]}
-    voice_criteria = %Criteria{voice: [true], age_groups: ["interval1"]}
-
-    no_voice_criteria = %Criteria{
-      voice: [false],
-      age_groups: ["interval1"]
-    }
-
-    assert Matching.criteria_compatible?(voice_criteria, dont_care_player)
-    assert Matching.criteria_compatible?(no_voice_criteria, dont_care_player)
   end
 
   test "test that age_group criteria doesn't match with bad age groups for player", context do

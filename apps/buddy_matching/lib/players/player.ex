@@ -34,7 +34,7 @@ defmodule BuddyMatching.Players.Player do
   defstruct id: nil,
             name: nil,
             game: nil,
-            voice: [],
+            voice: false,
             languages: [],
             age_group: nil,
             comment: nil,

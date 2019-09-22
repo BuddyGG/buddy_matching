@@ -24,7 +24,7 @@ defmodule BuddyMatching.Players.Matching.PlayerMatching do
   Determines whether the given criteria is compatible with the given player (candidate).
   """
   def criteria_compatible?(%PlayerCriteria{} = criteria, %Player{} = candidate) do
-    lists_intersect?(criteria.voice, candidate.voice) &&
+    candidate.voice in criteria.voice &&
       Enum.member?(criteria.age_groups, candidate.age_group)
   end
 
@@ -43,9 +43,9 @@ defmodule BuddyMatching.Players.Matching.PlayerMatching do
   are able to play together and fit eachother's criteria.
 
   ## Examples
-    iex> c = %PlayerCriteria{voice: [true], age_groups: ["1"], ignore_language: false}
-    iex> p1 = %Player{id: 1, languages: ["DK"], criteria: c, voice: [true], age_group: "1"}
-    iex> p2 = %Player{id: 2, languages: ["DK", "BR"], criteria: c, voice: [true], age_group: "1"}
+    iex> c = %PlayerCriteria{voice: true, age_groups: ["1"], ignore_language: false}
+    iex> p1 = %Player{id: 1, languages: ["DK"], criteria: c, voice: true, age_group: "1"}
+    iex> p2 = %Player{id: 2, languages: ["DK", "BR"], criteria: c, voice: true, age_group: "1"}
     iex> match?(p1, p2)
     true
     iex> p3 = %Player{p1 | age_group: "2"}

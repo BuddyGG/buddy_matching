@@ -64,7 +64,7 @@ defmodule BuddyMatching.Info.FortniteInfoTest do
       "top3finishes" => 1595,
       "top6finishes" => 1873
     },
-    total: %{"totalGamesPlayed" => 10360, "totalGamesWon" => 4749}
+    total: %{"totalGamesPlayed" => 10_360, "totalGamesWon" => 4749}
   }
 
   @info_struct_full %FortniteInfo{

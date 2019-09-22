@@ -15,9 +15,9 @@ defmodule FortniteApi.StatsTest do
     stats = context[:stats]
 
     expected_output = %{
-      "br_kills_pc_m0_p10" => 20129,
-      "br_kills_pc_m0_p2" => 26746,
-      "br_kills_pc_m0_p9" => 10133,
+      "br_kills_pc_m0_p10" => 20_129,
+      "br_kills_pc_m0_p2" => 26_746,
+      "br_kills_pc_m0_p9" => 10_133,
       "br_lastmodified_pc_m0_p10" => 1_526_704_368,
       "br_lastmodified_pc_m0_p2" => 1_526_660_886,
       "br_lastmodified_pc_m0_p9" => 1_526_719_560,
@@ -32,8 +32,8 @@ defmodule FortniteApi.StatsTest do
       "br_score_pc_m0_p10" => 1_190_306,
       "br_score_pc_m0_p2" => 1_142_038,
       "br_score_pc_m0_p9" => 447_601,
-      "br_minutesplayed_pc_m0_p10" => 17407,
-      "br_minutesplayed_pc_m0_p2" => 24386,
+      "br_minutesplayed_pc_m0_p10" => 17_407,
+      "br_minutesplayed_pc_m0_p2" => 24_386,
       "br_minutesplayed_pc_m0_p9" => 8298,
       "br_placetop1_pc_m0_p10" => 1181,
       "br_placetop1_pc_m0_p9" => 361,

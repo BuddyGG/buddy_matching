@@ -11,7 +11,9 @@ defmodule FortniteApi.AccessServer do
   alias Poison.Parser
   alias HTTPoison
 
+  @login_url "https://www.epicgames.com/id/api/login"
   @csrf_url "https://www.epicgames.com/id/api/csrf"
+  @exchange_url "https://www.epicgames.com/id/api/exchange"
   @oauth_token_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
   @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
 
@@ -54,15 +56,57 @@ defmodule FortniteApi.AccessServer do
   """
   def get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
+  @doc """
+  Get the session cookies associated with an HTTPoison response
+  """
+  def get_session_cookies(response) do
+    response.headers
+    |> Enum.filter(fn {key, _} -> String.match?(key, ~r/\Aset-cookie\z/i) end)
+    |> Enum.map(fn {_, v} -> :hackney_cookie.parse_cookie(v) end)
+    |> Enum.map(fn [{name, value} | opts] -> name <> "=" <> value end)
+  end
+
   def new_login() do
     email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
     password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
     launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
-    headers = get_headers_basic(launch_token)
 
-    res = HTTPoison.get(@csrf_url)
+    # first we get an xsrf token and the corresponding cookies
+    {:ok, response} = HTTPoison.get(@csrf_url)
+    cookies = get_session_cookies(response)
 
+    # now we do a basic login
+    body =
+      {:form,
+       [
+         {"email", email},
+         {"password", password},
+         {"rememberMe", true}
+       ]}
 
+    xsrf =
+      cookies
+      |> Enum.find(fn s -> String.starts_with?(s, "XSRF-TOKEN") end)
+      |> String.split("=")
+      |> Enum.at(1)
+
+    header = [{"x-xsrf-token", xsrf}]
+    formatted_cookies = Enum.join(cookies, "; ")
+
+    {:ok, response} =
+      HTTPoison.post(@login_url, body, header, hackney: [cookie: formatted_cookies])
+
+    # now we add new cookies and fetch the launcher access token
+    new_cookies = get_session_cookies(response)
+    formatted_cookies = Enum.join(new_cookies ++ cookies, "; ")
+
+    {:ok, response} =
+      @exchange_url
+      |> HTTPoison.get(header, hackney: [cookie: formatted_cookies])
+
+    response.body
+    |> Poison.decode!()
+    |> Map.get("code")
   end
 
   defp fetch_refreshed_tokens(refresh_token) do

@@ -49,6 +49,7 @@ defmodule RiotApi.Mixfile do
       {:poison, "~> 3.1"},
       {:ok, "~> 1.9"},
       {:httpoison, "~> 0.13"},
+      {:hackney, ">= 1.15.2", override: true},
       {:mock, "~> 0.3.0", only: :test}
     ]
   end

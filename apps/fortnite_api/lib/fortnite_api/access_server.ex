@@ -11,6 +11,7 @@ defmodule FortniteApi.AccessServer do
   alias Poison.Parser
   alias HTTPoison
 
+  @csrf_url "https://www.epicgames.com/id/api/csrf"
   @oauth_token_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
   @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
 
@@ -53,6 +54,17 @@ defmodule FortniteApi.AccessServer do
   """
   def get_headers_bearer(token), do: [{"Authorization", "bearer #{token}"}]
 
+  def new_login() do
+    email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
+    password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
+    launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
+    headers = get_headers_basic(launch_token)
+
+    res = HTTPoison.get(@csrf_url)
+
+
+  end
+
   defp fetch_refreshed_tokens(refresh_token) do
     Logger.debug(fn -> "Refreshing access token for Fortnite API" end)
     key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
@@ -64,6 +76,15 @@ defmodule FortniteApi.AccessServer do
 
     @oauth_token_url
     |> HTTPoison.post(token_body, headers)
+    |> handle_json()
+  end
+
+  # Fetches an oauth exchange token based on initial oauth token
+  defp fetch_oauth_exchange(access_token) do
+    headers = get_headers_bearer(access_token)
+
+    @oauth_exchange_url
+    |> HTTPoison.get(headers)
     |> handle_json()
   end
 
@@ -85,15 +106,6 @@ defmodule FortniteApi.AccessServer do
 
     @oauth_token_url
     |> HTTPoison.post(token_body, headers)
-    |> handle_json()
-  end
-
-  # Fetches an oauth exchange token based on initial oauth token
-  defp fetch_oauth_exchange(access_token) do
-    headers = get_headers_bearer(access_token)
-
-    @oauth_exchange_url
-    |> HTTPoison.get(headers)
     |> handle_json()
   end
 

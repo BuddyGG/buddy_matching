@@ -15,7 +15,6 @@ defmodule FortniteApi.AccessServer do
   @csrf_url "https://www.epicgames.com/id/api/csrf"
   @exchange_url "https://www.epicgames.com/id/api/exchange"
   @oauth_token_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
-  @oauth_exchange_url "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/exchange"
 
   @doc """
   Starts the AcessServer as a singleton registered
@@ -63,55 +62,80 @@ defmodule FortniteApi.AccessServer do
     response.headers
     |> Enum.filter(fn {key, _} -> String.match?(key, ~r/\Aset-cookie\z/i) end)
     |> Enum.map(fn {_, v} -> :hackney_cookie.parse_cookie(v) end)
-    |> Enum.map(fn [{name, value} | opts] -> name <> "=" <> value end)
+    |> Enum.map(fn [{name, value} | _opts] -> name <> "=" <> value end)
   end
 
-  def new_login() do
-    email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
-    password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
-    launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
+  # Simply get the XSRF token from the cookies
+  # Assumes it exists in the cookies
+  defp get_xsrf_from_cookies(cookies) do
+    cookies
+    |> Enum.find(fn s -> String.starts_with?(s, "XSRF-TOKEN") end)
+    |> String.split("=")
+    |> Enum.at(1)
+    |> case do
+      nil -> {:error, "No XSRF"}
+      token -> {:ok, token}
+    end
+  end
 
+  @doc """
+  Fetch a session in the form of a list of cookies and an xsrf token.
+  Returns: {:ok, xsrf, cookies} or {:error, <msg>}
+  """
+  def fetch_session() do
     # first we get an xsrf token and the corresponding cookies
-    {:ok, response} = HTTPoison.get(@csrf_url)
-    cookies = get_session_cookies(response)
+    with {:ok, response} <- HTTPoison.get(@csrf_url),
+         cookies <- get_session_cookies(response),
+         {:ok, xsrf} <- get_xsrf_from_cookies(cookies) do
+      {:ok, xsrf, cookies}
+    else
+      _ -> {:error, "Couldn't fetch session"}
+    end
 
     # now we do a basic login
-    body =
-      {:form,
-       [
-         {"email", email},
-         {"password", password},
-         {"rememberMe", true}
-       ]}
+  end
 
-    xsrf =
-      cookies
-      |> Enum.find(fn s -> String.starts_with?(s, "XSRF-TOKEN") end)
-      |> String.split("=")
-      |> Enum.at(1)
+  defp try_login(xsrf, cookies) do
+    with {:ok, email} <- Application.fetch_env(:fortnite_api, :fortnite_api_email),
+         {:ok, password} <- Application.fetch_env(:fortnite_api, :fortnite_api_password) do
+      header = [{"x-xsrf-token", xsrf}]
+      formatted_cookies = Enum.join(cookies, "; ")
 
+      body =
+        {:form,
+         [
+           {"email", email},
+           {"password", password},
+           {"rememberMe", true}
+         ]}
+
+      HTTPoison.post(@login_url, body, header, hackney: [cookie: formatted_cookies])
+    else
+      _ -> {:error, "Credentials missing for login"}
+    end
+  end
+
+  defp try_exchange_login(xsrf, cookies) do
     header = [{"x-xsrf-token", xsrf}]
     formatted_cookies = Enum.join(cookies, "; ")
+    HTTPoison.get(@exchange_url, header, hackney: [cookie: formatted_cookies])
+  end
 
-    {:ok, response} =
-      HTTPoison.post(@login_url, body, header, hackney: [cookie: formatted_cookies])
-
-    # now we add new cookies and fetch the launcher access token
-    new_cookies = get_session_cookies(response)
-    formatted_cookies = Enum.join(new_cookies ++ cookies, "; ")
-
-    {:ok, response} =
-      @exchange_url
-      |> HTTPoison.get(header, hackney: [cookie: formatted_cookies])
-
-    response.body
-    |> Poison.decode!()
-    |> Map.get("code")
+  def fetch_login_code() do
+    with {:ok, xsrf, cookies} <- fetch_session(),
+         {:ok, response} <- try_login(xsrf, cookies),
+         new_cookies <- get_session_cookies(response) ++ cookies,
+         {:ok, response} <- try_exchange_login(xsrf, new_cookies),
+         {:ok, %{"code" => code}} <- Poison.decode(response.body) do
+      {:ok, code}
+    else
+      _ -> {:error, "Couldn't get login code"}
+    end
   end
 
   defp fetch_refreshed_tokens(refresh_token) do
     Logger.debug(fn -> "Refreshing access token for Fortnite API" end)
-    key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
+    key_client = Application.fetch_env!(:fortnite_api, :fortnite_api_key)
     headers = get_headers_basic(key_client)
 
     token_body =
@@ -123,39 +147,9 @@ defmodule FortniteApi.AccessServer do
     |> handle_json()
   end
 
-  # Fetches an oauth exchange token based on initial oauth token
-  defp fetch_oauth_exchange(access_token) do
-    headers = get_headers_bearer(access_token)
-
-    @oauth_exchange_url
-    |> HTTPoison.get(headers)
-    |> handle_json()
-  end
-
-  # Fetches an initial oauth token based on login creds
-  defp fetch_oauth() do
-    email = Application.fetch_env!(:fortnite_api, :fortnite_api_email)
-    password = Application.fetch_env!(:fortnite_api, :fortnite_api_password)
-    launch_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_launcher)
-    headers = get_headers_basic(launch_token)
-
-    token_body =
-      {:form,
-       [
-         {"grant_type", "password"},
-         {"username", email},
-         {"password", password},
-         {"includePerms", true}
-       ]}
-
-    @oauth_token_url
-    |> HTTPoison.post(token_body, headers)
-    |> handle_json()
-  end
-
   # This results in the final valid access_token
   defp fetch_oauth(exchange_code) do
-    client_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key_client)
+    client_token = Application.fetch_env!(:fortnite_api, :fortnite_api_key)
     headers = get_headers_basic(client_token)
 
     token_body =
@@ -174,11 +168,10 @@ defmodule FortniteApi.AccessServer do
 
   # Executes the full set of requests needed to
   # retrieve a new access token.
-  defp fetch_access_tokens() do
+  def fetch_access_tokens() do
     OK.for do
-      %{"access_token" => access_token} <- fetch_oauth()
-      %{"code" => exchange_code} <- fetch_oauth_exchange(access_token)
-      res <- fetch_oauth(exchange_code)
+      code <- fetch_login_code()
+      res <- fetch_oauth(code)
     after
       res
     end

@@ -27,6 +27,7 @@ defmodule FortniteApi.AccessServerMockTest do
   defp success_response(value), do: {:ok, %{status_code: 200, body: value}}
   defp error_response(value), do: {:error, %{status_code: 404, body: value}}
 
+  @tag :pending
   test "can't refresh access token, can get new integration test" do
     # matches initial state in AccessServer
     refresh_token = ""
@@ -79,6 +80,7 @@ defmodule FortniteApi.AccessServerMockTest do
     end
   end
 
+  @tag :pending
   test "can't refresh access token, nor get new token integration test" do
     with_mock HTTPoison,
       post: fn @oauth_token_url, _, _ -> error_response("Can't refresh token") end do
@@ -86,6 +88,7 @@ defmodule FortniteApi.AccessServerMockTest do
     end
   end
 
+  @tag :pending
   test "refresh token integration test" do
     new_refresh = "REFRESH_TOKEN"
 
@@ -109,6 +112,7 @@ defmodule FortniteApi.AccessServerMockTest do
     end
   end
 
+  @tag :pending
   test "force refresh always tries to get new token integration test" do
     token = "TOKEN"
     refresh = "REFRESH_TOKEN"
@@ -148,6 +152,7 @@ defmodule FortniteApi.AccessServerMockTest do
     end
   end
 
+  @tag :pending
   test "get token returns immediately if not expired" do
     refresh = "NEW_REFRESH"
     today = Timex.now()

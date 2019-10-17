@@ -3,7 +3,7 @@
 <tsung loglevel="notice" version="1.0" dumptraffic="true">
     <!-- Each client that will be running Tsung during the test -->
     <clients>
-        <client host="localhost" use_controller_vm="true" maxusers="10000" />
+        <client host="localhost" use_controller_vm="true" maxusers="100" />
     </clients>
     <!-- Each remote server that Tsung should performance test against. Only one would be needed if you have a load balancer. -->
     <servers>
@@ -42,10 +42,12 @@
             </request>
             <!-- Send a player -->
             <request subst="true">
-                <websocket type="message">{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : {"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "ignoreLanguage": false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : [false]}}} }</websocket>
+                <websocket type="message">{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"username":"Ninja%%_id1%%","platform":"pc","name":"Ninja%%_id1%%","comment":"asda","languages":["za"],"ageGroup":"interval1","voiceChat":true,"criteria":{"ageGroups":{"interval1":true,"interval2":true,"interval3":true},"ignoreLanguage":false,"voiceChat":{"YES":true,"NO":true}},"gameInfo":{"platform":"pc","gamesPlayed":1,"gameCriteria":{"minGamesPlayed":1},"duo":{"top5finishes":2904,"top12finishes":3530,"killDeathRatio":10.22476558190844,"gamesWon":2276,"gamesPlayed":5902}},"game":"fortnite","id":"%%_session_id%%"}}}
+                </websocket>
+                <!-- <websocket type="message">{"topic": "players:%%_session_id%%", "event": "phx_join", "ref":"1", "payload": {"payload" : {"champions" : ["Vayne", "Varus", "Tristana"], "icon_id" : 3186, "leagues" : {"rank" : 4, "tier" : "PLATINUM", "type" : "RANKED_SOLO_5x5"}, "name" : "%%_id1%%", "positions" : ["marksman", "jungle"], "region" : "euw", "userInfo" : {"agegroup" : "interval2", "comment" : "", "criteria" : {"ageGroups" : {"interval1" : false, "interval2" : true, "interval3" : false}, "ignoreLanguage": false, "positions" : {"jungle" : true, "marksman" : true, "mid" : true, "support" : true, "top" : true}, "voiceChat" : {"NO" : true, "YES" : false}}, "id" : "%%_session_id%%", "languages" : ["af"], "selectedRoles" : {"jungle" : true, "marksman" : true, "mid" : false, "support" : false, "top" : false}, "voicechat" : [false]}}} }</websocket> -->
             </request>
             <!-- Idle to make the sure we stay connected to the socket -->
-            <for var="i" from="1" to="1000" incr="1">
+            <for var="i" from="1" to="100" incr="1">
                 <thinktime value="30"/>
             </for>
             <!-- Close the socket -->

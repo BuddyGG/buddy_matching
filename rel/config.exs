@@ -7,7 +7,7 @@
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 
-use Mix.Releases.Config,
+use Distillery.Releases.Config,
     # This sets the default release built by `mix distillery.release`
     default_release: :buddy_matching,
     # This sets the default environment used by `mix distillery.release`
@@ -53,9 +53,9 @@ environment :prod do
   # We use an extra config evaluated solely at runtime
   set(
     config_providers: [
-      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/buddy_matching_web.exs"]},
-      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/fortnite_api.exs"]},
-      {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/riot_api.exs"]}
+      {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/buddy_matching_web.exs"]},
+      {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/fortnite_api.exs"]},
+      {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/riot_api.exs"]}
     ]
   )
 end
